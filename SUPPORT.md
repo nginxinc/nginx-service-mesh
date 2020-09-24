@@ -1,11 +1,9 @@
 # NGINX Service Mesh
-## Open beta period
 ---
 
 **Support**
 
-Thank you for your interest in NGINX Service Mesh (NSM). NSM is currently in
-an open beta period and is available to download via downloads.f5.com. For
+Thank you for your interest in NGINX Service Mesh (NSM). NSM is currently available to download via downloads.f5.com. For
 more information please refer to README.md. 
 
 *Resources* 
