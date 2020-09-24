@@ -24,3 +24,12 @@ For NSM support or issues not addressed by documentation, please reach out via G
 
 Support for NSM is not currently available via traditional NGINX or F5 support channels. All support is through the community at [NSM Git Issues](https://github.com/nginxinc/nginx-service-mesh/issues)
 
+**NGINX Plus KIC Support**
+
+Support for NGINX Plus Kubernetes Ingress Controller (KIC), when deploying
+NGINX Plus KIC with NGINX Service Mesh, is still available through
+traditional channels. 
+
+Existing NGINX and F5 customers can reach out to their accout team(s) for
+help and support with NGINX Service Mesh. 
+
