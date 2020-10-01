@@ -31,3 +31,13 @@ node_modules
 
 # Optional REPL history
 .node_repl_history
+
+#editor / IDE paraphernalia
+.idea
+.vscode
+*.code-workspace
+*.swp
+*.swo
+*~
+*.orig
+*.go-e
