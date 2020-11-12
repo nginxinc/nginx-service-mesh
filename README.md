@@ -8,7 +8,7 @@ available to download via downloads.f5.com, under the NGINX Product Family.
 
 *Resources* 
 
-- [Product Details](https://www.nginx.com/nginx-service-mesh)
+- [Product Details](https://www.nginx.com/products/nginx-service-mesh/)
 - [Download NSM](https://downloads.f5.com/esd/product.jsp?sw=NGINX-Public&pro=NGINX_Service_Mesh)
 - [NSM Documentation](https://docs.nginx.com/nginx-service-mesh)
 - [NGINX Plus Kubernetes Ingress Controller](https://www.nginx.com/products/nginx/kubernetes-ingress-controller/)
