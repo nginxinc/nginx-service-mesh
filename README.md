@@ -11,7 +11,7 @@ available to download via downloads.f5.com, under the NGINX Product Family.
 - [Product Details](https://www.nginx.com/products/nginx-service-mesh/)
 - [Download NSM](https://downloads.f5.com/esd/product.jsp?sw=NGINX-Public&pro=NGINX_Service_Mesh)
 - [NSM Documentation](https://docs.nginx.com/nginx-service-mesh)
-- [NGINX Plus Kubernetes Ingress Controller](https://www.nginx.com/products/nginx/kubernetes-ingress-controller/)
+- [NGINX Plus Kubernetes Ingress Controller](https://www.nginx.com/products/nginx-ingress-controller/)
 - [NGINX Plus Product Details]( https://www.nginx.com/products/nginx/)
 
 *Git Issues* 
