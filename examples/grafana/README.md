@@ -45,6 +45,8 @@ NGINX Mesh Top dashboard includes the following stats and graphs:
   - Pod Success:  this graph shows the percentage of requests that are
     successful per Pod (`nginxplus_upstream_server_responses` with response codes of
     `1xx` or `2xx`).
+  - Sidecar Memory Usage (RSS): this graph shows the Resident Set Size (RSS) of the NSM sidecars.
+  - Sidecar Memory Usage (Private): this graph shows the Private memory used by the NSM sidecars.
 
 
 ## Customizing your own Dashboard
