@@ -4,7 +4,7 @@ Two Grafana dashboards have been included as examples for use in your environmen
 - NGINX Mesh Top
 - NGINX Service Mesh Summary
 
-Both Grafana dashboards provides a high-level picture of the request volume and success rate of all your applications in the mesh, and each have been included to provide two different references for consuming and rendering NGINX Service Mesh metrics data. 
+Both Grafana dashboards provide a high-level picture of the request volume and success rate of all your applications in the mesh, and each have been included to provide two different references for consuming and rendering NGINX Service Mesh metrics data. 
 
 NGINX Service Mesh deploys Grafana and adds `NGINX Mesh Top` as the default dashboard.  If you prefer to use an existing Grafana deployment, you can import either or both example dashboards included in this directory.
 
@@ -17,7 +17,7 @@ NGINX Service Mesh deploys Grafana and adds `NGINX Mesh Top` as the default dash
 
 ## Installing Example Dashboards
 
-To install the an example dashboard using the Grafana UI follow these steps:
+To install an example dashboard using the Grafana UI follow these steps:
 - Select the New Dashboard button and click Import.
 - Upload the dashboard JSON, ex: [nginx-mesh-top.json](nginx-mesh-top.json), file or copy and paste the contents of the file in the textbox and click Load.
 - Select the Prometheus data source you configured previously from the dropdown menu and click Import.
