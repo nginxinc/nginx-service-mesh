@@ -15,8 +15,8 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 4,
-  "iteration": 1611968770327,
+  "id": 2,
+  "iteration": 1618335454358,
   "links": [],
   "panels": [
     {
@@ -36,9 +36,7 @@
     {
       "datasource": null,
       "fieldConfig": {
-        "defaults": {
-          "custom": {}
-        },
+        "defaults": {},
         "overrides": []
       },
       "gridPos": {
@@ -52,10 +50,9 @@
         "content": "<div class=\"dashboard-header text-center\">\n<span>Global View</span>\n</div>",
         "mode": "html"
       },
-      "pluginVersion": "7.1.0",
+      "pluginVersion": "7.5.3",
       "timeFrom": null,
       "timeShift": null,
-      "title": "",
       "transparent": true,
       "type": "text"
     },
@@ -63,7 +60,6 @@
       "datasource": "$datasource",
       "fieldConfig": {
         "defaults": {
-          "custom": {},
           "mappings": [
             {
               "from": "",
@@ -122,9 +118,10 @@
           "fields": "",
           "values": false
         },
+        "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "7.1.5",
+      "pluginVersion": "7.5.3",
       "targets": [
         {
           "expr": "sum(irate(nginxplus_upstream_server_responses{code=~\"1xx|2xx\"}[30s])) / sum(irate(nginxplus_upstream_server_responses[30s]))",
@@ -142,7 +139,6 @@
       "datasource": "$datasource",
       "fieldConfig": {
         "defaults": {
-          "custom": {},
           "mappings": [
             {
               "from": "",
@@ -188,9 +184,10 @@
           "fields": "",
           "values": false
         },
+        "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "7.1.5",
+      "pluginVersion": "7.5.3",
       "targets": [
         {
           "expr": "count(nginxplus_http_requests_total)",
@@ -208,9 +205,6 @@
       "datasource": "$datasource",
       "fieldConfig": {
         "defaults": {
-          "custom": {
-            "align": null
-          },
           "mappings": [
             {
               "from": "",
@@ -261,9 +255,10 @@
           "fields": "",
           "values": false
         },
+        "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "7.1.5",
+      "pluginVersion": "7.5.3",
       "targets": [
         {
           "expr": "sum(irate(nginxplus_http_requests_total[30s]))",
@@ -294,9 +289,7 @@
     {
       "datasource": null,
       "fieldConfig": {
-        "defaults": {
-          "custom": {}
-        },
+        "defaults": {},
         "overrides": []
       },
       "gridPos": {
@@ -310,10 +303,9 @@
         "content": "<div class=\"dashboard-header text-center\">\n<span>Workload View</span>\n</div>",
         "mode": "html"
       },
-      "pluginVersion": "7.1.0",
+      "pluginVersion": "7.5.3",
       "timeFrom": null,
       "timeShift": null,
-      "title": "",
       "transparent": true,
       "type": "text"
     },
@@ -324,34 +316,7 @@
       "dashes": false,
       "datasource": "$datasource",
       "fieldConfig": {
-        "defaults": {
-          "custom": {
-            "align": null
-          },
-          "mappings": [
-            {
-              "from": "",
-              "id": 0,
-              "text": "N/A",
-              "to": "",
-              "type": 1,
-              "value": "null"
-            }
-          ],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          }
-        },
+        "defaults": {},
         "overrides": []
       },
       "fill": 1,
@@ -378,8 +343,11 @@
       "lines": true,
       "linewidth": 2,
       "nullPointMode": "null",
+      "options": {
+        "alertThreshold": true
+      },
       "percentage": false,
-      "pluginVersion": "7.1.5",
+      "pluginVersion": "7.5.3",
       "pointradius": 2,
       "points": true,
       "renderer": "flot",
@@ -445,9 +413,7 @@
       "dashes": false,
       "datasource": "$datasource",
       "fieldConfig": {
-        "defaults": {
-          "custom": {}
-        },
+        "defaults": {},
         "overrides": []
       },
       "fill": 1,
@@ -475,8 +441,11 @@
       "lines": true,
       "linewidth": 2,
       "nullPointMode": "null",
+      "options": {
+        "alertThreshold": true
+      },
       "percentage": false,
-      "pluginVersion": "7.1.5",
+      "pluginVersion": "7.5.3",
       "pointradius": 2,
       "points": true,
       "renderer": "flot",
@@ -537,7 +506,7 @@
     }
   ],
   "refresh": "5s",
-  "schemaVersion": 26,
+  "schemaVersion": 27,
   "style": "dark",
   "tags": [],
   "templating": {
@@ -552,6 +521,8 @@
             "prometheus"
           ]
         },
+        "description": null,
+        "error": null,
         "hide": 0,
         "includeAll": true,
         "label": "Datasource",
@@ -588,5 +559,5 @@
   "timezone": "",
   "title": "NGINX Service Mesh Dashboard",
   "uid": "jeEbxdLMk",
-  "version": 15
+  "version": 1
 }
