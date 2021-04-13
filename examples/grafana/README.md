@@ -9,7 +9,7 @@ Both Grafana dashboards provide a high-level picture of the request volume and s
 NGINX Service Mesh deploys Grafana and adds `NGINX Mesh Top` as the default dashboard.  If you prefer to use an existing Grafana deployment, you can import either or both example dashboards included in this directory.
 
 ## Prerequisties
-- Grafana version >= 5.2.0
+- Grafana version >= 6.6.0
 - Prometheus datasource must be [configured](https://prometheus.io/docs/visualization/grafana/#creating-a-prometheus-data-source).
   
   **Note:** If you are using the Prometheus server deployed by NGINX Service Mesh you can find the address by running [`nginx-meshctl config`](https://docs.nginx.com/nginx-service-mesh/reference/nginx-meshctl/#usage).
