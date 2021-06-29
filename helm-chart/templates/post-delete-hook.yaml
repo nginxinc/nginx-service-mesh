@@ -1,0 +1,136 @@
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: post-delete
+  labels:
+    app.kubernetes.io/part-of: nginx-service-mesh
+  annotations:
+    "helm.sh/hook": post-delete
+    "helm.sh/hook-delete-policy": hook-succeeded,hook-failed
+    "helm.sh/hook-weight": "-5"
+imagePullSecrets:
+- name: {{ include "registry-key-name" . }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: post-delete.builtin.nsm.nginx
+  labels:
+    app.kubernetes.io/part-of: nginx-service-mesh
+  annotations:
+    "helm.sh/hook": post-delete
+    "helm.sh/hook-delete-policy": hook-succeeded,hook-failed
+    "helm.sh/hook-weight": "-5"
+rules:
+- apiGroups:
+  - ''
+  resources:
+  - namespaces
+  verbs:
+  - get
+  - list
+  - patch
+- apiGroups:
+  - spiffeid.spiffe.io
+  resources:
+  - spiffeids
+  verbs:
+  - get
+  - list
+  - patch
+  - update
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: post-delete.builtin.nsm.nginx
+  labels:
+    app.kubernetes.io/part-of: nginx-service-mesh
+  annotations:
+    "helm.sh/hook": post-delete
+    "helm.sh/hook-delete-policy": hook-succeeded,hook-failed
+    "helm.sh/hook-weight": "-5"
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: post-delete.builtin.nsm.nginx
+subjects:
+- kind: ServiceAccount
+  name: post-delete
+  namespace: {{ .Release.Namespace }}
+{{- if (include "docker-config-json" .) }}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ include "registry-key-name" . }}
+  labels:
+    app.kubernetes.io/part-of: nginx-service-mesh
+  annotations:
+    "helm.sh/hook": post-delete
+    "helm.sh/hook-delete-policy": hook-succeeded,hook-failed
+    "helm.sh/hook-weight": "-5"
+data:
+  .dockerconfigjson: {{ include "docker-config-json" . | b64enc }}
+type: kubernetes.io/dockerconfigjson
+{{- end }}
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: remove-spiffeids
+  labels:
+    app.kubernetes.io/part-of: nginx-service-mesh
+  annotations:
+    "helm.sh/hook": post-delete
+    "helm.sh/hook-delete-policy": hook-succeeded,hook-failed
+    "helm.sh/hook-weight": "0"
+spec:
+  template:
+    metadata:
+      name: remove-spiffeids
+    spec:
+      restartPolicy: Never
+      serviceAccountName: post-delete
+      containers:
+      - name: remove-spiffeids
+        image: {{ include "hook.image-server" . }}/kubectl
+        imagePullPolicy: {{ .Values.registry.imagePullPolicy }}
+        command:
+        - /bin/sh
+        - -c
+        - |
+          for ns in $(kubectl get ns | awk '{print $1}' | tail -n +2); do
+            if [ $(kubectl get spiffeids -n $ns 2>/dev/null | wc -l) -ne 0 ]; then
+              kubectl patch spiffeid $(kubectl get spiffeids -n $ns | awk '{print $1}' | tail -n +2) --type='merge' -p '{"metadata":{"finalizers":null}}' -n $ns
+            fi
+          done
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: remove-namespace-label
+  labels:
+    app.kubernetes.io/part-of: nginx-service-mesh
+  annotations:
+    "helm.sh/hook": post-delete
+    "helm.sh/hook-delete-policy": hook-succeeded,hook-failed
+    "helm.sh/hook-weight": "0"
+spec:
+  template:
+    metadata:
+      name: remove-namespace-label
+    spec:
+      restartPolicy: Never
+      serviceAccountName: post-delete
+      containers:
+      - name: remove-namespace-label
+        image: {{ include "hook.image-server" . }}/kubectl
+        imagePullPolicy: {{ .Values.registry.imagePullPolicy }}
+        command:
+        - /bin/sh
+        - -c
+        - |
+          kubectl label namespace kube-system injector.nsm.nginx.com/auto-inject-
+          kubectl label namespace {{ .Release.Namespace }} injector.nsm.nginx.com/auto-inject- app.kubernetes.io/part-of-

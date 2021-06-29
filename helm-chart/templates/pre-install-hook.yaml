@@ -1,0 +1,95 @@
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: pre-install
+  labels:
+    app.kubernetes.io/part-of: nginx-service-mesh
+  annotations:
+    "helm.sh/hook": pre-install
+    "helm.sh/hook-delete-policy": hook-succeeded,hook-failed
+    "helm.sh/hook-weight": "-5"
+imagePullSecrets:
+- name: {{ include "registry-key-name" . }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: pre-install.builtin.nsm.nginx
+  labels:
+    app.kubernetes.io/part-of: nginx-service-mesh
+  annotations:
+    "helm.sh/hook": pre-install
+    "helm.sh/hook-delete-policy": hook-succeeded,hook-failed
+    "helm.sh/hook-weight": "-5"
+rules:
+- apiGroups:
+  - ''
+  resources:
+  - namespaces
+  verbs:
+  - get
+  - patch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: pre-install.builtin.nsm.nginx
+  labels:
+    app.kubernetes.io/part-of: nginx-service-mesh
+  annotations:
+    "helm.sh/hook": pre-install
+    "helm.sh/hook-delete-policy": hook-succeeded,hook-failed
+    "helm.sh/hook-weight": "-5"
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: pre-install.builtin.nsm.nginx
+subjects:
+- kind: ServiceAccount
+  name: pre-install
+  namespace: {{ .Release.Namespace }}
+{{- if (include "docker-config-json" .) }}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ include "registry-key-name" . }}
+  labels:
+    app.kubernetes.io/part-of: nginx-service-mesh
+  annotations:
+    "helm.sh/hook": pre-install
+    "helm.sh/hook-delete-policy": hook-succeeded,hook-failed
+    "helm.sh/hook-weight": "-5"
+data:
+  .dockerconfigjson: {{ include "docker-config-json" . | b64enc }}
+type: kubernetes.io/dockerconfigjson
+{{- end }}
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: label-namespace
+  labels:
+    app.kubernetes.io/part-of: nginx-service-mesh
+  annotations:
+    "helm.sh/hook": pre-install
+    "helm.sh/hook-delete-policy": hook-succeeded,hook-failed
+    "helm.sh/hook-weight": "0"
+spec:
+  template:
+    metadata:
+      name: label-namespace
+    spec:
+      restartPolicy: Never
+      serviceAccountName: pre-install
+      containers:
+      - name: label-namespace
+        image: {{ include "hook.image-server" . }}/kubectl
+        imagePullPolicy: {{ .Values.registry.imagePullPolicy }}
+        command:
+        - /bin/sh
+        - -c
+        - |
+          kubectl label namespace kube-system injector.nsm.nginx.com/auto-inject=false
+          kubectl label namespace {{ .Release.Namespace }} injector.nsm.nginx.com/auto-inject=false app.kubernetes.io/part-of=nginx-service-mesh

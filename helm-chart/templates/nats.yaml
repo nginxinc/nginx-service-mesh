@@ -1,0 +1,146 @@
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: nats
+  labels:
+    app.kubernetes.io/part-of: nginx-service-mesh
+imagePullSecrets:
+- name: {{ include "registry-key-name" . }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nats-config
+  labels:
+    app.kubernetes.io/part-of: nginx-service-mesh
+data:
+  nats.conf: {{ .Files.Get "configs/nats.conf" | quote }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nats-server
+  labels:
+    app.kubernetes.io/name: nats-server
+    app.kubernetes.io/part-of: nginx-service-mesh
+spec:
+  selector:
+    app.kubernetes.io/name: nats-server
+    app.kubernetes.io/part-of: nginx-service-mesh
+  clusterIP: None
+  ports:
+  - name: client
+    port: 4222
+  - name: monitor
+    port: 8222
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nats-server
+  labels:
+    app.kubernetes.io/name: nats-server
+    app.kubernetes.io/part-of: nginx-service-mesh
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: nats-server
+      app.kubernetes.io/part-of: nginx-service-mesh
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: nats-server
+        app.kubernetes.io/part-of: nginx-service-mesh
+    spec:
+      serviceAccountName: nats
+      volumes:
+      - name: config-volume
+        configMap:
+          name: nats-config
+      - name: pid
+        emptyDir: {}
+      - name: tls
+        emptyDir: {}
+      - hostPath:
+          path: "/run/spire/sockets"
+          type: DirectoryOrCreate
+        name: spire-agent-socket
+      shareProcessNamespace: true
+      terminationGracePeriodSeconds: 60
+      imagePullSecrets:
+      - name: {{ include "registry-key-name" . }}
+      initContainers:
+      - name: nginx-mesh-cert-reloader-init
+        image: {{ .Values.registry.server }}/nginx-mesh-cert-reloader:{{ .Values.registry.imageTag }}
+        imagePullPolicy: {{ .Values.registry.imagePullPolicy }}
+        volumeMounts:
+        - name: tls
+          mountPath: "/etc/ssl"
+        - name: spire-agent-socket
+          mountPath: "/run/spire/sockets"
+      containers:
+      - name: nginx-mesh-cert-reloader
+        image: {{ .Values.registry.server }}/nginx-mesh-cert-reloader:{{ .Values.registry.imageTag }}
+        imagePullPolicy: {{ .Values.registry.imagePullPolicy }}
+        args:
+        - "-pid"
+        - "/var/run/nats/nats.pid"
+        - "-is-daemon"
+        volumeMounts:
+        - name: pid
+          mountPath: "/var/run/nats"
+        - name: tls
+          mountPath: "/etc/ssl"
+        - name: spire-agent-socket
+          mountPath: "/run/spire/sockets"
+      - name: nats-server
+        image: {{ include "nats.image-server" . }}nats:2.1.8-alpine3.11
+        imagePullPolicy: {{ .Values.registry.imagePullPolicy }}
+        ports:
+        - containerPort: 4222
+          name: client
+        - containerPort: 8222
+          name: monitor
+        command:
+        - nats-server
+        - "--config"
+        - "/etc/nats-config/nats.conf"
+        env:
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: CLUSTER_ADVERTISE
+          value: "$(POD_NAME).nats-server.$(POD_NAMESPACE).svc"
+        volumeMounts:
+        - name: config-volume
+          mountPath: "/etc/nats-config"
+        - name: pid
+          mountPath: "/var/run/nats"
+        - name: tls
+          mountPath: "/etc/ssl"
+        livenessProbe:
+          httpGet:
+            path: "/"
+            port: 8222
+          initialDelaySeconds: 10
+          timeoutSeconds: 5
+        readinessProbe:
+          httpGet:
+            path: "/"
+            port: 8222
+          initialDelaySeconds: 10
+          timeoutSeconds: 5
+        lifecycle:
+          preStop:
+            exec:
+              command:
+              - "/bin/sh"
+              - "-c"
+              - "/nats-server -sl=ldm=/var/run/nats/nats.pid && /bin/sleep 60"

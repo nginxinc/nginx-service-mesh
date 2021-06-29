@@ -1,0 +1,1 @@
+NGINX Service Mesh has been installed. Ensure all NGINX Service Mesh Pods are in the Ready state before deploying your apps.
