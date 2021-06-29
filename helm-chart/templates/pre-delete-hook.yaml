@@ -1,0 +1,29 @@
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: turn-proxies-transparent
+  labels:
+    app.kubernetes.io/part-of: nginx-service-mesh
+  annotations:
+    "helm.sh/hook": pre-delete
+    "helm.sh/hook-delete-policy": hook-succeeded,hook-failed
+    "helm.sh/hook-weight": "0"
+spec:
+  template:
+    metadata:
+      name: turn-proxies-transparent
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: turn-proxies-transparent
+        image: {{ include "hook.image-server" . }}/kubectl
+        imagePullPolicy: {{ .Values.registry.imagePullPolicy }}
+        command:
+        - /bin/sh
+        - -c
+        - |
+          curl -m 30 -k https://nginx-mesh-api.{{ .Release.Namespace }}.svc:443/clear -X POST
+          exit 0
+      imagePullSecrets:
+      - name: {{ include "registry-key-name" . }}

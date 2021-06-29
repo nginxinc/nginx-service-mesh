@@ -1,0 +1,12 @@
+{{- if (include "docker-config-json" .) }}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ include "registry-key-name" . }}
+  labels:
+    app.kubernetes.io/part-of: nginx-service-mesh
+data:
+  .dockerconfigjson: {{ include "docker-config-json" . | b64enc }}
+type: kubernetes.io/dockerconfigjson
+{{- end }}

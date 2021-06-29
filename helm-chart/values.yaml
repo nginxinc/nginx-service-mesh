@@ -1,0 +1,209 @@
+# NGINX Service Mesh image registry settings.
+registry:
+  # Hostname:port (if needed) for registry and path to images. 
+  # Affects: nginx-mesh-api, nginx-mesh-metrics, nginx-mesh-sidecar, nginx-mesh-init, nginx-mesh-cert-reloader
+  server: "docker-registry.nginx.com/nsm"
+
+  # Tag used for pulling images from registry
+  # Affects: nginx-mesh-api, nginx-mesh-metrics, nginx-mesh-sidecar, nginx-mesh-init, nginx-mesh-cert-reloader
+  imageTag: "1.1.0"
+
+  # Note: Currently only works with Google Cloud registry.
+  # Contents of your Google Cloud JSON key file. Can be set via "--set-file registry.key=<your-key-file>.json"
+  # Cannot be used with username or password.
+  key: ""
+
+  # Username for accessing private registry.
+  # Requires password to be set. Cannot be used with key.
+  username: ""
+
+  # Password for accessing private registry.
+  # Requires username to be set. Cannot be used with key.
+  password: ""
+
+  # Do not pull third party images from public repositories.
+  # If true, registry.server is used for all images.
+  disablePublicImages: false
+
+  # Image pull policy
+  # Valid values: Always, IfNotPresent, Never
+  imagePullPolicy: "IfNotPresent"
+
+# Default access control mode for service-to-service communication.
+# Valid values: allow, deny
+accessControlMode: "allow"
+
+# Deploy Grafana as a part of the NGINX Service Mesh.
+# Valid values: true, false
+deployGrafana: true
+
+# NGINX error log level.
+# Valid values: debug, info, notice, warn, error, crit, alert, emerg
+nginxErrorLogLevel: "warn"
+
+# NGINX log format.
+# Valid values: default, json
+nginxLogFormat: "default"
+
+# NGINX load balancing method.
+# Valid values: [least_conn, least_time, least_time last_byte, least_time last_byte inflight,
+# random, random two, random two least_conn, random two least_time, random two least_time=last_byte, round_robin]
+nginxLBMethod: "least_time"
+
+# The address of a Prometheus server deployed in your Kubernetes cluster.
+# Address should be in the format <service-name>.<namespace>:<service-port>.
+prometheusAddress: ""
+
+# NGINX Service Mesh auto-injection settings.
+autoInjection:
+  # Disable automatic sidecar injection upon resource creation.
+  # Use the "enabledNamespaces" flag to enable automatic injection in select namespaces.
+  disable: false
+
+  # Disable automatic sidecar injection for specific namespaces.
+  # Cannot be used with "disable".
+  disabledNamespaces: []
+
+  # Enable automatic sidecar injection for specific namespaces.
+  # Must be used with "disable".
+  enabledNamespaces: []
+
+# NGINX Service Mesh tracing settings.
+tracing:
+  # Disable tracing for all services.
+  disable: false
+
+  # The address of a tracing server deployed in your Kubernetes cluster.
+  # Address should be in the format <service-name>.<namespace>:<service_port>.
+  address: ""
+
+  # The tracing backend that you want to use.
+  # Valid values: datadog, jaeger, zipkin
+  backend: "jaeger"
+
+  # The sample rate to use for tracing. Float between 0 and 1.
+  sampleRate: 0.01
+
+# Mutual TLS settings. See https://docs.nginx.com/nginx-service-mesh/guides/secure-traffic-mtls for more info.
+mtls:
+  # mTLS mode for pod-to-pod communication.
+  # Valid values: off, permissive, strict
+  mode: "permissive"
+
+  # The CA/signing key TTL in hours(h) or minutes(m).
+  caTTL: "720h"
+
+  # The TTL of certificates issued to workloads in hours(h) or minutes(m).
+  svidTTL: "1h"
+
+  # The trust domain of the NGINX Service Mesh.
+  trustDomain: "example.org"
+
+  # Use persistent storage; "on" assumes that a StorageClass exists.
+  # Valid values: on, off
+  persistentStorage: "on"
+
+  # Storage logic for Spire Server's private keys.
+  # Valid values: disk, memory
+  spireServerKeyManager: "disk"
+
+  ## Upstream authority settings. If left empty, SPIRE is used as the upstream authority.
+  ## Only uncomment and fill out the object pertinent to you (disk, awsPCA, awsSecret, vault).
+  upstreamAuthority: {}
+
+    # # Disk object (see https://github.com/spiffe/spire/blob/v0.12/doc/plugin_server_upstreamauthority_disk.md)
+    # disk:
+    #   # Contents of your PEM encoded certificate file. Can be set via "--set-file mtls.upstreamAuthority.disk.cert=<cert-file-path>"
+    #   cert: ""
+    #   # Contents of your PEM encoded key file. Can be set via "--set-file mtls.upstreamAuthority.disk.key=<key-file-path>"
+    #   key: ""
+    #   # Optional; contents of your CA bundle file. Can be set via "--set-file mtls.upstreamAuthority.disk.bundle=<bundle-file-path>"
+    #   bundle: ""
+    
+    # # AWS PCA object (see https://github.com/spiffe/spire/blob/v0.12/doc/plugin_server_upstreamauthority_aws_pca.md)
+    # awsPCA:
+    #   # AWS region to use
+    #   region: ""
+    #   # ARN of the upstream CA certificate
+    #   certificateAuthorityArn: ""
+    #   # AWS access key ID
+    #   awsAccessKeyID: ""
+    #   # AWS secret access key
+    #   awsSecretAccessKey: ""
+
+    #   ## Optional fields
+      
+    #   # ARN of the signing template to use for the server's CA
+    #   caSigningTemplateArn: ""
+    #   # Signing algorithm to use for the server's CA
+    #   signingAlgorithm: ""
+    #   # ARN of an IAM role to assume
+    #   assumeRoleArn: ""
+    #   # Endpoint as hostname or fully-qualified URI that overrides the default endpoint
+    #   endpoint: ""
+    #   # Contents of a PEM encoded CA certificates file that should be additionally included in the bundle.
+    #   # Can be set via "--set-file mtls.upstreamAuthority.awsPCA.supplementalBundle=<supplemental-bundle-file-path>"
+    #   supplementalBundle: ""
+
+    # # AWS Secret object (see https://github.com/spiffe/spire/blob/v0.12/doc/plugin_server_upstreamauthority_awssecret.md)
+    # awsSecret:
+    #   # AWS region to use
+    #   region: ""
+    #   # ARN of the upstream CA certificate
+    #   certFileArn: ""
+    #   # ARN of the upstream CA key file
+    #   keyFileArn: ""
+
+    #   ## Choose an appropriate auth method
+
+    #   # AWS access key ID
+    #   awsAccessKeyID: ""
+    #   # AWS secret access key
+    #   awsSecretAccessKey: ""
+    #   # AWS secret token
+    #   awsSecretToken: ""
+    #   # ARN of role to assume
+    #   assumeRoleArn: ""
+
+    # # Vault object (see https://github.com/spiffe/spire/blob/v0.12/doc/plugin_server_upstreamauthority_vault.md)
+    # vault:
+    #   # URL of the Vault server
+    #   vaultAddr: ""
+    #   # Vault namespace
+    #   namespace: ""
+    #   # Contents of a PEM encoded CA certificate file to verify the Vault server certificate.
+    #   # Can be set via "--set-file mtls.upstreamAuthority.vault.caCert=<ca-cert-file-path>"
+    #   caCert: ""
+    #   # Name of the mount point where the PKI secret engine is mounted
+    #   pkiMountPoint: "pki"
+    #   # If true, vault client accepts any server certificates
+    #   insecureSkipVerify: false
+
+    #   # Client Certificate Authentication
+    #   certAuth:
+    #     # Contents of your client cert file. Can be set via "--set-file mtls.upstreamAuthority.vault.certAuth.clientCert=<cert-file-path>"
+    #     clientCert: ""
+    #     # Contents of your client key file. Can be set via "--set-file mtls.upstreamAuthority.vault.certAuth.clientKey=<key-file-path>"
+    #     clientKey: ""
+
+    #     ## Optional fields
+
+    #     # Name of the mount point where TLS certificate auth method is mounted
+    #     certAuthMountPoint: "cert"
+    #     # Name of the vault role. If given, the plugin authenticates against only the named role. Default to trying all roles.
+    #     certAuthRoleName: ""
+      
+    #   # Token Authentication
+    #   tokenAuth:
+    #     # Token string set into "X-Vault-Token" header
+    #     token: ""
+      
+    #   # AppRole Authentication
+    #   approleAuth:
+    #     # An identifier of AppRole
+    #     approleID: ""
+    #     # A credential of AppRole
+    #     approleSecretID: ""
+
+    #     # Name of the mount point where the AppRole auth method is mounted
+    #     approleAuthMountPoint: "approle"

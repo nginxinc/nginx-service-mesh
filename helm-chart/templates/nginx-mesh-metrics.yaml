@@ -1,0 +1,157 @@
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: nginx-mesh-metrics
+  labels:
+    app.kubernetes.io/part-of: nginx-service-mesh
+imagePullSecrets:
+- name: {{ include "registry-key-name" . }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: nginx-mesh-metrics.internal.builtin.nsm.nginx
+  labels:
+    app.kubernetes.io/part-of: nginx-service-mesh
+rules:
+- apiGroups:
+  - ''
+  resources:
+  - pods
+  verbs:
+  - get
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: nginx-mesh-metrics.internal.builtin.nsm.nginx
+  labels:
+    app.kubernetes.io/part-of: nginx-service-mesh
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: nginx-mesh-metrics.internal.builtin.nsm.nginx
+subjects:
+- kind: ServiceAccount
+  name: nginx-mesh-metrics
+  namespace: {{ .Release.Namespace }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: nginx-mesh-metrics-svc.internal.builtin.nsm.nginx
+  labels:
+    app.kubernetes.io/part-of: nginx-service-mesh
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: system:auth-delegator
+subjects:
+- kind: ServiceAccount
+  name: nginx-mesh-metrics
+  namespace: {{ .Release.Namespace }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: nginx-mesh-metrics-svc.internal.builtin.nsm.nginx
+  labels:
+    app.kubernetes.io/part-of: nginx-service-mesh
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: extension-apiserver-authentication-reader
+subjects:
+- kind: ServiceAccount
+  name: nginx-mesh-metrics
+  namespace: {{ .Release.Namespace }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-mesh-metrics-svc
+  labels:
+    app.kubernetes.io/name: nginx-mesh-metrics
+    app.kubernetes.io/part-of: nginx-service-mesh
+spec:
+  type: ClusterIP
+  ports:
+  - name: http
+    port: 443
+    targetPort: metrics
+    protocol: TCP
+  selector:
+    app.kubernetes.io/name: nginx-mesh-metrics
+    app.kubernetes.io/part-of: nginx-service-mesh
+---
+apiVersion: apiregistration.k8s.io/v1
+kind: APIService
+metadata:
+  name: v1alpha1.metrics.smi-spec.io
+  labels:
+    app.kubernetes.io/name: nginx-mesh-metrics
+    app.kubernetes.io/part-of: nginx-service-mesh
+    spiffe.io/apiservice: "true"
+spec:
+  service:
+    name: nginx-mesh-metrics-svc
+    namespace: {{ .Release.Namespace }}
+  group: metrics.smi-spec.io
+  version: v1alpha1
+  groupPriorityMinimum: 100
+  versionPriority: 100
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-mesh-metrics
+  labels:
+    app.kubernetes.io/name: nginx-mesh-metrics
+    app.kubernetes.io/part-of: nginx-service-mesh
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: nginx-mesh-metrics
+      app.kubernetes.io/part-of: nginx-service-mesh
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: nginx-mesh-metrics
+        app.kubernetes.io/part-of: nginx-service-mesh
+    spec:
+      serviceAccountName: nginx-mesh-metrics
+      containers:
+      - name: nginx-mesh-metrics
+        image: {{ .Values.registry.server }}/nginx-mesh-metrics:{{ .Values.registry.imageTag }}
+        imagePullPolicy: {{ .Values.registry.imagePullPolicy }}
+        args:
+        - "--prometheus-address={{ include "prometheus.address" . }}"
+        readinessProbe:
+          httpGet:
+            scheme: HTTPS
+            path: "/liveness"
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 10
+          failureThreshold: 30
+        livenessProbe:
+          httpGet:
+            scheme: HTTPS
+            path: "/liveness"
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 10
+          failureThreshold: 30
+        ports:
+        - name: metrics
+          containerPort: 8080
+        volumeMounts:
+        - name: spire-agent-socket
+          mountPath: "/run/spire/sockets"
+      volumes:
+      - name: spire-agent-socket
+        hostPath:
+          path: "/run/spire/sockets"
+          type: DirectoryOrCreate

@@ -1,0 +1,323 @@
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: nginx-mesh-api
+  labels:
+    app.kubernetes.io/part-of: nginx-service-mesh
+imagePullSecrets:
+- name: {{ include "registry-key-name" . }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: nginx-mesh-api.internal.builtin.nsm.nginx
+  labels:
+    app.kubernetes.io/part-of: nginx-service-mesh
+rules:
+- apiGroups:
+  - ''
+  resources:
+  - namespaces
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - ''
+  resources:
+  - services
+  - endpoints
+  verbs:
+  - "*"
+- apiGroups:
+  - ''
+  resources:
+  - secrets
+  - pods
+  verbs:
+  - create
+  - get
+  - list
+  - watch
+- apiGroups:
+  - ''
+  resources:
+  - configmaps
+  verbs:
+  - get
+  - list
+  - watch
+  - update
+- apiGroups:
+  - ''
+  resources:
+  - events
+  verbs:
+  - create
+  - patch
+- apiGroups:
+  - apps
+  resources:
+  - replicasets
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - split.smi-spec.io
+  resources:
+  - trafficsplits
+  verbs:
+  - "*"
+- apiGroups:
+  - access.smi-spec.io
+  resources:
+  - traffictargets
+  verbs:
+  - "*"
+- apiGroups:
+  - specs.smi-spec.io
+  - specs.smi.nginx.com
+  resources:
+  - httproutegroups
+  - tcproutes
+  - ratelimits
+  - circuitbreakers
+  verbs:
+  - "*"
+- apiGroups:
+  - admissionregistration.k8s.io
+  resources:
+  - mutatingwebhookconfigurations
+  resourceNames:
+  - sidecar-injector-webhook-cfg.internal.builtin.nsm.nginx
+  verbs:
+  - get
+  - update
+- apiGroups:
+  - admissionregistration.k8s.io
+  resources:
+  - validatingwebhookconfigurations
+  resourceNames:
+  - validating-webhook-cfg.internal.builtin.nsm.nginx
+  verbs:
+  - get
+  - update
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: nginx-mesh-api.internal.builtin.nsm.nginx
+  labels:
+    app.kubernetes.io/part-of: nginx-service-mesh
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: nginx-mesh-api.internal.builtin.nsm.nginx
+subjects:
+- kind: ServiceAccount
+  name: nginx-mesh-api
+  namespace: {{ .Release.Namespace }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mesh-config
+  labels:
+    app.kubernetes.io/part-of: nginx-service-mesh
+binaryData:
+  mesh-config.json: {{ tpl (.Files.Get "configs/mesh-config.conf") . | b64enc | quote }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-mesh-api
+  labels:
+    app.kubernetes.io/part-of: nginx-service-mesh
+spec:
+  type: ClusterIP
+  ports:
+  - name: https
+    port: 443
+    targetPort: 8443
+    protocol: TCP
+  selector:
+    app.kubernetes.io/name: nginx-mesh-api
+    app.kubernetes.io/part-of: nginx-service-mesh
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-mesh-webhook
+  labels:
+    app.kubernetes.io/name: nginx-mesh-api
+    app.kubernetes.io/part-of: nginx-service-mesh
+spec:
+  type: ClusterIP
+  ports:
+  - name: admission
+    port: 443
+    targetPort: 443
+    protocol: TCP
+  selector:
+    app.kubernetes.io/name: nginx-mesh-api
+    app.kubernetes.io/part-of: nginx-service-mesh
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: MutatingWebhookConfiguration
+metadata:
+  name: sidecar-injector-webhook-cfg.internal.builtin.nsm.nginx
+  labels:
+    app.kubernetes.io/part-of: nginx-service-mesh
+    spiffe.io/webhook: "true"
+webhooks:
+- name: nginx-mesh-api.sidecar.injector
+  namespaceSelector:
+    matchExpressions:
+    - key: injector.nsm.nginx.com/auto-inject
+      operator: NotIn
+      values:
+      - 'false'
+  clientConfig:
+    service:
+      name: nginx-mesh-webhook
+      namespace: {{ .Release.Namespace }}
+      path: "/inject"
+  sideEffects: None
+  admissionReviewVersions:
+  - v1
+  - v1beta1
+  rules:
+  - apiGroups:
+    - ''
+    apiVersions:
+    - v1
+    operations:
+    - CREATE
+    resources:
+    - pods
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingWebhookConfiguration
+metadata:
+  name: validating-webhook-cfg.internal.builtin.nsm.nginx
+  labels:
+    app.kubernetes.io/part-of: nginx-service-mesh
+    spiffe.io/webhook: "true"
+webhooks:
+- name: nginx-mesh-api.policy.validator
+  clientConfig:
+    service:
+      name: nginx-mesh-webhook
+      namespace: {{ .Release.Namespace }}
+      path: "/validate"
+  sideEffects: None
+  admissionReviewVersions:
+  - v1
+  - v1beta1
+  rules:
+  - apiGroups:
+    - split.smi-spec.io
+    apiVersions:
+    - "*"
+    operations:
+    - CREATE
+    - UPDATE
+    - DELETE
+    resources:
+    - trafficsplits
+  - apiGroups:
+    - specs.smi-spec.io
+    apiVersions:
+    - "*"
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - httproutegroups
+  - apiGroups:
+    - specs.smi.nginx.com
+    apiVersions:
+    - "*"
+    operations:
+    - CREATE
+    - UPDATE
+    - DELETE
+    resources:
+    - circuitbreakers
+    - ratelimits
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-mesh-api
+  labels:
+    app.kubernetes.io/name: nginx-mesh-api
+    app.kubernetes.io/part-of: nginx-service-mesh
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: nginx-mesh-api
+      app.kubernetes.io/part-of: nginx-service-mesh
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: nginx-mesh-api
+        app.kubernetes.io/part-of: nginx-service-mesh
+    spec:
+      serviceAccountName: nginx-mesh-api
+      containers:
+      - name: nginx-mesh-api
+        image: {{ .Values.registry.server }}/nginx-mesh-api:{{ .Values.registry.imageTag }}
+        imagePullPolicy: {{ .Values.registry.imagePullPolicy }}
+        args:
+        - "-meshconfig=/etc/config/mesh-config.json"
+        - "-logtostderr"
+        - "-v=3"
+        env:
+        - name: PULL_POLICY
+          value: {{ .Values.registry.imagePullPolicy }}
+        - name: MY_UID
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.uid
+        - name: MY_POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: MY_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        readinessProbe:
+          httpGet:
+            path: "/healthz"
+            port: 8081
+          initialDelaySeconds: 5
+          periodSeconds: 10
+          failureThreshold: 30
+        livenessProbe:
+          httpGet:
+            path: "/healthz"
+            port: 8081
+          initialDelaySeconds: 5
+          periodSeconds: 10
+          failureThreshold: 30
+        volumeMounts:
+        - name: config-volume
+          mountPath: "/etc/config"
+        - name: spire-agent-socket
+          mountPath: "/run/spire/sockets"
+      volumes:
+      - name: config-volume
+        configMap:
+          name: mesh-config
+          items:
+          - key: mesh-config.json
+            path: mesh-config.json
+      - name: spire-agent-socket
+        hostPath:
+          path: "/run/spire/sockets"
+          type: DirectoryOrCreate
