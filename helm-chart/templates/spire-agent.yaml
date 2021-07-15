@@ -55,21 +55,30 @@ metadata:
   labels:
     app.kubernetes.io/name: spire-agent
     app.kubernetes.io/part-of: nginx-service-mesh
+    {{- with .Values.spireAgent.labels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
 spec:
   selector:
     matchLabels:
       app.kubernetes.io/name: spire-agent
       app.kubernetes.io/part-of: nginx-service-mesh
+      {{- with .Values.spireAgent.labels }}
+      {{- toYaml . | nindent 6 }}
+      {{- end }}
   template:
     metadata:
       labels:
         app.kubernetes.io/name: spire-agent
         app.kubernetes.io/part-of: nginx-service-mesh
+        {{- with .Values.spireAgent.labels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
     spec:
       serviceAccountName: spire-agent
       hostPID: true
       hostNetwork: true
-      dnsPolicy: ClusterFirstWithHostNet
+      dnsPolicy: {{ default "ClusterFirstWithHostNet" .Values.spireAgent.dnsPolicy }}
       initContainers:
       - name: init
         image: {{ include "spire.image-server" . }}/wait-for-it
@@ -121,6 +130,21 @@ spec:
             - "/run/spire/sockets/agent.sock"
           initialDelaySeconds: 5
           periodSeconds: 5
+        {{- with .Values.spireAgent.tolerations }}
+        tolerations:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+        {{- with .Values.spireAgent.affinity }}
+        affinity:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+        {{- with .Values.spireAgent.nodeSelector }}
+        nodeSelector:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+        {{- with .Values.spireAgent.securityContext }}
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
       volumes:
       - name: spire-config
         configMap:

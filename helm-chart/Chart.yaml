@@ -1,6 +1,6 @@
 apiVersion: v2
 name: nginx-service-mesh
 description: NGINX Service Mesh
-version: 0.1.0
+version: 0.1.1
 appVersion: 1.1.0
 kubeVersion: ">= 1.16.0-0"

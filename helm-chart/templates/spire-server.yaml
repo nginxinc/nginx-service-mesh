@@ -343,13 +343,19 @@ metadata:
   labels:
     app.kubernetes.io/name: spire-server
     app.kubernetes.io/part-of: nginx-service-mesh
+    {{- with .Values.spireServer.labels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
 spec:
   replicas: 1
   selector:
     matchLabels:
       app.kubernetes.io/name: spire-server
       app.kubernetes.io/part-of: nginx-service-mesh
-  {{- if eq .Values.mtls.persistentStorage "on" }}
+      {{- with .Values.spireServer.labels }}
+      {{- toYaml . | nindent 6 }}
+      {{- end }}
+  {{- if .Values.spireServer.storage.persistent }}
   serviceName: spire-server
   {{- end }}
   template:
@@ -357,6 +363,9 @@ spec:
       labels:
         app.kubernetes.io/name: spire-server
         app.kubernetes.io/part-of: nginx-service-mesh
+        {{- with .Values.spireServer.labels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
     spec:
       serviceAccountName: spire-server
       shareProcessNamespace: true
@@ -388,7 +397,7 @@ spec:
               mountPath: {{ include "ua-secret-mountpath" . }}
               readOnly: true
             {{- end }}
-            {{- if eq .Values.mtls.persistentStorage "on" }}
+            {{- if .Values.spireServer.storage.persistent }}
             - name: spire-data
               mountPath: /run/spire/data
               readOnly: false
@@ -437,6 +446,21 @@ spec:
             - name: spire-server-socket
               mountPath: /run/spire/sockets
               readOnly: true
+          {{- with .Values.spireServer.tolerations }}
+          tolerations:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.spireServer.affinity }}
+          affinity:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.spireServer.nodeSelector }}
+          nodeSelector:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.spireServer.securityContext }}
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
       volumes:
         - name: spire-config
           configMap:
@@ -459,15 +483,25 @@ spec:
         - name: k8s-workload-registrar-secret
           secret:
             secretName: k8s-workload-registrar-secret
-  {{- if eq .Values.mtls.persistentStorage "on" }}
+  {{- if .Values.spireServer.storage.persistent }}
   volumeClaimTemplates:
     - metadata:
         name: spire-data
         namespace: {{ .Release.Namespace }}
+        labels:
+          {{- with .Values.spireServer.labels }}
+          {{- toYaml . | nindent 10 }}
+          {{- end }}
       spec:
+        {{- if .Values.spireServer.storage.storageClassName }}
+        storageClassName: {{ .Values.spireServer.storage.storageClassName }}
+        {{- end }}
+        {{- if .Values.spireServer.storage.volumeMode }}
+        volumeMode: {{ .Values.spireServer.storage.volumeMode }}
+        {{- end }}
         accessModes:
           - ReadWriteOnce
         resources:
           requests:
-            storage: 1Gi
+            storage: {{ default "1Gi" .Values.spireServer.storage.size }}
   {{- end }}

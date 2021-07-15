@@ -207,3 +207,35 @@ mtls:
 
     #     # Name of the mount point where the AppRole auth method is mounted
     #     approleAuthMountPoint: "approle"
+spireAgent:
+  labels: {}
+  annotations: {}
+  tolerations:
+    - key: "CriticalAddonsOnly"
+      operator: "Exists"
+    - key: "node-role.kubernetes.io/master"
+      operator: "Exists"
+    - key: "foodora/role"
+      operator: "Exists"
+  nodeSelector: []
+  affinity: []
+  securityContext: {}
+  
+spireServer:
+  labels: {}
+  annotations: {}
+  nodeSelector: []
+  affinity: []
+  tolerations:
+    - key: "CriticalAddonsOnly"
+      operator: "Exists"
+    - key: "node-role.kubernetes.io/master"
+      operator: "Exists"
+    - key: "foodora/role"
+      operator: "Exists"
+  securityContext: {}
+  storage:
+    persistent: true
+    size: 5Gi
+    storageClassName: ebs-sc
+
