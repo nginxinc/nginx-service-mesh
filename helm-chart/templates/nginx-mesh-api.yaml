@@ -158,7 +158,7 @@ spec:
   ports:
   - name: admission
     port: 443
-    targetPort: 443
+    targetPort: 9443
     protocol: TCP
   selector:
     app.kubernetes.io/name: nginx-mesh-api

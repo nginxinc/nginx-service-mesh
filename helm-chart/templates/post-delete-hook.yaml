@@ -134,3 +134,11 @@ spec:
         - |
           kubectl label namespace kube-system injector.nsm.nginx.com/auto-inject-
           kubectl label namespace {{ .Release.Namespace }} injector.nsm.nginx.com/auto-inject- app.kubernetes.io/part-of-
+          {{- if .Values.rancher }}
+          kubectl label namespace ingress-nginx cert-manager injector.nsm.nginx.com/auto-inject-
+          for ns in $(kubectl get ns | awk '{print $1}' | tail -n +2); do
+            case "$ns" in
+              cattle-*) kubectl label namespace $ns injector.nsm.nginx.com/auto-inject- ;;
+            esac
+          done
+          {{- end }}

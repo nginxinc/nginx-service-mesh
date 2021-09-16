@@ -174,7 +174,7 @@ data:
 {{- $caKey := genPrivateKey "ecdsa"}}
 {{- $caCrt := genCAWithKey "K8S WORKLOAD REGISTRAR CA" 9999 $caKey }}
 {{- $serverKey := genPrivateKey "ecdsa" }}
-{{- $serverCrt := genSignedCertWithKey "K8S WORKLOAD REGISTRAR SERVER" nil nil 9999 $caCrt $serverKey }}
+{{- $serverCrt := genSignedCertWithKey "K8S WORKLOAD REGISTRAR SERVER" nil (list (printf "k8s-workload-registrar.%s.svc" .Release.Namespace )) 9999 $caCrt $serverKey }}
 apiVersion: v1
 kind: Secret
 metadata:
@@ -220,7 +220,7 @@ spec:
   selector:
     app.kubernetes.io/name: spire-server
 ---
-apiVersion: admissionregistration.k8s.io/v1
+apiVersion: admissionregistration.k8s.io/v1beta1
 kind: ValidatingWebhookConfiguration
 metadata:
   name: k8s-workload-registrar.security.builtin.nsm.nginx
@@ -234,11 +234,6 @@ webhooks:
       name: k8s-workload-registrar
       namespace: {{ .Release.Namespace }}
       path: "/validate-spiffeid-spiffe-io-v1beta1-spiffeid"
-  sideEffects: None
-  admissionReviewVersions:
-  - v1
-  - v1beta1
-  failurePolicy: Ignore
   rules:
   - apiGroups:
     - spiffeid.spiffe.io
@@ -362,7 +357,7 @@ spec:
       shareProcessNamespace: true
       containers:
         - name: spire-server
-          image: {{ include "spire.image-server" . }}/spire-server:0.12.3
+          image: {{ include "spire.image-server" . }}/spire-server:1.0.2
           imagePullPolicy: {{ .Values.registry.imagePullPolicy }}
           args:
             - '-config'
@@ -418,7 +413,7 @@ spec:
             initialDelaySeconds: 5
             periodSeconds: 5
         - name: k8s-workload-registrar
-          image: {{ include "spire.image-server" . }}/k8s-workload-registrar:0.12.3
+          image: {{ include "spire.image-server" . }}/k8s-workload-registrar:1.0.2
           imagePullPolicy: {{ .Values.registry.imagePullPolicy }}
           args:
             - '-config'
@@ -450,9 +445,7 @@ spec:
               path: {{ include "ua-secret-name" . }}
         {{- end }}
         - name: spire-server-socket
-          hostPath:
-            path: /run/spire/sockets
-            type: DirectoryOrCreate
+          emptyDir: {}
         - name: k8s-workload-registrar-config
           configMap:
             name: k8s-workload-registrar

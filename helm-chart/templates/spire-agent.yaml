@@ -79,7 +79,7 @@ spec:
         - spire-server:8081
       containers:
       - name: spire-agent
-        image: {{ include "spire.image-server" . }}/spire-agent:0.12.3
+        image: {{ include "spire.image-server" . }}/spire-agent:1.0.2
         imagePullPolicy: {{ .Values.registry.imagePullPolicy }}
         args:
         - "-config"
