@@ -100,7 +100,7 @@ spec:
       serviceAccountName: grafana
       containers:
       - name: grafana
-        image: {{ include "grafana.image-server" . }}/grafana:7.5.3
+        image: {{ include "grafana.image-server" . }}/grafana:8.1.3
         imagePullPolicy: {{ .Values.registry.imagePullPolicy }}
         ports:
         - containerPort: 3000

@@ -29,6 +29,7 @@ rules:
   - namespaces
   verbs:
   - get
+  - list
   - patch
 ---
 apiVersion: rbac.authorization.k8s.io/v1
@@ -93,3 +94,11 @@ spec:
         - |
           kubectl label namespace kube-system injector.nsm.nginx.com/auto-inject=false
           kubectl label namespace {{ .Release.Namespace }} injector.nsm.nginx.com/auto-inject=false app.kubernetes.io/part-of=nginx-service-mesh
+          {{- if .Values.rancher }}
+          kubectl label namespace ingress-nginx cert-manager injector.nsm.nginx.com/auto-inject=false
+          for ns in $(kubectl get ns | awk '{print $1}' | tail -n +2); do
+            case "$ns" in
+              cattle-*) kubectl label namespace $ns injector.nsm.nginx.com/auto-inject=false ;;
+            esac
+          done
+          {{- end }}

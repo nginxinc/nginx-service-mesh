@@ -1,12 +1,12 @@
 # NGINX Service Mesh image registry settings.
 registry:
   # Hostname:port (if needed) for registry and path to images. 
-  # Affects: nginx-mesh-api, nginx-mesh-metrics, nginx-mesh-sidecar, nginx-mesh-init, nginx-mesh-cert-reloader
+  # Affects: nginx-mesh-api, nginx-mesh-cert-reloader, nginx-mesh-init, nginx-mesh-metrics, nginx-mesh-sidecar
   server: "docker-registry.nginx.com/nsm"
 
   # Tag used for pulling images from registry
-  # Affects: nginx-mesh-api, nginx-mesh-metrics, nginx-mesh-sidecar, nginx-mesh-init, nginx-mesh-cert-reloader
-  imageTag: "1.1.0"
+  # Affects: nginx-mesh-api, nginx-mesh-cert-reloader, nginx-mesh-init, nginx-mesh-metrics, nginx-mesh-sidecar
+  imageTag: "1.2.0"
 
   # Note: Currently only works with Google Cloud registry.
   # Contents of your Google Cloud JSON key file. Can be set via "--set-file registry.key=<your-key-file>.json"
@@ -96,7 +96,7 @@ mtls:
   # The TTL of certificates issued to workloads in hours(h) or minutes(m).
   svidTTL: "1h"
 
-  # The trust domain of the NGINX Service Mesh.
+  # The trust domain of NGINX Service Mesh.
   trustDomain: "example.org"
 
   # Use persistent storage; "on" assumes that a StorageClass exists.

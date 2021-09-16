@@ -48,6 +48,7 @@ spec:
                   name:
                     description: Name of the destination.
                     type: string
+                    minLength: 1
                   namespace:
                     description: Namespace of the destination.
                     type: string
