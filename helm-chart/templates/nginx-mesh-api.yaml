@@ -187,7 +187,6 @@ webhooks:
   sideEffects: None
   admissionReviewVersions:
   - v1
-  - v1beta1
   rules:
   - apiGroups:
     - ''
@@ -215,7 +214,6 @@ webhooks:
   sideEffects: None
   admissionReviewVersions:
   - v1
-  - v1beta1
   rules:
   - apiGroups:
     - split.smi-spec.io

@@ -220,7 +220,7 @@ spec:
   selector:
     app.kubernetes.io/name: spire-server
 ---
-apiVersion: admissionregistration.k8s.io/v1beta1
+apiVersion: admissionregistration.k8s.io/v1
 kind: ValidatingWebhookConfiguration
 metadata:
   name: k8s-workload-registrar.security.builtin.nsm.nginx
@@ -233,12 +233,15 @@ webhooks:
     service:
       name: k8s-workload-registrar
       namespace: {{ .Release.Namespace }}
-      path: "/validate-spiffeid-spiffe-io-v1beta1-spiffeid"
+      path: "/validate-spiffeid-spiffe-io-v1-spiffeid"
+  sideEffects: None
+  admissionReviewVersions:
+  - v1
   rules:
   - apiGroups:
     - spiffeid.spiffe.io
     apiVersions:
-    - v1beta1
+    - v1
     operations:
     - CREATE
     - UPDATE
@@ -262,7 +265,7 @@ spec:
     plural: spiffeids
     singular: spiffeid
   versions:
-  - name: v1beta1
+  - name: v1
     served: true
     storage: true
     subresources:
