@@ -1,7 +1,7 @@
 apiVersion: v2
 name: nginx-service-mesh
 description: NGINX Service Mesh
-version: 0.2.0
-appVersion: 1.2.0
+version: 0.2.1
+appVersion: 1.2.1
 kubeVersion: "1.16-0 - 1.21-0"
 icon: https://raw.githubusercontent.com/nginxinc/nginx-service-mesh/master/helm-chart/chart-icon.png
