@@ -1,0 +1,102 @@
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: post-upgrade
+  labels:
+    app.kubernetes.io/part-of: nginx-service-mesh
+  annotations:
+    "helm.sh/hook": post-upgrade
+    "helm.sh/hook-delete-policy": hook-succeeded,hook-failed
+    "helm.sh/hook-weight": "-5"
+imagePullSecrets:
+- name: {{ include "registry-key-name" . }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: post-upgrade.builtin.nsm.nginx
+  labels:
+    app.kubernetes.io/part-of: nginx-service-mesh
+  annotations:
+    "helm.sh/hook": post-upgrade
+    "helm.sh/hook-delete-policy": hook-succeeded,hook-failed
+    "helm.sh/hook-weight": "-5"
+rules:
+- apiGroups:
+  - ''
+  resources:
+  - pods
+  verbs:
+  - get
+  - list
+- apiGroups:
+  - spiffeid.spiffe.io
+  resources:
+  - spiffeids
+  verbs:
+  - get
+  - list
+  - delete
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: post-upgrade.builtin.nsm.nginx
+  labels:
+    app.kubernetes.io/part-of: nginx-service-mesh
+  annotations:
+    "helm.sh/hook": post-upgrade
+    "helm.sh/hook-delete-policy": hook-succeeded,hook-failed
+    "helm.sh/hook-weight": "-5"
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: post-upgrade.builtin.nsm.nginx
+subjects:
+- kind: ServiceAccount
+  name: post-upgrade
+  namespace: {{ .Release.Namespace }}
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: remove-extra-spiffeids
+  labels:
+    app.kubernetes.io/part-of: nginx-service-mesh
+  annotations:
+    "helm.sh/hook": post-upgrade
+    "helm.sh/hook-delete-policy": hook-succeeded,hook-failed
+    "helm.sh/hook-weight": "0"
+spec:
+  template:
+    metadata:
+      name: remove-extra-spiffeids
+    spec:
+      restartPolicy: Never
+      serviceAccountName: post-upgrade
+      containers:
+      - name: remove-extra-spiffeids
+        image: {{ include "hook.image-server" . }}/kubectl
+        imagePullPolicy: {{ .Values.registry.imagePullPolicy }}
+        securityContext:
+          runAsUser: 0
+        command:
+        - /bin/bash
+        - -c
+        - |
+          IFS=$'\n'
+          for n in $(kubectl get spiffeids -A | awk '{print $1,$2}' | tail -n +2); do
+          ns=$(echo $n | cut -d ' ' -f 1)
+          name=$(echo $n | cut -d ' ' -f 2)
+              if [[ $ns == {{ .Release.Namespace }} ]]; then
+                  continue
+              fi
+              pod=$(kubectl get pods -n $ns $name -o yaml)
+              case $pod in
+                  *"nsm.nginx.com/status: injected"*) ;;
+                  *"nsm.nginx.com/enable-ingress: \"true\""*) ;;
+                  *"nsm.nginx.com/enable-egress: \"true\""*) ;;
+                  *) kubectl delete spiffeid -n $ns $name;;
+              esac
+          done

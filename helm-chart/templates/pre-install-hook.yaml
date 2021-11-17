@@ -31,6 +31,38 @@ rules:
   - get
   - list
   - patch
+{{- if eq .Values.environment "openshift" }}
+- apiGroups:
+  - security.openshift.io
+  resources:
+  - securitycontextconstraints
+  resourceNames:
+  - pre-install-permissions.builtin.nsm.nginx
+  verbs:
+  - use
+---
+apiVersion: security.openshift.io/v1
+kind: SecurityContextConstraints
+metadata:
+  name: pre-install-permissions.builtin.nsm.nginx
+  labels:
+    app.kubernetes.io/part-of: nginx-service-mesh
+  annotations:
+    "helm.sh/hook": pre-install
+    "helm.sh/hook-delete-policy": hook-succeeded,hook-failed
+    "helm.sh/hook-weight": "-5"
+allowHostDirVolumePlugin: false
+allowHostIPC: false
+allowHostNetwork: false
+allowHostPID: false
+allowHostPorts: false
+allowPrivilegedContainer: false
+seLinuxContext:
+  type: MustRunAs
+runAsUser:
+  type: RunAsAny
+readOnlyRootFilesystem: false
+{{- end }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
@@ -88,12 +120,14 @@ spec:
       - name: label-namespace
         image: {{ include "hook.image-server" . }}/kubectl
         imagePullPolicy: {{ .Values.registry.imagePullPolicy }}
+        securityContext:
+          runAsUser: 0
         command:
         - /bin/sh
         - -c
         - |
           kubectl label namespace kube-system injector.nsm.nginx.com/auto-inject=false
-          kubectl label namespace {{ .Release.Namespace }} injector.nsm.nginx.com/auto-inject=false app.kubernetes.io/part-of=nginx-service-mesh
+          kubectl label namespace {{ .Release.Namespace }} --overwrite injector.nsm.nginx.com/auto-inject=false app.kubernetes.io/part-of=nginx-service-mesh
           {{- if .Values.rancher }}
           kubectl label namespace ingress-nginx cert-manager injector.nsm.nginx.com/auto-inject=false
           for ns in $(kubectl get ns | awk '{print $1}' | tail -n +2); do

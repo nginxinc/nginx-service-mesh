@@ -171,21 +171,6 @@ metadata:
 data:
   k8s-workload-registrar.conf: {{ tpl (.Files.Get "configs/k8s-workload-registrar.conf") . | quote }}
 ---
-{{- $caKey := genPrivateKey "ecdsa"}}
-{{- $caCrt := genCAWithKey "K8S WORKLOAD REGISTRAR CA" 9999 $caKey }}
-{{- $serverKey := genPrivateKey "ecdsa" }}
-{{- $serverCrt := genSignedCertWithKey "K8S WORKLOAD REGISTRAR SERVER" nil (list (printf "k8s-workload-registrar.%s.svc" .Release.Namespace )) 9999 $caCrt $serverKey }}
-apiVersion: v1
-kind: Secret
-metadata:
-  name: k8s-workload-registrar-secret
-  labels:
-    app.kubernetes.io/part-of: nginx-service-mesh
-type: Opaque
-data:
-  tls.crt: {{ b64enc $serverCrt.Cert | quote }}
-  tls.key: {{ b64enc $serverKey | quote }}
----
 apiVersion: v1
 kind: Service
 metadata:
@@ -220,20 +205,24 @@ spec:
   selector:
     app.kubernetes.io/name: spire-server
 ---
-apiVersion: admissionregistration.k8s.io/v1beta1
+apiVersion: admissionregistration.k8s.io/v1
 kind: ValidatingWebhookConfiguration
 metadata:
   name: k8s-workload-registrar.security.builtin.nsm.nginx
   labels:
     app.kubernetes.io/part-of: nginx-service-mesh
+    spiffe.io/webhook: "true"
 webhooks:
 - name: k8s-workload-registrar.{{ .Release.Namespace }}.svc
   clientConfig:
-    caBundle: {{ b64enc $caCrt.Cert | quote }}
     service:
       name: k8s-workload-registrar
       namespace: {{ .Release.Namespace }}
       path: "/validate-spiffeid-spiffe-io-v1beta1-spiffeid"
+  sideEffects: None
+  admissionReviewVersions:
+    - v1
+    - v1beta1
   rules:
   - apiGroups:
     - spiffeid.spiffe.io
@@ -246,86 +235,6 @@ webhooks:
     resources:
     - spiffeids
     scope: Namespaced
----
-apiVersion: apiextensions.k8s.io/v1
-kind: CustomResourceDefinition
-metadata:
-  name: spiffeids.spiffeid.spiffe.io
-  labels:
-    app.kubernetes.io/part-of: nginx-service-mesh
-spec:
-  group: spiffeid.spiffe.io
-  scope: Namespaced
-  names:
-    kind: SpiffeID
-    listKind: SpiffeIDList
-    plural: spiffeids
-    singular: spiffeid
-  versions:
-  - name: v1beta1
-    served: true
-    storage: true
-    subresources:
-      status: {}
-    schema:
-      openAPIV3Schema:
-        type: object
-        properties:
-          apiVersion:
-            type: string
-          kind:
-            type: string
-          metadata:
-            type: object
-          spec:
-            type: object
-            properties:
-              dnsNames:
-                type: array
-                items:
-                  type: string
-              parentId:
-                type: string
-              selector:
-                type: object
-                properties:
-                  arbitrary:
-                    items:
-                      type: string
-                    type: array
-                  containerImage:
-                    type: string
-                  containerName:
-                    type: string
-                  namespace:
-                    type: string
-                  nodeName:
-                    type: string
-                  podLabel:
-                    additionalProperties:
-                      type: string
-                    type: object
-                  podName:
-                    type: string
-                  podUid:
-                    type: string
-                  serviceAccount:
-                    type: string
-                  cluster:
-                    type: string
-                  agent_node_uid:
-                    type: string
-              spiffeId:
-                type: string
-            required:
-            - parentId
-            - selector
-            - spiffeId
-          status:
-            type: object
-            properties:
-              entryId:
-                type: string
 ---
 apiVersion: apps/v1
 {{- if eq .Values.mtls.persistentStorage "on" }}
@@ -355,9 +264,13 @@ spec:
     spec:
       serviceAccountName: spire-server
       shareProcessNamespace: true
+      {{- if eq .Values.environment "openshift" }}
+      securityContext:
+        runAsUser: 0
+      {{- end }}
       containers:
         - name: spire-server
-          image: {{ include "spire.image-server" . }}/spire-server:1.0.2
+          image: {{ include "spire.image-server" . }}/spire-server:1.1.0
           imagePullPolicy: {{ .Values.registry.imagePullPolicy }}
           args:
             - '-config'
@@ -392,28 +305,21 @@ spec:
               mountPath: /run/spire/sockets
               readOnly: false
           livenessProbe:
-            exec:
-              command:
-                - /opt/spire/bin/spire-server
-                - healthcheck
-                - '-shallow'
-                - '-registrationUDSPath'
-                - /run/spire/sockets/spire-registration.sock
+            httpGet:
+              port: 80
+              path: /live
             failureThreshold: 2
             initialDelaySeconds: 15
             periodSeconds: 60
             timeoutSeconds: 3
           readinessProbe:
-            exec:
-              command:
-                - /opt/spire/bin/spire-server
-                - healthcheck
-                - '-registrationUDSPath'
-                - /run/spire/sockets/spire-registration.sock
+            httpGet:
+              port: 80
+              path: /ready
             initialDelaySeconds: 5
             periodSeconds: 5
         - name: k8s-workload-registrar
-          image: {{ include "spire.image-server" . }}/k8s-workload-registrar:1.0.2
+          image: {{ include "spire.image-server" . }}/k8s-workload-registrar:1.1.0
           imagePullPolicy: {{ .Values.registry.imagePullPolicy }}
           args:
             - '-config'
@@ -422,12 +328,16 @@ spec:
             - name: webhook
               protocol: TCP
               containerPort: 9443
+          env:
+            - name: MY_POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+          securityContext:
+            runAsUser: 0
           volumeMounts:
             - name: k8s-workload-registrar-config
               mountPath: /run/spire/config
-              readOnly: true
-            - name: k8s-workload-registrar-secret
-              mountPath: /tmp/k8s-webhook-server/serving-certs
               readOnly: true
             - name: spire-server-socket
               mountPath: /run/spire/sockets
@@ -449,9 +359,6 @@ spec:
         - name: k8s-workload-registrar-config
           configMap:
             name: k8s-workload-registrar
-        - name: k8s-workload-registrar-secret
-          secret:
-            secretName: k8s-workload-registrar-secret
   {{- if eq .Values.mtls.persistentStorage "on" }}
   volumeClaimTemplates:
     - metadata:
@@ -464,3 +371,59 @@ spec:
           requests:
             storage: 1Gi
   {{- end }}
+{{- if eq .Values.environment "openshift" }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: system:openshift:scc:nginx-mesh-spire-server-permissions
+  labels:
+    app.kubernetes.io/part-of: nginx-service-mesh
+rules:
+- apiGroups:
+  - security.openshift.io
+  resources:
+  - securitycontextconstraints
+  resourceNames:
+  - nginx-mesh-spire-server-permissions
+  verbs:
+  - use
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: system:openshift:scc:nginx-mesh-spire-server-permissions
+  labels:
+    app.kubernetes.io/part-of: nginx-service-mesh
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: system:openshift:scc:nginx-mesh-spire-server-permissions
+subjects:
+- kind: ServiceAccount
+  name: spire-server
+  namespace: {{ .Release.Namespace }}
+---
+apiVersion: security.openshift.io/v1
+kind: SecurityContextConstraints
+metadata:
+  name: nginx-mesh-spire-server-permissions
+  labels:
+    app.kubernetes.io/part-of: nginx-service-mesh
+allowHostDirVolumePlugin: false
+allowHostIPC: false
+allowHostNetwork: false
+allowHostPID: false
+allowHostPorts: false
+allowPrivilegedContainer: false
+seLinuxContext:
+  type: MustRunAs
+readOnlyRootFilesystem: false
+runAsUser:
+  type: RunAsAny
+volumes:
+- configMap
+- secret
+- emptyDir
+- persistentVolumeClaim
+{{- end }}

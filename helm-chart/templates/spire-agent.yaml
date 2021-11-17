@@ -5,6 +5,10 @@ metadata:
   name: spire-agent
   labels:
     app.kubernetes.io/part-of: nginx-service-mesh
+  {{- if eq .Values.environment "openshift" }}
+  annotations:
+    "helm.sh/resource-policy": keep
+  {{- end }}
 imagePullSecrets:
 - name: {{ include "registry-key-name" . }}
 ---
@@ -55,6 +59,10 @@ metadata:
   labels:
     app.kubernetes.io/name: spire-agent
     app.kubernetes.io/part-of: nginx-service-mesh
+  {{- if eq .Values.environment "openshift" }}
+  annotations:
+    "helm.sh/resource-policy": keep
+  {{- end }}
 spec:
   selector:
     matchLabels:
@@ -71,6 +79,15 @@ spec:
       hostNetwork: true
       dnsPolicy: ClusterFirstWithHostNet
       initContainers:
+      {{- if eq .Values.environment "openshift" }}
+      - name: set-context
+        image: {{ include "ubuntu.image-server" . }}ubuntu:20.04
+        imagePullPolicy: {{ .Values.registry.imagePullPolicy }}
+        command: ["chcon", "-Rt", "container_file_t", "wlapi/"]
+        volumeMounts:
+        - name: spire-agent-socket
+          mountPath: "/wlapi"
+      {{- end }}
       - name: init
         image: {{ include "spire.image-server" . }}/wait-for-it
         args:
@@ -79,7 +96,7 @@ spec:
         - spire-server:8081
       containers:
       - name: spire-agent
-        image: {{ include "spire.image-server" . }}/spire-agent:1.0.2
+        image: {{ include "spire.image-server" . }}/spire-agent:1.1.0
         imagePullPolicy: {{ .Values.registry.imagePullPolicy }}
         args:
         - "-config"
@@ -121,6 +138,55 @@ spec:
             - "/run/spire/sockets/agent.sock"
           initialDelaySeconds: 5
           periodSeconds: 5
+      {{ if eq .Values.environment "openshift" -}}
+      - name: nginx-mesh-csi-driver
+        image: {{ .Values.registry.server }}/nginx-mesh-csi-driver:{{ .Values.registry.imageTag }}
+        imagePullPolicy: {{ .Values.registry.imagePullPolicy }}
+        args:
+        - "--node-id-env"
+        - "MY_NODE_NAME"
+        - "--wlapi-socket-dir"
+        - "/wlapi"
+        - "--csi-socket-path"
+        - "/csi/csi.sock"
+        env:
+        - name: MY_POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: MY_POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: MY_NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+        volumeMounts:
+        - name: spire-agent-socket
+          mountPath: /wlapi
+          readOnly: true
+        - name: csi-socket-dir
+          mountPath: /csi
+        - name: mountpoint-dir
+          mountPath: /var/lib/kubelet/pods
+          mountPropagation: Bidirectional
+        securityContext:
+          privileged: true
+      - name: node-driver-registrar
+        image: {{ include "node-driver.image-server" . }}/csi-node-driver-registrar:v2.0.1
+        imagePullPolicy: {{ .Values.registry.imagePullPolicy }}
+        args:
+        - "-csi-address"
+        - "/csi/csi.sock"
+        - "-kubelet-registration-path"
+        - "/var/lib/kubelet/plugins/agent.spire.csi.spiffe.io/csi.sock"
+        volumeMounts:
+        - name: csi-socket-dir
+          mountPath: /csi
+        - name: registration-dir
+          mountPath: /registration
+      {{- end }}
       volumes:
       - name: spire-config
         configMap:
@@ -128,10 +194,27 @@ spec:
       - name: spire-bundle
         configMap:
           name: spire-bundle
+      {{ if eq .Values.environment "openshift" -}}
+      - name: spire-agent-socket
+        emptyDir: {}
+      - name: csi-socket-dir
+        hostPath:
+          path: /var/lib/kubelet/plugins/agent.spire.csi.spiffe.io
+          type: DirectoryOrCreate
+      - name: mountpoint-dir
+        hostPath:
+          path: /var/lib/kubelet/pods
+          type: Directory
+      - name: registration-dir
+        hostPath:
+          path: /var/lib/kubelet/plugins_registry
+          type: Directory
+      {{- else -}}
       - name: spire-agent-socket
         hostPath:
           path: "/run/spire/sockets"
           type: DirectoryOrCreate
+      {{- end }}
       - name: spire-token
         projected:
           sources:
@@ -139,3 +222,86 @@ spec:
               audience: spire-server
               expirationSeconds: 7200
               path: spire-agent
+{{- if eq .Values.environment "openshift" }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: system:openshift:scc:nginx-mesh-spire-agent-permissions
+  labels:
+    app.kubernetes.io/part-of: nginx-service-mesh
+  annotations:
+    "helm.sh/resource-policy": keep
+rules:
+- apiGroups:
+  - security.openshift.io
+  resources:
+  - securitycontextconstraints
+  resourceNames:
+  - nginx-mesh-spire-agent-permissions
+  verbs:
+  - use
+- apiGroups:
+  - ''
+  resources:
+  - pods
+  verbs:
+  - get
+  - list
+  - patch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: system:openshift:scc:nginx-mesh-spire-agent-permissions
+  labels:
+    app.kubernetes.io/part-of: nginx-service-mesh
+  annotations:
+    "helm.sh/resource-policy": keep
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: system:openshift:scc:nginx-mesh-spire-agent-permissions
+subjects:
+- kind: ServiceAccount
+  name: spire-agent
+  namespace: {{ .Release.Namespace }}
+---
+apiVersion: security.openshift.io/v1
+kind: SecurityContextConstraints
+metadata:
+  name: nginx-mesh-spire-agent-permissions
+  labels:
+    app.kubernetes.io/part-of: nginx-service-mesh
+  annotations:
+    "helm.sh/resource-policy": keep
+allowHostDirVolumePlugin: true
+allowHostIPC: false
+allowHostPID: true
+allowHostNetwork: true
+allowHostPorts: false
+allowPrivilegedContainer: true
+seLinuxContext:
+  type: MustRunAs
+readOnlyRootFilesystem: false
+runAsUser:
+  type: RunAsAny
+fsGroup:
+  type: MustRunAs
+volumes:
+- configMap
+- hostPath
+- projected
+- secret
+- emptyDir
+---
+apiVersion: storage.k8s.io/v1
+kind: CSIDriver
+metadata:
+  name: wlapi-mounter.spire.nginx.com
+spec:
+  attachRequired: false
+  podInfoOnMount: true
+  volumeLifecycleModes:
+  - Ephemeral
+{{- end }}

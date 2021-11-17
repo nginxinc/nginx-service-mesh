@@ -36,10 +36,16 @@
           "default": "on"
         },
         "spireServerKeyManager": {
-          "description": "Storage logic for Spire Server's private keys",
+          "description": "Storage logic for SPIRE Server's private keys",
           "type": "string",
           "enum": ["disk", "memory"],
           "default": "disk"
+        },
+        "caKeyType": {
+          "description": "The key type used for the SPIRE Server CA",
+          "type": "string",
+          "enum": ["ec-p256", "ec-p384", "rsa-2048", "rsa-4096"],
+          "default": "ec-p256"
         },
         "upstreamAuthority": {
           "description": "Upstream authority settings",
@@ -82,13 +88,11 @@
                 },
                 "awsAccessKeyID": {
                   "description": "AWS access key ID",
-                  "type": "string",
-                  "minLength": 1
+                  "type": "string"
                 },
                 "awsSecretAccessKey": {
                   "description": "AWS secret access key",
-                  "type": "string",
-                  "minLength": 1
+                  "type": "string"
                 },
                 "caSigningTemplateArn": {
                   "description": "ARN of the signing template to use for the server's CA",
@@ -111,7 +115,7 @@
                   "type": "string"
                 }
               },
-              "required": ["region", "certificateAuthorityArn", "awsAccessKeyID", "awsSecretAccessKey"]
+              "required": ["region", "certificateAuthorityArn"]
             },
             "awsSecret": {
               "description": "AWS Secret object",
@@ -301,9 +305,9 @@
       "oneOf": [
         {
           "properties": {
-            "key": {"$ref": "#/definitions/emptyString"},
-            "username": {"$ref": "#/definitions/emptyString"},
-            "password": {"$ref": "#/definitions/emptyString"}
+            "username": {"$ref": "#/definitions/nonEmptyString"},
+            "password": {"$ref": "#/definitions/nonEmptyString"},
+            "key": {"$ref": "#/definitions/emptyString"}
           }
         },
         {
@@ -315,9 +319,9 @@
         },
         {
           "properties": {
-            "username": {"$ref": "#/definitions/nonEmptyString"},
-            "password": {"$ref": "#/definitions/nonEmptyString"},
-            "key": {"$ref": "#/definitions/emptyString"}
+            "key": {"$ref": "#/definitions/emptyString"},
+            "username": {"$ref": "#/definitions/emptyString"},
+            "password": {"$ref": "#/definitions/emptyString"}
           }
         }
       ],
@@ -327,6 +331,11 @@
       "description": "Default access control mode for service-to-service communication",
       "type": "string",
       "enum": ["allow", "deny"]
+    },
+    "environment": {
+      "description": "Environment to deploy the mesh into",
+      "type": "string",
+      "enum": ["kubernetes", "openshift"]
     },
     "deployGrafana": {
       "description": "Deploy Grafana as a part of the NGINX Service Mesh",
@@ -404,15 +413,6 @@
           "description": "Disable tracing for all services",
           "type": "boolean"
         },
-        "address": {
-          "description": "The address of a tracing server deploying in your Kubernetes cluster",
-          "type": "string"
-        },
-        "backend": {
-          "description": "The tracing backend that you want to use",
-          "type": "string",
-          "enum": ["datadog", "jaeger", "zipkin"]
-        },
         "sampleRate": {
           "description": "The sample rate to use for tracing. Float between 0 and 1",
           "type": "number",
@@ -420,6 +420,29 @@
           "maximum": 1.0
         }
       },
+      "oneOf": [
+        {
+          "properties": {
+            "backend": {
+              "description": "The tracing backend that you want to use",
+              "type": "string",
+              "enum": ["datadog"]},
+            "address": {"$ref": "#/definitions/nonEmptyString"}
+          }
+        },
+        {
+          "properties": {
+            "backend": {
+              "description": "The tracing backend that you want to use",
+              "type": "string",
+              "enum": ["zipkin", "jaeger"]},
+            "address": {
+              "description": "The address of a tracing server deploying in your Kubernetes cluster",
+              "type": "string"
+            }
+          }
+        }
+      ],
       "required": ["disable", "sampleRate"]
     }
   },
@@ -445,6 +468,7 @@
     "mtls",
     "registry",
     "accessControlMode",
+    "environment",
     "deployGrafana",
     "nginxErrorLogLevel",
     "nginxLogFormat",

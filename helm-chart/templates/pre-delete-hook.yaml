@@ -27,3 +27,88 @@ spec:
           exit 0
       imagePullSecrets:
       - name: {{ include "registry-key-name" . }}
+{{- if eq .Values.environment "openshift" }}
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: pre-delete
+  labels:
+    app.kubernetes.io/part-of: nginx-service-mesh
+  annotations:
+    "helm.sh/hook": pre-delete
+    "helm.sh/hook-delete-policy": hook-succeeded,hook-failed
+    "helm.sh/hook-weight": "-5"
+imagePullSecrets:
+- name: {{ include "registry-key-name" . }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: pre-delete.builtin.nsm.nginx
+  labels:
+    app.kubernetes.io/part-of: nginx-service-mesh
+  annotations:
+    "helm.sh/hook": pre-delete
+    "helm.sh/hook-delete-policy": hook-succeeded,hook-failed
+    "helm.sh/hook-weight": "-5"
+rules:
+- apiGroups:
+  - ''
+  resources:
+  - configmaps
+  verbs:
+  - create
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: pre-delete.builtin.nsm.nginx
+  labels:
+    app.kubernetes.io/part-of: nginx-service-mesh
+  annotations:
+    "helm.sh/hook": pre-delete
+    "helm.sh/hook-delete-policy": hook-succeeded,hook-failed
+    "helm.sh/hook-weight": "-5"
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: pre-delete.builtin.nsm.nginx
+subjects:
+- kind: ServiceAccount
+  name: pre-delete
+  namespace: {{ .Release.Namespace }}
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: get-injected-resources
+  labels:
+    app.kubernetes.io/part-of: nginx-service-mesh
+  annotations:
+    "helm.sh/hook": pre-delete
+    "helm.sh/hook-delete-policy": hook-succeeded,hook-failed
+    "helm.sh/hook-weight": "0"
+spec:
+  template:
+    metadata:
+      name: get-injected-resources
+    spec:
+      restartPolicy: Never
+      serviceAccountName: pre-delete
+      containers:
+      - name: get-injected-resources
+        image: {{ include "hook.image-server" . }}/kubectl
+        imagePullPolicy: {{ .Values.registry.imagePullPolicy }}
+        command:
+        - /bin/sh
+        - -c
+        - |
+          res=$(curl -m 30 -k https://nginx-mesh-api.{{ .Release.Namespace }}.svc:443/resources)
+          if [ ! -z "$res" ] && [ $res = '{}' ]; then
+            val="false"
+          else
+            val="true"
+          fi
+          kubectl create configmap injected-resources --from-literal resources=$val
+{{- end }}

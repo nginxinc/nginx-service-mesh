@@ -6,7 +6,7 @@ registry:
 
   # Tag used for pulling images from registry
   # Affects: nginx-mesh-api, nginx-mesh-cert-reloader, nginx-mesh-init, nginx-mesh-metrics, nginx-mesh-sidecar
-  imageTag: "1.2.1"
+  imageTag: "1.3.0"
 
   # Note: Currently only works with Google Cloud registry.
   # Contents of your Google Cloud JSON key file. Can be set via "--set-file registry.key=<your-key-file>.json"
@@ -32,6 +32,10 @@ registry:
 # Default access control mode for service-to-service communication.
 # Valid values: allow, deny
 accessControlMode: "allow"
+
+# Environment to deploy the mesh into.
+# Valid values: kubernetes, openshift
+environment: "kubernetes"
 
 # Deploy Grafana as a part of the NGINX Service Mesh.
 # Valid values: true, false
@@ -103,9 +107,13 @@ mtls:
   # Valid values: on, off
   persistentStorage: "on"
 
-  # Storage logic for Spire Server's private keys.
+  # Storage logic for SPIRE Server's private keys.
   # Valid values: disk, memory
   spireServerKeyManager: "disk"
+
+  # The key type used for the SPIRE Server CA.
+  # Valid values: ec-p256, ec-p384, rsa-2048, rsa-4096
+  caKeyType: "ec-p256"
 
   ## Upstream authority settings. If left empty, SPIRE is used as the upstream authority.
   ## Only uncomment and fill out the object pertinent to you (disk, awsPCA, awsSecret, vault).
@@ -119,26 +127,32 @@ mtls:
     #   key: ""
     #   # Optional; contents of your CA bundle file. Can be set via "--set-file mtls.upstreamAuthority.disk.bundle=<bundle-file-path>"
     #   bundle: ""
-    
+
     # # AWS PCA object (see https://github.com/spiffe/spire/blob/v0.12/doc/plugin_server_upstreamauthority_aws_pca.md)
     # awsPCA:
     #   # AWS region to use
     #   region: ""
     #   # ARN of the upstream CA certificate
     #   certificateAuthorityArn: ""
+
+    #   ## Optional auth fields
+    #   ## See https://docs.nginx.com/nginx-service-mesh/guides/secure-traffic-mtls/#deploy-using-an-upstream-root-ca for instructions on configuring auth for aws_pca
+
     #   # AWS access key ID
+    #   # This access key ID will be encoded, stored in a Kubernetes Secret, and mounted to the SPIRE server Pod
     #   awsAccessKeyID: ""
     #   # AWS secret access key
+    #   # This secret access key will be encoded, stored in a Kubernetes Secret, and mounted to the SPIRE server Pod
     #   awsSecretAccessKey: ""
-
-    #   ## Optional fields
-      
     #   # ARN of the signing template to use for the server's CA
+    #   # ARN of an IAM role to assume
+    #   # The SPIRE server will need permission to assume this IAM role. Either attach an IAM role to the EC2 instance with the capability to assume this role, or provide your AWS credentials
+    #   assumeRoleArn: ""
+
+    #   ## Other optional fields
     #   caSigningTemplateArn: ""
     #   # Signing algorithm to use for the server's CA
     #   signingAlgorithm: ""
-    #   # ARN of an IAM role to assume
-    #   assumeRoleArn: ""
     #   # Endpoint as hostname or fully-qualified URI that overrides the default endpoint
     #   endpoint: ""
     #   # Contents of a PEM encoded CA certificates file that should be additionally included in the bundle.
@@ -156,9 +170,11 @@ mtls:
 
     #   ## Choose an appropriate auth method
 
-    #   # AWS access key ID
+    #   # AWS access key ID. This access key ID will be stored in plaintext in the Spire server configmap.
+    #   # For other AWS authentication options see: (see https://github.com/spiffe/spire/blob/v0.12/doc/plugin_server_upstreamauthority_awssecret.md)
     #   awsAccessKeyID: ""
-    #   # AWS secret access key
+    #   # AWS secret access key. This secret access key ID will be stored in plaintext in the Spire server configmap.
+    #   # For other AWS authentication options see: (see https://github.com/spiffe/spire/blob/v0.12/doc/plugin_server_upstreamauthority_awssecret.md)
     #   awsSecretAccessKey: ""
     #   # AWS secret token
     #   awsSecretToken: ""
