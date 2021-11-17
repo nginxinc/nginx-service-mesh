@@ -120,6 +120,7 @@ spec:
       labels:
         app.kubernetes.io/name: nginx-mesh-metrics
         app.kubernetes.io/part-of: nginx-service-mesh
+        spiffe.io/spiffeid: "true"
     spec:
       serviceAccountName: nginx-mesh-metrics
       containers:
@@ -152,6 +153,12 @@ spec:
           mountPath: "/run/spire/sockets"
       volumes:
       - name: spire-agent-socket
+        {{ if eq .Values.environment "openshift" -}}
+        csi:
+          driver: wlapi-mounter.spire.nginx.com
+          readOnly: true
+        {{- else -}}
         hostPath:
           path: "/run/spire/sockets"
           type: DirectoryOrCreate
+        {{- end }}

@@ -40,8 +40,16 @@ prometheus.{{.Release.Namespace}}.svc.cluster.local:9090
 {{- if not .Values.registry.disablePublicImages }}gcr.io/spiffe-io{{ else }}{{ .Values.registry.server }}{{ end }}
 {{- end }}
 
+{{- define "node-driver.image-server" -}}
+{{- if not .Values.registry.disablePublicImages }}quay.io/k8scsi{{ else }}{{ .Values.registry.server }}{{ end }}
+{{- end }}
+
 {{- define "hook.image-server" -}}
 {{- if not .Values.registry.disablePublicImages }}bitnami{{ else }}{{ .Values.registry.server }}{{ end }}
+{{- end }}
+
+{{- define "ubuntu.image-server" -}}
+{{- if not .Values.registry.disablePublicImages }}{{ else }}{{ .Values.registry.server }}/{{ end }}
 {{- end }}
 
 {{- define "registry-key-name" -}}
@@ -75,8 +83,8 @@ nginx-mesh-registry-key
 Define the name of the key where the Upstream Authority secret data is stored.
 */}}
 {{- define "ua-secret-name" -}}
-{{- if .Values.mtls.upstreamAuthority.awsPCA -}}
-credentials
+{{- if .Values.mtls.upstreamAuthority.awsPCA -}} {{- if .Values.mtls.upstreamAuthority.awsPCA.awsAccessKeyID -}}
+credentials {{- end }}
 {{- else if .Values.mtls.upstreamAuthority.disk -}}
 upstreamCA.key
 {{- else if .Values.mtls.upstreamAuthority.vault }}{{ if .Values.mtls.upstreamAuthority.vault.certAuth -}}
@@ -88,8 +96,8 @@ upstreamClient.key{{ end }}
 Define the name of the mount path where the Upstream Authority secret data is stored.
 */}}
 {{- define "ua-secret-mountpath" -}}
-{{- if .Values.mtls.upstreamAuthority.awsPCA -}}
-/root/.aws
+{{- if and .Values.mtls.upstreamAuthority.awsPCA -}} {{- if .Values.mtls.upstreamAuthority.awsPCA.awsAccessKeyID -}}
+/root/.aws {{- end }}
 {{- else if .Values.mtls.upstreamAuthority.disk -}}
 /run/spire/secrets
 {{- else if .Values.mtls.upstreamAuthority.vault }}{{ if .Values.mtls.upstreamAuthority.vault.certAuth -}}

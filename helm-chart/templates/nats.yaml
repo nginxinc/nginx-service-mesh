@@ -53,6 +53,7 @@ spec:
       labels:
         app.kubernetes.io/name: nats-server
         app.kubernetes.io/part-of: nginx-service-mesh
+        spiffe.io/spiffeid: "true"
     spec:
       serviceAccountName: nats
       volumes:
@@ -63,10 +64,16 @@ spec:
         emptyDir: {}
       - name: tls
         emptyDir: {}
-      - hostPath:
+      - name: spire-agent-socket
+        {{ if eq .Values.environment "openshift" -}}
+        csi:
+          driver: wlapi-mounter.spire.nginx.com
+          readOnly: true
+        {{- else -}}
+        hostPath:
           path: "/run/spire/sockets"
           type: DirectoryOrCreate
-        name: spire-agent-socket
+        {{- end }}
       shareProcessNamespace: true
       terminationGracePeriodSeconds: 60
       imagePullSecrets:
