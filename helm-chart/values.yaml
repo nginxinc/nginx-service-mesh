@@ -6,7 +6,7 @@ registry:
 
   # Tag used for pulling images from registry
   # Affects: nginx-mesh-api, nginx-mesh-cert-reloader, nginx-mesh-init, nginx-mesh-metrics, nginx-mesh-sidecar
-  imageTag: "1.3.0"
+  imageTag: "1.3.1"
 
   # Note: Currently only works with Google Cloud registry.
   # Contents of your Google Cloud JSON key file. Can be set via "--set-file registry.key=<your-key-file>.json"
