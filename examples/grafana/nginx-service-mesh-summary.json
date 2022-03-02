@@ -92,7 +92,7 @@
         "content": "<div class=\"dashboard-header text-center\">\n<span>Global View</span>\n</div>",
         "mode": "html"
       },
-      "pluginVersion": "8.1.3",
+      "pluginVersion": "8.3.4",
       "timeFrom": null,
       "timeShift": null,
       "transparent": true,
@@ -163,7 +163,7 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "8.1.3",
+      "pluginVersion": "8.3.4",
       "targets": [
         {
           "expr": "sum(irate(nginxplus_upstream_server_responses{code=~\"1xx|2xx\"}[30s])) / sum(irate(nginxplus_upstream_server_responses[30s]))",
@@ -229,7 +229,7 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "8.1.3",
+      "pluginVersion": "8.3.4",
       "targets": [
         {
           "expr": "count(nginxplus_http_requests_total)",
@@ -300,7 +300,7 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "8.1.3",
+      "pluginVersion": "8.3.4",
       "targets": [
         {
           "expr": "sum(irate(nginxplus_http_requests_total[30s]))",
@@ -345,7 +345,7 @@
         "content": "<div class=\"dashboard-header text-center\">\n<span>Workload View</span>\n</div>",
         "mode": "html"
       },
-      "pluginVersion": "8.1.3",
+      "pluginVersion": "8.3.4",
       "timeFrom": null,
       "timeShift": null,
       "transparent": true,
@@ -389,7 +389,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "8.1.3",
+      "pluginVersion": "8.3.4",
       "pointradius": 2,
       "points": true,
       "renderer": "flot",
@@ -485,7 +485,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "8.1.3",
+      "pluginVersion": "8.3.4",
       "pointradius": 2,
       "points": true,
       "renderer": "flot",
