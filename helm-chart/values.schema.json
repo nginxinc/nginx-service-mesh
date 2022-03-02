@@ -13,15 +13,15 @@
           "default": "permissive"
         },
         "caTTL": {
-          "description": "The CA/signing key TTL in hours(h) or minutes(m)",
+          "description": "The CA/signing key TTL in hours(h) or minutes(m). Max value is 999999.",
           "type": "string",
-          "pattern": "[0-9]*(h|m)",
+          "pattern": "^[1-9][0-9]{0,5}(h|m)$",
           "default": "720h"
         },
         "svidTTL": {
-          "description": "The TTL of certificates issued to workloads in hours(h) or minutes(m)",
+          "description": "The TTL of certificates issued to workloads in hours(h) or minutes(m). Max value is 999999.",
           "type": "string",
-          "pattern": "[0-9]*(h|m)",
+          "pattern": "^[1-9][0-9]{0,5}(h|m)$",
           "default": "1h"
         },
         "trustDomain": {
@@ -251,14 +251,46 @@
                 {"required": ["tokenAuth"]},
                 {"required": ["approleAuth"]}
               ]
+            },
+            "certManager": {
+              "description": "Cert Manager object",
+              "type": "object",
+              "properties": {
+                "namespace": {
+                  "description": "The namespace to create CertificateRequests for signing",
+                  "type": "string",
+                  "minLength": 1
+                },
+                "issuerName": {
+                  "description": "The name of the issuer to reference in CertificateRequests",
+                  "type": "string",
+                  "minLength": 1
+                },
+                "issuerKind": {
+                  "description": "The kind of the issuer to reference in CertificateRequests",
+                  "type": "string",
+                  "default": "Issuer"
+                },
+                "issuerGroup": {
+                  "description": "The group of the issuer to reference in CertificateRequests",
+                  "type": "string",
+                  "default": "cert-manager.io"
+                },
+                "kubeConfig": {
+                  "description": "Contents of the kubeconfig file used to connect to the Kubernetes cluster",
+                  "type": "string"
+                }
+              },
+              "required": ["namespace", "issuerName"]
             }
           },
           "oneOf": [
-            {"const": {}},
+            {"$ref": "#/definitions/emptyObject"},
             {"required": ["disk"]},
             {"required": ["awsPCA"]},
             {"required": ["awsSecret"]},
-            {"required": ["vault"]}
+            {"required": ["vault"]},
+            {"required": ["certManager"]}
           ]
         }
       },
@@ -276,7 +308,7 @@
         "imageTag": {
           "description": "Tag used for pulling images from registry. ",
           "type": "string",
-          "default": "1.1.0"
+          "default": "1.4.0"
         },
         "key": {
           "description": "Contents of your Google Cloud JSON key file",
@@ -337,6 +369,10 @@
       "type": "string",
       "enum": ["kubernetes", "openshift"]
     },
+    "enableUDP": {
+      "description": "Enable UDP traffic proxying (beta). Linux kernel 4.18 or greater is required.",
+      "type": "boolean"
+    },
     "deployGrafana": {
       "description": "Deploy Grafana as a part of the NGINX Service Mesh",
       "type": "boolean"
@@ -383,23 +419,37 @@
           }
         }
       },
-      "oneOf": [
+      "allOf": [
         {
-          "properties": {
-            "disabledNamespaces": {"$ref": "#/definitions/nonEmptyArray"},
-            "disable": {"const": false}
+          "if": {
+            "properties": {
+              "disable": {
+                "const": true
+              }
+            }
+          },
+          "then":{
+            "properties": {
+              "disabledNamespaces": {
+                "$ref": "#/definitions/emptyArray"
+              }
+            }
           }
         },
         {
-          "properties": {
-            "enabledNamespaces": {"$ref": "#/definitions/nonEmptyArray"},
-            "disable": {"const": true}
-          }
-        },
-        {
-          "properties": {
-            "enabledNamespaces": {"$ref": "#/definitions/emptyArray"},
-            "disabledNamespaces": {"$ref": "#/definitions/emptyArray"}
+          "if": {
+            "properties": {
+              "disable": {
+                "const": false
+              }
+            }
+          },
+          "then":{
+            "properties": {
+              "enabledNamespaces": {
+                "$ref": "#/definitions/emptyArray"
+              }
+            }
           }
         }
       ],
@@ -408,42 +458,18 @@
     "tracing": {
       "description": "NGINX Service Mesh tracing settings",
       "type": "object",
-      "properties": {
-        "disable": {
-          "description": "Disable tracing for all services",
-          "type": "boolean"
-        },
-        "sampleRate": {
-          "description": "The sample rate to use for tracing. Float between 0 and 1",
-          "type": "number",
-          "minimum": 0.0,
-          "maximum": 1.0
-        }
-      },
       "oneOf": [
-        {
-          "properties": {
-            "backend": {
-              "description": "The tracing backend that you want to use",
-              "type": "string",
-              "enum": ["datadog"]},
-            "address": {"$ref": "#/definitions/nonEmptyString"}
-          }
-        },
-        {
-          "properties": {
-            "backend": {
-              "description": "The tracing backend that you want to use",
-              "type": "string",
-              "enum": ["zipkin", "jaeger"]},
-            "address": {
-              "description": "The address of a tracing server deploying in your Kubernetes cluster",
-              "type": "string"
-            }
-          }
-        }
-      ],
-      "required": ["disable", "sampleRate"]
+        {"$ref": "#/definitions/tracingConfig"},
+        {"$ref": "#/definitions/emptyObject"}
+      ]
+    },
+    "telemetry":{
+      "description": "NGINX Service Mesh telemetry settings",
+      "type": "object",
+      "oneOf": [
+        {"$ref": "#/definitions/telemetryConfig"},
+        {"$ref": "#/definitions/emptyObject"}
+      ]
     }
   },
   "definitions": {
@@ -462,8 +488,118 @@
     "emptyArray": {
       "type": "array",
       "maxItems": 0
+    },
+    "emptyObject": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {}
+    },
+    "telemetryConfig": {
+      "properties": {
+        "samplerRatio": {
+          "description": "The percentage of traces that are processed and exported to the telemetry backend. Float between 0 and 1",
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0
+        },
+        "exporters": {
+          "type": "object",
+          "properties": {
+            "otlp": {
+              "type": "object",
+              "description": "The configuration for an OTLP gRPC exporter",
+              "properties": {
+                "host": {
+                  "description": "The host of the OpenTelemetry gRPC exporter to connect to",
+                  "type": "string",
+                  "minLength": 1
+                },
+                "port": {
+                  "description": "The port of the OpenTelemetry gRPC exporter to connect to",
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 65535
+                }
+              },
+              "required": ["host", "port"]
+            }
+          }
+        }
+      },
+      "required": ["samplerRatio", "exporters"]
+    },
+    "tracingConfig": {
+      "properties": {
+        "disable": {
+          "description": "Disable tracing for all services",
+          "type": "boolean"
+        },
+        "sampleRate": {
+          "description": "The sample rate to use for tracing. Float between 0 and 1",
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0
+        },
+        "backend": {
+          "description": "The tracing backend that you want to use",
+          "type": "string",
+          "enum": ["zipkin", "datadog", "jaeger"]
+        },
+        "address": {
+          "description": "The address of a tracing server deployed in your Kubernetes cluster",
+          "type": "string"
+        }
+      },
+      "required": ["disable", "sampleRate"],
+      "if": {
+        "properties": {
+          "backend": {
+            "const": "datadog"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "address": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
     }
   },
+  "oneOf": [
+    {
+      "properties": {
+        "telemetry": {
+          "$ref": "#/definitions/emptyObject"
+        },
+        "tracing": {
+          "$ref": "#/definitions/tracingConfig"
+        }
+      }
+    },
+    {
+      "properties": {
+        "telemetry": {
+          "$ref": "#/definitions/emptyObject"
+        },
+        "tracing": {
+          "$ref": "#/definitions/emptyObject"
+        }
+      }
+    },
+    {
+      "properties": {
+        "telemetry": {
+          "$ref": "#/definitions/telemetryConfig"
+        },
+        "tracing": {
+          "$ref": "#/definitions/emptyObject"
+        }
+      }
+    }
+  ],
   "required": [
     "mtls",
     "registry",
@@ -473,7 +609,6 @@
     "nginxErrorLogLevel",
     "nginxLogFormat",
     "nginxLBMethod",
-    "autoInjection",
-    "tracing"
+    "autoInjection"
   ]
 }

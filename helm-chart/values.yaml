@@ -6,7 +6,7 @@ registry:
 
   # Tag used for pulling images from registry
   # Affects: nginx-mesh-api, nginx-mesh-cert-reloader, nginx-mesh-init, nginx-mesh-metrics, nginx-mesh-sidecar
-  imageTag: "1.3.1"
+  imageTag: "1.4.0"
 
   # Note: Currently only works with Google Cloud registry.
   # Contents of your Google Cloud JSON key file. Can be set via "--set-file registry.key=<your-key-file>.json"
@@ -37,7 +37,11 @@ accessControlMode: "allow"
 # Valid values: kubernetes, openshift
 environment: "kubernetes"
 
+# Enable UDP traffic proxying (beta). Linux kernel 4.18 or greater is required.
+enableUDP: false
+
 # Deploy Grafana as a part of the NGINX Service Mesh.
+# Note: This configurable will be removed in version 1.5
 # Valid values: true, false
 deployGrafana: true
 
@@ -73,8 +77,11 @@ autoInjection:
   enabledNamespaces: []
 
 # NGINX Service Mesh tracing settings.
+# Cannot be set when telemetry is set.
+# If deploying with tracing, make sure the telemetry object is set to {}.
 tracing:
   # Disable tracing for all services.
+  # Note: This configurable will be removed in version 1.5
   disable: false
 
   # The address of a tracing server deployed in your Kubernetes cluster.
@@ -87,6 +94,21 @@ tracing:
 
   # The sample rate to use for tracing. Float between 0 and 1.
   sampleRate: 0.01
+
+# NGINX Service Mesh telemetry settings.
+# Cannot be set when tracing is set.
+# To enable telemetry, uncomment the following object and set the tracing object to {}.
+telemetry: {}
+#   # The percentage of traces that are processed and exported to the telemetry backend. Float between 0 and 1.
+#   samplerRatio: 0.01
+#   # The configuration of exporters to send telemetry data to.
+#   exporters:
+#     # The configuration for an OTLP gRPC exporter.
+#     otlp:
+#       # The host of the OpenTelemetry gRPC exporter to connect to. Must be accessible from within the cluster.
+#       host: ""
+#       # The port of the OpenTelemetry gRPC exporter to connect to.
+#       port: 4317
 
 # Mutual TLS settings. See https://docs.nginx.com/nginx-service-mesh/guides/secure-traffic-mtls for more info.
 mtls:
@@ -116,10 +138,10 @@ mtls:
   caKeyType: "ec-p256"
 
   ## Upstream authority settings. If left empty, SPIRE is used as the upstream authority.
-  ## Only uncomment and fill out the object pertinent to you (disk, awsPCA, awsSecret, vault).
+  ## Only uncomment and fill out the object pertinent to you (disk, awsPCA, awsSecret, vault, certManager).
   upstreamAuthority: {}
 
-    # # Disk object (see https://github.com/spiffe/spire/blob/v0.12/doc/plugin_server_upstreamauthority_disk.md)
+    # # Disk object (see https://github.com/spiffe/spire/blob/v1.0/doc/plugin_server_upstreamauthority_disk.md)
     # disk:
     #   # Contents of your PEM encoded certificate file. Can be set via "--set-file mtls.upstreamAuthority.disk.cert=<cert-file-path>"
     #   cert: ""
@@ -128,7 +150,7 @@ mtls:
     #   # Optional; contents of your CA bundle file. Can be set via "--set-file mtls.upstreamAuthority.disk.bundle=<bundle-file-path>"
     #   bundle: ""
 
-    # # AWS PCA object (see https://github.com/spiffe/spire/blob/v0.12/doc/plugin_server_upstreamauthority_aws_pca.md)
+    # # AWS PCA object (see https://github.com/spiffe/spire/blob/v1.0/doc/plugin_server_upstreamauthority_aws_pca.md)
     # awsPCA:
     #   # AWS region to use
     #   region: ""
@@ -159,7 +181,7 @@ mtls:
     #   # Can be set via "--set-file mtls.upstreamAuthority.awsPCA.supplementalBundle=<supplemental-bundle-file-path>"
     #   supplementalBundle: ""
 
-    # # AWS Secret object (see https://github.com/spiffe/spire/blob/v0.12/doc/plugin_server_upstreamauthority_awssecret.md)
+    # # AWS Secret object (see https://github.com/spiffe/spire/blob/v1.0/doc/plugin_server_upstreamauthority_awssecret.md)
     # awsSecret:
     #   # AWS region to use
     #   region: ""
@@ -171,10 +193,10 @@ mtls:
     #   ## Choose an appropriate auth method
 
     #   # AWS access key ID. This access key ID will be stored in plaintext in the Spire server configmap.
-    #   # For other AWS authentication options see: (see https://github.com/spiffe/spire/blob/v0.12/doc/plugin_server_upstreamauthority_awssecret.md)
+    #   # For other AWS authentication options see: (see https://github.com/spiffe/spire/blob/v1.0/doc/plugin_server_upstreamauthority_awssecret.md)
     #   awsAccessKeyID: ""
     #   # AWS secret access key. This secret access key ID will be stored in plaintext in the Spire server configmap.
-    #   # For other AWS authentication options see: (see https://github.com/spiffe/spire/blob/v0.12/doc/plugin_server_upstreamauthority_awssecret.md)
+    #   # For other AWS authentication options see: (see https://github.com/spiffe/spire/blob/v1.0/doc/plugin_server_upstreamauthority_awssecret.md)
     #   awsSecretAccessKey: ""
     #   # AWS secret token
     #   awsSecretToken: ""
@@ -223,3 +245,22 @@ mtls:
 
     #     # Name of the mount point where the AppRole auth method is mounted
     #     approleAuthMountPoint: "approle"
+  
+    # # Cert Manager object (see https://github.com/spiffe/spire/blob/v1.0/doc/plugin_server_upstreamauthority_cert_manager.md)
+    # certManager:
+    #   # The namespace to create CertificateRequests for signing.
+    #   namespace: ""
+    #   # The name of the issuer to reference in CertificateRequests.
+    #   issuerName: ""
+
+    #   ## Optional fields
+
+    #   # The kind of the issuer to reference in CertificateRequests.
+    #   issuerKind: "Issuer"
+
+    #   # The group of the issuer to reference in CertificateRequests.
+    #   issuerGroup: "cert-manager.io"
+
+    #   # Contents of the kubeconfig file used to connect to the Kubernetes cluster. Empty file will attempt to use an in-cluster config.
+    #   # Can be set via "--set-file mtls.upstreamAuthority.certManager.kubeConfig=<kube-config-file-path>".
+    #   kubeConfig: ""

@@ -1,3 +1,4 @@
+{{- if eq .Values.environment "openshift" }}
 ---
 apiVersion: v1
 kind: ServiceAccount
@@ -13,9 +14,27 @@ imagePullSecrets:
 - name: {{ include "registry-key-name" . }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRoleBinding
+kind: Role
 metadata:
-  name: pre-upgrade.builtin.nsm.nginx
+  name: pre-upgrade
+  labels:
+    app.kubernetes.io/part-of: nginx-service-mesh
+  annotations:
+    "helm.sh/hook": pre-upgrade
+    "helm.sh/hook-delete-policy": hook-succeeded,hook-failed
+    "helm.sh/hook-weight": "-5"
+rules:
+- apiGroups:
+  - apps
+  resources:
+  - daemonsets
+  verbs:
+  - delete
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: pre-upgrade
   labels:
     app.kubernetes.io/part-of: nginx-service-mesh
   annotations:
@@ -23,9 +42,9 @@ metadata:
     "helm.sh/hook-delete-policy": hook-succeeded,hook-failed
     "helm.sh/hook-weight": "-5"
 roleRef:
-  apiGroup: ""
-  kind: ClusterRole
-  name: cluster-admin
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: pre-upgrade
 subjects:
 - kind: ServiceAccount
   name: pre-upgrade
@@ -34,7 +53,7 @@ subjects:
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: patch-spiffeid-crd
+  name: delete-spire-agent
   labels:
     app.kubernetes.io/part-of: nginx-service-mesh
   annotations:
@@ -44,15 +63,17 @@ metadata:
 spec:
   template:
     metadata:
-      name: patch-spiffeid-crd
+      name: delete-spire-agent
     spec:
       restartPolicy: Never
       serviceAccountName: pre-upgrade
       containers:
-      - name: patch-spiffeid-crd
+      - name: delete-spire-agent
         image: {{ include "hook.image-server" . }}/kubectl
         imagePullPolicy: {{ .Values.registry.imagePullPolicy }}
         command:
         - /bin/sh
         - -c
-        - kubectl annotate --overwrite customresourcedefinitions spiffeids.spiffeid.spiffe.io helm.sh/resource-policy='keep'
+        - |
+          kubectl delete daemonset spire-agent
+{{- end }}

@@ -89,6 +89,8 @@ credentials {{- end }}
 upstreamCA.key
 {{- else if .Values.mtls.upstreamAuthority.vault }}{{ if .Values.mtls.upstreamAuthority.vault.certAuth -}}
 upstreamClient.key{{ end }}
+{{- else if .Values.mtls.upstreamAuthority.certManager }}{{ if .Values.mtls.upstreamAuthority.certManager.kubeConfig -}}
+cert-manager-kubeconfig{{ end }}
 {{- end }}
 {{- end }}
 
@@ -101,6 +103,8 @@ Define the name of the mount path where the Upstream Authority secret data is st
 {{- else if .Values.mtls.upstreamAuthority.disk -}}
 /run/spire/secrets
 {{- else if .Values.mtls.upstreamAuthority.vault }}{{ if .Values.mtls.upstreamAuthority.vault.certAuth -}}
+/run/spire/secrets{{ end }}
+{{- else if .Values.mtls.upstreamAuthority.certManager }}{{ if .Values.mtls.upstreamAuthority.certManager.kubeConfig -}}
 /run/spire/secrets{{ end }}
 {{- end }}
 {{- end }}
@@ -128,15 +132,17 @@ upstreamBundle.crt: {{ quote .Values.mtls.upstreamAuthority.awsPCA.supplementalB
 {{- end }}
 
 {{/*
-Define the Upstream Authority key to be stored in the Secret.
+Define the Upstream Authority value to be stored in the Secret.
 */}}
-{{- define "ua-upstream-key" -}}
+{{- define "ua-secret-value" -}}
 {{- if .Values.mtls.upstreamAuthority.awsPCA -}}
 {{ tpl (.Files.Get "configs/upstreamAuthority/aws-credentials.conf") . | b64enc }}
 {{- else if .Values.mtls.upstreamAuthority.disk -}}
 {{ .Values.mtls.upstreamAuthority.disk.key | b64enc }}
 {{- else if .Values.mtls.upstreamAuthority.vault }}{{ if .Values.mtls.upstreamAuthority.vault.certAuth -}}
 {{ .Values.mtls.upstreamAuthority.vault.certAuth.clientKey | b64enc }}{{ end }}
+{{- else if .Values.mtls.upstreamAuthority.certManager }}{{ if .Values.mtls.upstreamAuthority.certManager.kubeConfig -}}
+{{ .Values.mtls.upstreamAuthority.certManager.kubeConfig | b64enc }}{{ end }}
 {{- end }}
 {{- end }}
 

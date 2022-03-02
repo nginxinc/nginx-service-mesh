@@ -27,6 +27,7 @@ rules:
   - nodes/proxy
   verbs:
   - get
+  - list
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
@@ -89,14 +90,17 @@ spec:
           mountPath: "/wlapi"
       {{- end }}
       - name: init
-        image: {{ include "spire.image-server" . }}/wait-for-it
-        args:
-        - "-t"
-        - '30'
-        - spire-server:8081
+        image: {{ include "hook.image-server" . }}/kubectl
+        command:
+        - /bin/sh
+        - -c
+        - |
+          while $(kubectl -n {{ .Release.Namespace }} wait --for=condition=Ready pod -l app.kubernetes.io/name=spire-server > /dev/null); [ $? -ne 0 ]; do
+            sleep 1
+          done
       containers:
       - name: spire-agent
-        image: {{ include "spire.image-server" . }}/spire-agent:1.1.0
+        image: {{ include "spire.image-server" . }}/spire-agent:1.2.0
         imagePullPolicy: {{ .Values.registry.imagePullPolicy }}
         args:
         - "-config"
@@ -194,9 +198,11 @@ spec:
       - name: spire-bundle
         configMap:
           name: spire-bundle
-      {{ if eq .Values.environment "openshift" -}}
       - name: spire-agent-socket
-        emptyDir: {}
+        hostPath:
+          path: /run/spire/sockets
+          type: DirectoryOrCreate
+      {{ if eq .Values.environment "openshift" -}}
       - name: csi-socket-dir
         hostPath:
           path: /var/lib/kubelet/plugins/agent.spire.csi.spiffe.io
@@ -209,11 +215,6 @@ spec:
         hostPath:
           path: /var/lib/kubelet/plugins_registry
           type: Directory
-      {{- else -}}
-      - name: spire-agent-socket
-        hostPath:
-          path: "/run/spire/sockets"
-          type: DirectoryOrCreate
       {{- end }}
       - name: spire-token
         projected:
@@ -293,7 +294,6 @@ volumes:
 - hostPath
 - projected
 - secret
-- emptyDir
 ---
 apiVersion: storage.k8s.io/v1
 kind: CSIDriver

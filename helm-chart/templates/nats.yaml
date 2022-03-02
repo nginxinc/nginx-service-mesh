@@ -103,7 +103,7 @@ spec:
         - name: spire-agent-socket
           mountPath: "/run/spire/sockets"
       - name: nats-server
-        image: {{ include "nats.image-server" . }}nats:2.4.0-alpine3.14
+        image: {{ include "nats.image-server" . }}nats:2.7.2-alpine3.15
         imagePullPolicy: {{ .Values.registry.imagePullPolicy }}
         ports:
         - containerPort: 4222

@@ -164,6 +164,36 @@ subjects:
   name: nginx-mesh-api
   namespace: {{ .Release.Namespace }}
 ---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: nginx-mesh-api-svc.internal.builtin.nsm.nginx
+  labels:
+    app.kubernetes.io/part-of: nginx-service-mesh
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: system:auth-delegator
+subjects:
+  - kind: ServiceAccount
+    name: nginx-mesh-api
+    namespace: {{ .Release.Namespace }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: nginx-mesh-api-svc.internal.builtin.nsm.nginx
+  labels:
+    app.kubernetes.io/part-of: nginx-service-mesh
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: extension-apiserver-authentication-reader
+subjects:
+  - kind: ServiceAccount
+    name: nginx-mesh-api
+    namespace: {{ .Release.Namespace }}
+---
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -374,6 +404,23 @@ spec:
           path: "/run/spire/sockets"
           type: DirectoryOrCreate
         {{- end }}
+---
+apiVersion: apiregistration.k8s.io/v1
+kind: APIService
+metadata:
+  labels:
+    app.kubernetes.io/part-of: nginx-service-mesh
+    spiffe.io/apiservice: "true"
+  name: v1alpha1.nsm.nginx.com
+spec:
+  group: nsm.nginx.com
+  groupPriorityMinimum: 100
+  service:
+    name: nginx-mesh-api
+    namespace: {{ .Release.Namespace}}
+    port: 443
+  version: v1alpha1
+  versionPriority: 100
 {{- if eq .Values.environment "openshift" }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
@@ -476,6 +523,8 @@ allowPrivilegedContainer: false
 allowedCapabilities:
 - NET_ADMIN
 - NET_RAW
+- SYS_RESOURCE
+- SYS_ADMIN
 seLinuxContext:
   type: RunAsAny
 runAsUser:
