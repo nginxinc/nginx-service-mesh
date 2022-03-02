@@ -194,55 +194,6 @@ runAsUser:
 readOnlyRootFilesystem: false
 ---
 apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRole
-metadata:
-  name: post-delete-csi.builtin.nsm.nginx
-  labels:
-    app.kubernetes.io/part-of: nginx-service-mesh
-  annotations:
-    "helm.sh/hook": post-delete
-    "helm.sh/hook-delete-policy": hook-succeeded,hook-failed
-    "helm.sh/hook-weight": "-5"
-rules:
-- apiGroups:
-  - apps
-  resources:
-  - daemonsets
-  verbs:
-  - get
-  - patch
-  - delete
-- apiGroups:
-  - ''
-  resources:
-  - serviceaccounts
-  - configmaps
-  verbs:
-  - get
-  - delete
-- apiGroups:
-  - rbac.authorization.k8s.io
-  resources:
-  - clusterroles
-  - rolebindings
-  verbs:
-  - delete
-- apiGroups:
-  - security.openshift.io
-  resources:
-  - securitycontextconstraints
-  verbs:
-  - delete
-- apiGroups:
-  - security.openshift.io
-  resources:
-  - securitycontextconstraints
-  resourceNames:
-  - post-delete-permissions.builtin.nsm.nginx
-  verbs:
-  - use
----
-apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
   name: post-delete-csi.builtin.nsm.nginx
@@ -255,11 +206,93 @@ metadata:
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: post-delete-csi.builtin.nsm.nginx
+  name: cluster-admin
 subjects:
 - kind: ServiceAccount
   name: post-delete-csi
   namespace: {{ .Release.Namespace }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: csi-driver-cleanup
+  labels:
+    app.kubernetes.io/part-of: nginx-service-mesh
+  annotations:
+    "helm.sh/hook": post-delete
+    "helm.sh/hook-delete-policy": hook-succeeded,hook-failed
+    "helm.sh/hook-weight": "-5"
+data:
+  sentinel.yaml: |
+    ---
+    apiVersion: v1
+    kind: ServiceAccount
+    metadata:
+      name: csi-driver-sentinel
+      labels:
+        app.kubernetes.io/part-of: nginx-service-mesh
+    imagePullSecrets:
+    - name: {{ include "registry-key-name" . }}
+    ---
+    apiVersion: rbac.authorization.k8s.io/v1
+    kind: ClusterRoleBinding
+    metadata:
+      name: csi-driver-sentinel.builtin.nsm.nginx
+      labels:
+        app.kubernetes.io/part-of: nginx-service-mesh
+    roleRef:
+      apiGroup: rbac.authorization.k8s.io
+      kind: ClusterRole
+      name: cluster-admin
+    subjects:
+    - kind: ServiceAccount
+      name: csi-driver-sentinel
+      namespace: {{ .Release.Namespace }}
+    ---
+    apiVersion: batch/v1
+    kind: Job
+    metadata:
+      name: csi-driver-sentinel
+      labels:
+        app.kubernetes.io/part-of: nginx-service-mesh
+    spec:
+      ttlSecondsAfterFinished: 0
+      template:
+        spec:
+          restartPolicy: Never
+          serviceAccountName: csi-driver-sentinel
+          containers:
+          - name: csi-driver-sentinel
+            image: {{ include "hook.image-server" . }}/kubectl
+            imagePullPolicy: {{ .Values.registry.imagePullPolicy }}
+            command:
+            - /bin/sh
+            - -c
+            - |
+              while [ $(kubectl get pods -A -o=jsonpath='{.items[?(@.metadata.annotations.injector\.nsm\.nginx\.com/status=="injected")].metadata.name}' | wc -w) -gt 0 ]; do
+                sleep 5
+              done
+              kubectl delete daemonset spire-agent
+              kubectl delete serviceaccount spire-agent
+              kubectl delete clusterrole system:openshift:scc:nginx-mesh-spire-agent-permissions
+              kubectl delete rolebinding system:openshift:scc:nginx-mesh-spire-agent-permissions
+              kubectl delete scc nginx-mesh-spire-agent-permissions
+              kubectl delete secret {{ include "registry-key-name" . }}
+              kubectl delete serviceaccount csi-driver-sentinel
+              kubectl delete clusterrolebinding csi-driver-sentinel.builtin.nsm.nginx
+  {{- if (include "docker-config-json" .) }}
+  secret.yaml: |
+    ---
+    apiVersion: v1
+    kind: Secret
+    metadata:
+      name: {{ include "registry-key-name" . }}
+      labels:
+        app.kubernetes.io/part-of: nginx-service-mesh
+    data:
+      .dockerconfigjson: {{ include "docker-config-json" . | b64enc }}
+    type: kubernetes.io/dockerconfigjson
+  {{- end }}
 ---
 apiVersion: batch/v1
 kind: Job
@@ -270,7 +303,7 @@ metadata:
   annotations:
     "helm.sh/hook": post-delete
     "helm.sh/hook-delete-policy": hook-succeeded,hook-failed
-    "helm.sh/hook-weight": "0"
+    "helm.sh/hook-weight": "5"
 spec:
   template:
     metadata:
@@ -288,8 +321,8 @@ spec:
         - /bin/sh
         - -c
         - |
-          res=$(kubectl get configmap injected-resources -o jsonpath='{.data.resources}')
-          if [ $res = 'false' ]; then
+          res=$(kubectl get pods -o=jsonpath='{.items[?(@.metadata.annotations.injector\.nsm\.nginx\.com/status=="injected")].metadata.name}' -A | wc -w)
+          if [ $res -eq 0 ]; then
             kubectl delete daemonset spire-agent
             kubectl delete serviceaccount spire-agent
             kubectl delete clusterrole system:openshift:scc:nginx-mesh-spire-agent-permissions
@@ -300,6 +333,19 @@ spec:
             kubectl patch daemonset spire-agent --type=json -p="[{'op': 'remove', 'path': '/spec/template/spec/containers/$idx'}]"
             idx=$(kubectl get daemonset spire-agent -o json | jq '.spec.template.spec.initContainers | map(.name == "init") | index(true)')
             kubectl patch daemonset spire-agent --type=json -p="[{'op': 'remove', 'path': '/spec/template/spec/initContainers/$idx'}]"
+            {{- if (include "docker-config-json" .) }}
+            kubectl get secret {{ include "registry-key-name" . }}
+            if [ $? != 0 ]; then
+              kubectl create -f /tmp/config/secret.yaml
+            fi
+            {{- end }}
+            kubectl create -f /tmp/config/sentinel.yaml
           fi
-          kubectl delete configmap injected-resources
+        volumeMounts:
+        - name: sentinel
+          mountPath: /tmp/config
+      volumes:
+      - name: sentinel
+        configMap:
+          name: csi-driver-cleanup
 {{- end }}

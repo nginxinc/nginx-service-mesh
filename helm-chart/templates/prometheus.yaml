@@ -93,7 +93,7 @@ spec:
       serviceAccountName: prometheus
       containers:
       - name: prometheus
-        image: {{ include "prometheus.image-server" . }}/prometheus:v2.20.1
+        image: {{ include "prometheus.image-server" . }}/prometheus:v2.33.1
         imagePullPolicy: {{ .Values.registry.imagePullPolicy }}
         args:
         - "--config.file=/etc/prometheus/prometheus.yaml"

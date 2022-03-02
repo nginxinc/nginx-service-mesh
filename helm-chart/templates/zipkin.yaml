@@ -1,4 +1,4 @@
-{{- if (and (not .Values.tracing.disable) (eq .Values.tracing.backend "zipkin") (eq .Values.tracing.address "")) }}
+{{- if .Values.tracing }} {{- if (and (not .Values.tracing.disable) (eq .Values.tracing.backend "zipkin") (eq .Values.tracing.address "")) }}
 ---
 apiVersion: v1
 kind: Service
@@ -39,8 +39,8 @@ spec:
       - name: {{ include "registry-key-name" . }}
       containers:
       - name: zipkin
-        image: {{ include "zipkin.image-server" . }}/zipkin:2.21
+        image: {{ include "zipkin.image-server" . }}/zipkin:2.23.16
         imagePullPolicy: {{ .Values.registry.imagePullPolicy }}
         ports:
         - containerPort: 9411
-{{- end }}
+{{- end }}{{- end }}

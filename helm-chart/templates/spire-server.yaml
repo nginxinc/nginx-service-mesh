@@ -56,6 +56,17 @@ rules:
   - list
   - patch
   - watch
+{{- if .Values.mtls.upstreamAuthority.certManager }}
+- apiGroups:
+  - cert-manager.io
+  resources:
+  - certificaterequests
+  verbs:
+  - get
+  - list
+  - create
+  - delete
+{{- end }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
@@ -135,7 +146,7 @@ metadata:
 type: Opaque
 data:
   {{- if (include "ua-secret-name" .) }}
-  {{ include "ua-secret-name" . }}: {{ include "ua-upstream-key" . }}{{ end }}
+  {{ include "ua-secret-name" . }}: {{ include "ua-secret-value" . }}{{ end }}
   {{- if (include "ua-vault-env-name" .) }}
   {{ include "ua-vault-env-name" . }}: {{ include "ua-vault-env-value" . }}{{ end }}
 {{- end }}
@@ -264,13 +275,9 @@ spec:
     spec:
       serviceAccountName: spire-server
       shareProcessNamespace: true
-      {{- if eq .Values.environment "openshift" }}
-      securityContext:
-        runAsUser: 0
-      {{- end }}
       containers:
         - name: spire-server
-          image: {{ include "spire.image-server" . }}/spire-server:1.1.0
+          image: {{ include "spire.image-server" . }}/spire-server:1.2.0
           imagePullPolicy: {{ .Values.registry.imagePullPolicy }}
           args:
             - '-config'
@@ -306,7 +313,7 @@ spec:
               readOnly: false
           livenessProbe:
             httpGet:
-              port: 80
+              port: 8082
               path: /live
             failureThreshold: 2
             initialDelaySeconds: 15
@@ -314,12 +321,12 @@ spec:
             timeoutSeconds: 3
           readinessProbe:
             httpGet:
-              port: 80
+              port: 8082
               path: /ready
             initialDelaySeconds: 5
             periodSeconds: 5
         - name: k8s-workload-registrar
-          image: {{ include "spire.image-server" . }}/k8s-workload-registrar:1.1.0
+          image: {{ include "spire.image-server" . }}/k8s-workload-registrar:1.2.0
           imagePullPolicy: {{ .Values.registry.imagePullPolicy }}
           args:
             - '-config'
@@ -333,8 +340,6 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: metadata.namespace
-          securityContext:
-            runAsUser: 0
           volumeMounts:
             - name: k8s-workload-registrar-config
               mountPath: /run/spire/config

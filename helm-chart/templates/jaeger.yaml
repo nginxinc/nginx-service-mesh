@@ -1,4 +1,4 @@
-{{- if (and (not .Values.tracing.disable) (eq .Values.tracing.backend "jaeger") (eq .Values.tracing.address "")) }}
+{{- if .Values.tracing }} {{ if (and (not .Values.tracing.disable) (eq .Values.tracing.backend "jaeger") (eq .Values.tracing.address "")) }}
 ---
 apiVersion: v1
 kind: Service
@@ -20,6 +20,10 @@ spec:
     port: 6831
     targetPort: 6831
     protocol: UDP
+  - name: collector-http
+    port: 14268
+    protocol: TCP
+    targetPort: 14268
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -47,10 +51,10 @@ spec:
       - name: {{ include "registry-key-name" . }}
       containers:
       - name: jaeger
-        image: {{ include "jaeger.image-server" . }}/all-in-one:1.26.0
+        image: {{ include "jaeger.image-server" . }}/all-in-one:1.31.0
         imagePullPolicy: {{ .Values.registry.imagePullPolicy }}
         ports:
         - containerPort: 16686
         - containerPort: 6831
           protocol: UDP
-{{- end }}
+{{- end }}{{- end }}
