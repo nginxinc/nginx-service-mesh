@@ -36,7 +36,7 @@ port `8887` and the path `/metrics`. All metrics collected from this job are pub
 the
 `nginxplus` namespace. For a list of available metrics, labels, and example
 Prometheus queries, check out the [Traffic
-Metrics](https://docs.nginx.com/nginx-service-mesh/guides/traffic-metrics/)
+Metrics](https://docs.nginx.com/nginx-service-mesh/guides/prometheus-metrics/)
 guide.
 
 
