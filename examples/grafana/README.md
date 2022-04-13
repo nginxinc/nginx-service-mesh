@@ -8,7 +8,7 @@ Both Grafana dashboards provide a high-level picture of the request volume and s
 
 NGINX Service Mesh deploys Grafana and adds `NGINX Mesh Top` as the default dashboard.  If you prefer to use an existing Grafana deployment, you can import either or both example dashboards included in this directory.
 
-## Prerequisties
+## Prerequisites
 - Grafana version >= 6.6.0
 - Prometheus datasource must be [configured](https://prometheus.io/docs/visualization/grafana/#creating-a-prometheus-data-source).
   
@@ -41,4 +41,4 @@ The default NGINX Mesh Top dashboard includes the following stats and graphs:
 
 ## Customizing your own Dashboard
 
-NGINX Service Mesh exposes NGINX Plus metrics in Prometheus format that can be used to create your own panels and custom dashboards. For a list of available metrics, labels, and example Prometheus queries, see the [Traffic Metrics guide](https://docs.nginx.com/nginx-service-mesh/guides/traffic-metrics/).
+NGINX Service Mesh exposes NGINX Plus metrics in Prometheus format that can be used to create your own panels and custom dashboards. For a list of available metrics, labels, and example Prometheus queries, see the [Traffic Metrics guide](https://docs.nginx.com/nginx-service-mesh/guides/prometheus-metrics/).
