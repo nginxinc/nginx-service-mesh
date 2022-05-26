@@ -41,7 +41,7 @@ prometheus.{{.Release.Namespace}}.svc.cluster.local:9090
 {{- end }}
 
 {{- define "node-driver.image-server" -}}
-{{- if not .Values.registry.disablePublicImages }}quay.io/k8scsi{{ else }}{{ .Values.registry.server }}{{ end }}
+{{- if not .Values.registry.disablePublicImages }}k8s.gcr.io/sig-storage{{ else }}{{ .Values.registry.server }}{{ end }}
 {{- end }}
 
 {{- define "hook.image-server" -}}
