@@ -349,6 +349,7 @@ spec:
         imagePullPolicy: {{ .Values.registry.imagePullPolicy }}
         args:
         - "-meshconfig=/etc/config/mesh-config.json"
+        - "-tlsDir=/tmp/webhooks"
         - "-logtostderr"
         - "-v=3"
         env:
@@ -366,8 +367,6 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: metadata.namespace
-        securityContext:
-          runAsUser: 0
         readinessProbe:
           httpGet:
             path: "/healthz"
@@ -375,6 +374,15 @@ spec:
           initialDelaySeconds: 5
           periodSeconds: 10
           failureThreshold: 30
+        securityContext:
+          allowPrivilegeEscalation: false
+          privileged: false
+          runAsUser: 2102
+          capabilities:
+            drop:
+              - all
+            add:
+              - NET_ADMIN
         livenessProbe:
           httpGet:
             path: "/healthz"
@@ -470,7 +478,7 @@ seLinuxContext:
   type: MustRunAs
 readOnlyRootFilesystem: false
 runAsUser:
-  type: RunAsAny
+  type: MustRunAsNonRoot
 fsGroup:
   type: MustRunAs
 volumes:
@@ -522,21 +530,15 @@ allowHostPorts: false
 allowPrivilegedContainer: false
 allowedCapabilities:
 - NET_ADMIN
-- NET_RAW
-- SYS_RESOURCE
-- SYS_ADMIN
 seLinuxContext:
   type: RunAsAny
 runAsUser:
-  type: RunAsAny
+  type: MustRunAsNonRoot
 fsGroup:
   type: MustRunAs
 readOnlyRootFilesystem: false
 requiredDropCapabilities:
-- KILL
-- MKNOD
-- SETUID
-- SETGID
+- ALL
 volumes:
 - configMap
 - downwardAPI
