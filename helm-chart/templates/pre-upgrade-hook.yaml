@@ -1,4 +1,5 @@
-{{- if eq .Values.environment "openshift" }}
+# This hook saves all existing HTTPRouteGroups, replaces their header list with an object
+# (due to the SMI API breakage), then saves the output in a ConfigMap. The new CRD definition is then applied.
 ---
 apiVersion: v1
 kind: ServiceAccount
@@ -14,9 +15,9 @@ imagePullSecrets:
 - name: {{ include "registry-key-name" . }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
-kind: Role
+kind: ClusterRole
 metadata:
-  name: pre-upgrade
+  name: pre-upgrade.builtin.nsm.nginx
   labels:
     app.kubernetes.io/part-of: nginx-service-mesh
   annotations:
@@ -25,16 +26,62 @@ metadata:
     "helm.sh/hook-weight": "-5"
 rules:
 - apiGroups:
-  - apps
+  - ''
   resources:
-  - daemonsets
+  - configmaps
   verbs:
-  - delete
+  - create
+- apiGroups:
+  - specs.smi-spec.io
+  resources:
+  - httproutegroups
+  verbs:
+  - get
+  - list
+- apiGroups:
+  - apiextensions.k8s.io
+  resources:
+  - customresourcedefinitions
+  verbs:
+  - get
+  - patch
+{{- if eq .Values.environment "openshift" }}
+- apiGroups:
+  - security.openshift.io
+  resources:
+  - securitycontextconstraints
+  resourceNames:
+  - pre-upgrade-permissions.builtin.nsm.nginx
+  verbs:
+  - use
+---
+apiVersion: security.openshift.io/v1
+kind: SecurityContextConstraints
+metadata:
+  name: pre-upgrade-permissions.builtin.nsm.nginx
+  labels:
+    app.kubernetes.io/part-of: nginx-service-mesh
+  annotations:
+    "helm.sh/hook": pre-upgrade
+    "helm.sh/hook-delete-policy": hook-succeeded,hook-failed
+    "helm.sh/hook-weight": "-5"
+allowHostDirVolumePlugin: false
+allowHostIPC: false
+allowHostNetwork: false
+allowHostPID: false
+allowHostPorts: false
+allowPrivilegedContainer: false
+seLinuxContext:
+  type: MustRunAs
+runAsUser:
+  type: RunAsAny
+readOnlyRootFilesystem: false
+{{- end }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
-kind: RoleBinding
+kind: ClusterRoleBinding
 metadata:
-  name: pre-upgrade
+  name: pre-upgrade.builtin.nsm.nginx
   labels:
     app.kubernetes.io/part-of: nginx-service-mesh
   annotations:
@@ -42,9 +89,9 @@ metadata:
     "helm.sh/hook-delete-policy": hook-succeeded,hook-failed
     "helm.sh/hook-weight": "-5"
 roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: Role
-  name: pre-upgrade
+  apiGroup: ""
+  kind: ClusterRole
+  name: pre-upgrade.builtin.nsm.nginx
 subjects:
 - kind: ServiceAccount
   name: pre-upgrade
@@ -53,7 +100,7 @@ subjects:
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: delete-spire-agent
+  name: save-httproutegroups
   labels:
     app.kubernetes.io/part-of: nginx-service-mesh
   annotations:
@@ -63,17 +110,21 @@ metadata:
 spec:
   template:
     metadata:
-      name: delete-spire-agent
+      name: save-httproutegroups
     spec:
       restartPolicy: Never
       serviceAccountName: pre-upgrade
       containers:
-      - name: delete-spire-agent
+      - name: save-httproutegroups
         image: {{ include "hook.image-server" . }}/kubectl
         imagePullPolicy: {{ .Values.registry.imagePullPolicy }}
         command:
-        - /bin/sh
+        - /bin/bash
         - -c
         - |
-          kubectl delete daemonset spire-agent
-{{- end }}
+          res=$(kubectl get httproutegroups.specs.smi-spec.io -A -o json | sed -e 's/\\n//g' | jq -c '.items[]' | while read -r i; do jq '(.spec.matches[] | select(.headers != null)).headers |= add' <<< $i; done | jq -s -c '.')
+          if [ -n "$res" ] && [ $res != "[]" ]; then
+            kubectl create configmap httproutegroups --from-literal httproutegroups="$res"
+            crd={{ .Files.Get "crds/httproutegroup.yaml" | fromYaml | toJson | quote }}
+            echo $crd | kubectl apply -f -
+          fi

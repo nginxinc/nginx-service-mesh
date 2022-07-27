@@ -6,7 +6,7 @@ registry:
 
   # Tag used for pulling images from registry
   # Affects: nginx-mesh-api, nginx-mesh-cert-reloader, nginx-mesh-init, nginx-mesh-metrics, nginx-mesh-sidecar
-  imageTag: "1.4.1"
+  imageTag: "1.5.0"
 
   # Note: Currently only works with Google Cloud registry.
   # Contents of your Google Cloud JSON key file. Can be set via "--set-file registry.key=<your-key-file>.json"
@@ -40,11 +40,6 @@ environment: "kubernetes"
 # Enable UDP traffic proxying (beta). Linux kernel 4.18 or greater is required.
 enableUDP: false
 
-# Deploy Grafana as a part of the NGINX Service Mesh.
-# Note: This configurable will be removed in version 1.5
-# Valid values: true, false
-deployGrafana: true
-
 # NGINX error log level.
 # Valid values: debug, info, notice, warn, error, crit, alert, emerg
 nginxErrorLogLevel: "warn"
@@ -57,6 +52,10 @@ nginxLogFormat: "default"
 # Valid values: [least_conn, least_time, least_time last_byte, least_time last_byte inflight,
 # random, random two, random two least_conn, random two least_time, random two least_time=last_byte, round_robin]
 nginxLBMethod: "least_time"
+
+# NGINX client max body size.
+# Setting to "0" disables checking of client request body size.
+clientMaxBodySize: "1m"
 
 # The address of a Prometheus server deployed in your Kubernetes cluster.
 # Address should be in the format <service-name>.<namespace>:<service-port>.
@@ -76,25 +75,6 @@ autoInjection:
   # Must be used with "disable".
   enabledNamespaces: []
 
-# NGINX Service Mesh tracing settings.
-# Cannot be set when telemetry is set.
-# If deploying with tracing, make sure the telemetry object is set to {}.
-tracing:
-  # Disable tracing for all services.
-  # Note: This configurable will be removed in version 1.5
-  disable: false
-
-  # The address of a tracing server deployed in your Kubernetes cluster.
-  # Address should be in the format <service-name>.<namespace>:<service_port>.
-  address: ""
-
-  # The tracing backend that you want to use.
-  # Valid values: datadog, jaeger, zipkin
-  backend: "jaeger"
-
-  # The sample rate to use for tracing. Float between 0 and 1.
-  sampleRate: 0.01
-
 # NGINX Service Mesh telemetry settings.
 # Cannot be set when tracing is set.
 # To enable telemetry, uncomment the following object and set the tracing object to {}.
@@ -109,6 +89,21 @@ telemetry: {}
 #       host: ""
 #       # The port of the OpenTelemetry gRPC exporter to connect to.
 #       port: 4317
+  
+# NGINX Service Mesh tracing settings. Deprecated in favor of telemetry.
+# Cannot be set when telemetry is set.
+# If deploying with tracing, uncomment the following object and set the telemetry object to {}.
+tracing: {}
+  # The address of a tracing server deployed in your Kubernetes cluster.
+  # Address should be in the format <service-name>.<namespace>:<service_port>.
+  # address: ""
+
+  # The tracing backend that you want to use.
+  # Valid values: datadog, jaeger, zipkin
+  # backend: ""
+
+  # The sample rate to use for tracing. Float between 0 and 1.
+  # sampleRate: 0.01
 
 # Mutual TLS settings. See https://docs.nginx.com/nginx-service-mesh/guides/secure-traffic-mtls for more info.
 mtls:

@@ -128,7 +128,18 @@ spec:
         image: {{ .Values.registry.server }}/nginx-mesh-metrics:{{ .Values.registry.imageTag }}
         imagePullPolicy: {{ .Values.registry.imagePullPolicy }}
         args:
-        - "--prometheus-address={{ include "prometheus.address" . }}"
+        {{ if .Values.prometheusAddress }}
+        - "--prometheus-address={{ .Values.prometheusAddress }}"
+        {{ end }}
+        securityContext:
+          allowPrivilegeEscalation: false
+          privileged: false
+          runAsUser: 2102
+          capabilities:
+            drop:
+              - all
+            add:
+              - NET_ADMIN
         readinessProbe:
           httpGet:
             scheme: HTTPS
