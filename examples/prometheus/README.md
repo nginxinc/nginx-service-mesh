@@ -1,8 +1,8 @@
 # Prometheus Configuration
 
-NGINX Service Mesh deploys a Prometheus server that is configured to scrape metrics
+NGINX Service Mesh can integrate with a Prometheus deployment to scrape metrics
 from NGINX Service Mesh sidecars and NGINX Plus Ingress Controller Pods. If you
-prefer to use an existing Prometheus deployment, you can add the following
+have an existing Prometheus deployment, you can add the following
 scrape configs to your Prometheus configuration file. 
 
 ## NGINX Mesh Sidecar Scrape Config
