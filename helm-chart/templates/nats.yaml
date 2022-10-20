@@ -82,16 +82,6 @@ spec:
       - name: nginx-mesh-cert-reloader-init
         image: {{ .Values.registry.server }}/nginx-mesh-cert-reloader:{{ .Values.registry.imageTag }}
         imagePullPolicy: {{ .Values.registry.imagePullPolicy }}
-        securityContext:
-          allowPrivilegeEscalation: false
-          privileged: false
-          runAsUser: 2102
-          capabilities:
-            drop:
-              - all
-            add:
-              - NET_ADMIN
-              - KILL
         volumeMounts:
         - name: tls
           mountPath: "/etc/ssl"
@@ -113,7 +103,7 @@ spec:
         - name: spire-agent-socket
           mountPath: "/run/spire/sockets"
       - name: nats-server
-        image: {{ include "nats.image-server" . }}nats:2.8.4-alpine3.15
+        image: {{ include "nats.image-server" . }}nats:2.7.2-alpine3.15
         imagePullPolicy: {{ .Values.registry.imagePullPolicy }}
         ports:
         - containerPort: 4222
@@ -124,15 +114,6 @@ spec:
         - nats-server
         - "--config"
         - "/etc/nats-config/nats.conf"
-        securityContext:
-          allowPrivilegeEscalation: false
-          privileged: false
-          runAsUser: 2102
-          capabilities:
-            drop:
-              - all
-            add:
-              - NET_ADMIN
         env:
         - name: POD_NAME
           valueFrom:

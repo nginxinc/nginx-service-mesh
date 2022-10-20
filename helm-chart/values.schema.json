@@ -308,7 +308,7 @@
         "imageTag": {
           "description": "Tag used for pulling images from registry. ",
           "type": "string",
-          "default": "1.5.0"
+          "default": "1.4.0"
         },
         "key": {
           "description": "Contents of your Google Cloud JSON key file",
@@ -373,6 +373,10 @@
       "description": "Enable UDP traffic proxying (beta). Linux kernel 4.18 or greater is required.",
       "type": "boolean"
     },
+    "deployGrafana": {
+      "description": "Deploy Grafana as a part of the NGINX Service Mesh",
+      "type": "boolean"
+    },
     "nginxErrorLogLevel": {
       "description": "NGINX error log level",
       "type": "string",
@@ -387,11 +391,6 @@
       "description": "NGINX load balancing method",
       "type": "string",
       "enum": ["least_conn", "least_time", "least_time last_byte", "least_time last_byte inflight", "random", "random two", "random two least_conn", "random two least_time", "random two least_time=last_byte", "round_robin"]
-    },
-    "clientMaxBodySize": {
-      "description": "NGINX client max body size",
-      "type": "string",
-      "pattern": "^\\d+[kKmMgG]?$"
     },
     "prometheusAddress": {
       "description": "The address of a Prometheus server deployed in your Kubernetes cluster",
@@ -531,6 +530,10 @@
     },
     "tracingConfig": {
       "properties": {
+        "disable": {
+          "description": "Disable tracing for all services",
+          "type": "boolean"
+        },
         "sampleRate": {
           "description": "The sample rate to use for tracing. Float between 0 and 1",
           "type": "number",
@@ -544,14 +547,28 @@
         },
         "address": {
           "description": "The address of a tracing server deployed in your Kubernetes cluster",
-          "type": "string",
-          "minLength": 1
+          "type": "string"
         }
       },
-      "required": ["address", "backend", "sampleRate"]
+      "required": ["disable", "sampleRate"],
+      "if": {
+        "properties": {
+          "backend": {
+            "const": "datadog"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "address": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
     }
   },
-  "anyOf": [
+  "oneOf": [
     {
       "properties": {
         "telemetry": {
@@ -588,6 +605,7 @@
     "registry",
     "accessControlMode",
     "environment",
+    "deployGrafana",
     "nginxErrorLogLevel",
     "nginxLogFormat",
     "nginxLBMethod",

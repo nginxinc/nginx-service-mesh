@@ -1,3 +1,37 @@
+{{- define "jaeger.image-server" -}}
+{{- if not .Values.registry.disablePublicImages }}jaegertracing{{ else }}{{ .Values.registry.server }}{{ end }}
+{{- end }}
+
+{{- define "zipkin.image-server" -}}
+{{- if not .Values.registry.disablePublicImages }}openzipkin{{ else }}{{ .Values.registry.server }}{{ end }}
+{{- end }}
+
+{{- define "tracing.address" -}}
+{{- if ne .Values.tracing.address "" -}}
+{{ .Values.tracing.address }}
+{{- else if eq .Values.tracing.backend "jaeger" -}}
+jaeger.{{.Release.Namespace}}.svc.cluster.local:6831
+{{- else if eq .Values.tracing.backend "zipkin" -}}
+zipkin.{{.Release.Namespace}}.svc.cluster.local:9411
+{{- end }}
+{{- end }}
+
+{{- define "prometheus.address" -}}
+{{- if eq .Values.prometheusAddress "" -}}
+prometheus.{{.Release.Namespace}}.svc.cluster.local:9090
+{{- else -}}
+{{ .Values.prometheusAddress }}
+{{- end }}
+{{- end }}
+
+{{- define "prometheus.image-server" -}}
+{{- if not .Values.registry.disablePublicImages }}prom{{ else }}{{ .Values.registry.server }}{{ end }}
+{{- end }}
+
+{{- define "grafana.image-server" -}}
+{{- if not .Values.registry.disablePublicImages }}grafana{{ else }}{{ .Values.registry.server }}{{ end }}
+{{- end }}
+
 {{- define "nats.image-server" -}}
 {{- if not .Values.registry.disablePublicImages }}{{ else }}{{ .Values.registry.server }}/{{ end }}
 {{- end }}
@@ -7,7 +41,7 @@
 {{- end }}
 
 {{- define "node-driver.image-server" -}}
-{{- if not .Values.registry.disablePublicImages }}k8s.gcr.io/sig-storage{{ else }}{{ .Values.registry.server }}{{ end }}
+{{- if not .Values.registry.disablePublicImages }}quay.io/k8scsi{{ else }}{{ .Values.registry.server }}{{ end }}
 {{- end }}
 
 {{- define "hook.image-server" -}}
