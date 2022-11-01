@@ -7,7 +7,7 @@
 {{- end }}
 
 {{- define "node-driver.image-server" -}}
-{{- if not .Values.registry.disablePublicImages }}k8s.gcr.io/sig-storage{{ else }}{{ .Values.registry.server }}{{ end }}
+{{- if not .Values.registry.disablePublicImages }}registry.k8s.io/sig-storage{{ else }}{{ .Values.registry.server }}{{ end }}
 {{- end }}
 
 {{- define "hook.image-server" -}}
@@ -16,6 +16,10 @@
 
 {{- define "ubuntu.image-server" -}}
 {{- if not .Values.registry.disablePublicImages }}{{ else }}{{ .Values.registry.server }}/{{ end }}
+{{- end }}
+
+{{- define "curl.image-server" -}}
+{{- if not .Values.registry.disablePublicImages }}curlimages{{ else }}{{ .Values.registry.server }}{{ end }}
 {{- end }}
 
 {{- define "registry-key-name" -}}

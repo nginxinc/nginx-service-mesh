@@ -1,4 +1,4 @@
-# This hook reads the ConfigMap created by the pre-upgrade hook, and applies all updated HTTPRouteGroups.
+# This hook removes vestigial labels from select namespaces that the mesh no longer uses
 ---
 apiVersion: v1
 kind: ServiceAccount
@@ -27,26 +27,20 @@ rules:
 - apiGroups:
   - ''
   resources:
-  - configmaps
+  - namespaces
   verbs:
   - get
-  - delete
-- apiGroups:
-  - specs.smi-spec.io
-  resources:
-  - httproutegroups
-  verbs:
-  - get
+  - list
   - patch
 {{- if eq .Values.environment "openshift" }}
 - apiGroups:
-  - security.openshift.io
+    - security.openshift.io
   resources:
-  - securitycontextconstraints
+    - securitycontextconstraints
   resourceNames:
-  - post-upgrade-permissions.builtin.nsm.nginx
+    - post-upgrade-permissions.builtin.nsm.nginx
   verbs:
-  - use
+    - use
 ---
 apiVersion: security.openshift.io/v1
 kind: SecurityContextConstraints
@@ -86,14 +80,14 @@ roleRef:
   kind: ClusterRole
   name: post-upgrade.builtin.nsm.nginx
 subjects:
-- kind: ServiceAccount
-  name: post-upgrade
-  namespace: {{ .Release.Namespace }}
+  - kind: ServiceAccount
+    name: post-upgrade
+    namespace: {{ .Release.Namespace }}
 ---
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: update-httproutegroups
+  name: remove-namespace-labels
   labels:
     app.kubernetes.io/part-of: nginx-service-mesh
   annotations:
@@ -103,26 +97,27 @@ metadata:
 spec:
   template:
     metadata:
-      name: update-httproutegroups
+      name: remove-namespace-labels
     spec:
       restartPolicy: Never
       serviceAccountName: post-upgrade
       containers:
-      - name: update-httproutegroups
-        image: {{ include "hook.image-server" . }}/kubectl
-        imagePullPolicy: {{ .Values.registry.imagePullPolicy }}
-        command:
-        - /bin/bash
-        - -c
-        - |
-          res=$(kubectl get configmap httproutegroups --ignore-not-found -o jsonpath='{.data.httproutegroups}')
-          if [ -n "$res" ]; then
-            n=0
-            until [ "$n" -ge 30 ]
-            do
-              echo $res | jq -c '.[]' | while read -r i; do kubectl apply -f - <<< $i; done && break
-              n=$((n+1))
-              sleep 1
-            done
-          fi
-          kubectl delete configmap httproutegroups --ignore-not-found
+        - name: remove-namespace-labels
+          image: {{ include "hook.image-server" . }}/kubectl
+          imagePullPolicy: {{ .Values.registry.imagePullPolicy }}
+          securityContext:
+            runAsUser: 0
+          command:
+            - /bin/bash
+            - -c
+            - |
+              kubectl label namespace kube-system injector.nsm.nginx.com/auto-inject-
+              kubectl label namespace {{ .Release.Namespace }} --overwrite injector.nsm.nginx.com/auto-inject- app.kubernetes.io/part-of-
+              {{- if .Values.rancher }}
+              kubectl label namespace ingress-nginx cert-manager injector.nsm.nginx.com/auto-inject-
+              for ns in $(kubectl get ns | awk '{print $1}' | tail -n +2); do
+                case "$ns" in
+                  cattle-*) kubectl label namespace $ns injector.nsm.nginx.com/auto-inject- ;;
+                esac
+              done
+              {{- end }}

@@ -6,6 +6,6 @@ Before deploying NGINX Service Mesh, see the [Platform Guide](https://docs.nginx
 
 For information on the configuration options and installation process when using Helm with NGINX Service Mesh, see the [Installation Guide](https://docs.nginx.com/nginx-service-mesh/get-started/install-with-helm/).
 
-## Rancher users
+We recommend deploying the mesh with auto-injection disabled globally, using the `--set disableAutoInjection=true` flag. This ensures that Pods are not automatically injected without your consent, especially in system namespaces.
 
-When deploying NGINX Service Mesh via the Rancher Apps and Marketplace, the Helm value `rancher` is set to `true` by default. This value causes Pods in the `cattle-*`, `ingress-nginx`, and `cert-manager` namespaces to be ignored by the automatic sidecar injection webhook. If this behavior is not desired, the `rancher` value can be set to `false`, or the `injector.nsm.nginx.com/auto-inject` label can be manually removed from these namespaces.
+To opt-in a namespace you can label it with `injector.nsm.nginx.com/auto-inject=enabled` or use the flag `--set autoInjection.enabledNamespaces={namespace-1, namespace-2}`.
