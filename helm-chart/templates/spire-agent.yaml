@@ -90,17 +90,18 @@ spec:
           mountPath: "/wlapi"
       {{- end }}
       - name: init
-        image: {{ include "hook.image-server" . }}/kubectl
+        image: {{ include "curl.image-server" . }}/curl
         command:
         - /bin/sh
         - -c
         - |
-          while $(kubectl -n {{ .Release.Namespace }} wait --for=condition=Ready pod -l app.kubernetes.io/name=spire-server > /dev/null); [ $? -ne 0 ]; do
+          # passing dummy value forces telnet connection to exit on success with code 48
+          while $(curl -t 'DUMMY=1' -s telnet://spire-server:8081); [ $? -ne 48 ]; do
             sleep 1
           done
       containers:
       - name: spire-agent
-        image: {{ include "spire.image-server" . }}/spire-agent:1.3.2
+        image: {{ include "spire.image-server" . }}/spire-agent:1.4.4
         imagePullPolicy: {{ .Values.registry.imagePullPolicy }}
         args:
         - "-config"

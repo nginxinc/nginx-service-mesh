@@ -13,9 +13,9 @@
           "default": "permissive"
         },
         "caTTL": {
-          "description": "The CA/signing key TTL in hours(h) or minutes(m). Max value is 999999.",
+          "description": "The CA/signing key TTL in hours(h). Min value 24h. Max value 999999h.",
           "type": "string",
-          "pattern": "^[1-9][0-9]{0,5}(h|m)$",
+          "pattern": "^1[0-9]{2,5}(h)|2[4-9](h)|2[0-9][0-9]{1,5}(h)|[3-9][0-9]{1,5}(h)$",
           "default": "720h"
         },
         "svidTTL": {
@@ -308,7 +308,7 @@
         "imageTag": {
           "description": "Tag used for pulling images from registry. ",
           "type": "string",
-          "default": "1.5.0"
+          "default": "1.6.0"
         },
         "key": {
           "description": "Contents of your Google Cloud JSON key file",
@@ -396,6 +396,17 @@
     "prometheusAddress": {
       "description": "The address of a Prometheus server deployed in your Kubernetes cluster",
       "type": "string"
+    },
+    "disableAutoInjection": {
+      "description": "Disable automatic sidecar injection upon resource creation",
+      "type": "boolean"
+    },
+    "enabledNamespaces": {
+      "description": "Enable automatic sidecar injection for specific namespaces",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
     },
     "autoInjection": {
       "description": "NGINX Service Mesh auto-injection settings",
@@ -551,6 +562,44 @@
       "required": ["address", "backend", "sampleRate"]
     }
   },
+  "allOf": [
+  {
+    "if": {
+      "properties": {
+        "disableAutoInjection": {
+          "const": false
+        }
+      }
+    },
+    "then":{
+      "properties": {
+        "enabledNamespaces": {
+          "$ref": "#/definitions/emptyArray"
+        }
+      }
+    }
+  },
+  {
+    "if": {
+      "properties": {
+        "disableAutoInjection": {
+          "const": true
+        }
+      }
+    },
+    "then":{
+      "properties": {
+        "autoInjection": {
+          "properties": {
+            "disabledNamespaces": {
+              "$ref": "#/definitions/emptyArray"
+            }
+          }
+        }
+      }
+    }
+  }
+],
   "anyOf": [
     {
       "properties": {
@@ -591,6 +640,7 @@
     "nginxErrorLogLevel",
     "nginxLogFormat",
     "nginxLBMethod",
-    "autoInjection"
+    "autoInjection",
+    "disableAutoInjection"
   ]
 }

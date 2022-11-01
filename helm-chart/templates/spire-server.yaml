@@ -277,7 +277,7 @@ spec:
       shareProcessNamespace: true
       containers:
         - name: spire-server
-          image: {{ include "spire.image-server" . }}/spire-server:1.3.2
+          image: {{ include "spire.image-server" . }}/spire-server:1.4.4
           imagePullPolicy: {{ .Values.registry.imagePullPolicy }}
           args:
             - '-config'
@@ -326,7 +326,7 @@ spec:
             initialDelaySeconds: 5
             periodSeconds: 5
         - name: k8s-workload-registrar
-          image: {{ include "spire.image-server" . }}/k8s-workload-registrar:1.3.2
+          image: {{ include "spire.image-server" . }}/k8s-workload-registrar:1.4.4
           imagePullPolicy: {{ .Values.registry.imagePullPolicy }}
           args:
             - '-config'

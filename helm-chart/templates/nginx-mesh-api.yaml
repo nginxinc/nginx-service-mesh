@@ -249,10 +249,11 @@ webhooks:
 - name: nginx-mesh-api.sidecar.injector
   namespaceSelector:
     matchExpressions:
-    - key: injector.nsm.nginx.com/auto-inject
+    - key: kubernetes.io/metadata.name
       operator: NotIn
       values:
-      - 'false'
+      - "kube-system"
+      - {{ .Release.Namespace }}
   clientConfig:
     service:
       name: nginx-mesh-webhook
