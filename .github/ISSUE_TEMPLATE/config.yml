@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: NGINX Service Mesh Documentation
+    url: https://docs.nginx.com/nginx-service-mesh
+    about: Check out our documentation.
