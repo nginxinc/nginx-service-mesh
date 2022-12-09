@@ -406,7 +406,7 @@ spec:
       - name: spire-agent-socket
         {{ if eq .Values.environment "openshift" -}}
         csi:
-          driver: wlapi-mounter.spire.nginx.com
+          driver: csi.spiffe.io
           readOnly: true
         {{- else -}}
         hostPath:

@@ -6,7 +6,7 @@ registry:
 
   # Tag used for pulling images from registry
   # Affects: nginx-mesh-api, nginx-mesh-cert-reloader, nginx-mesh-init, nginx-mesh-metrics, nginx-mesh-sidecar
-  imageTag: "1.6.0"
+  imageTag: "1.7.0"
 
   # Note: Currently only works with Google Cloud registry.
   # Contents of your Google Cloud JSON key file. Can be set via "--set-file registry.key=<your-key-file>.json"
@@ -69,7 +69,7 @@ enabledNamespaces: []
 # Address should be in the format <service-name>.<namespace>:<service-port>.
 prometheusAddress: ""
 
-# This block has been deprecated and will be removed in a future release of NGINX Service Mesh. Please use top level values disable and enabledNamespaces.
+# This block has been deprecated and will be removed in a future release of NGINX Service Mesh. Please use top level values disableAutoInjection and enabledNamespaces.
 # NGINX Service Mesh auto-injection settings.
 autoInjection:
   # Deprecated and will be removed in a future release of NGINX Service Mesh.

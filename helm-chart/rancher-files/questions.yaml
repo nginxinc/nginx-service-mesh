@@ -1,0 +1,156 @@
+questions:
+- variable: useDefaultImages
+  default: true
+  description: "Use default image settings."
+  label: Use default images
+  type: boolean
+  show_subquestion_if: false
+  group: "Image Registry"
+  subquestions:
+  - variable: registry.server
+    description: "Hostname:port (if needed) for registry and path to images."
+    label: Image registry server
+    type: string
+  - variable: registry.imageTag
+    description: "Tag used for pulling images from registry."
+    label: Image tag
+    type: string
+  - variable: registry.key
+    description: "Contents of your Google Cloud JSON key file. Cannot be used with username or password."
+    label: Image registry key
+    type: string
+  - variable: registry.username
+    description: "Username for accessing private registry."
+    label: Image registry username
+    type: string
+  - variable: registry.password
+    description: "Password for accessing private registry."
+    label: Image registry password
+    type: string
+  - variable: registry.disablePublicImages
+    description: "Do not pull third party images from public repositories. If true, registry.server is used for all images."
+    label: Disable public images
+    type: boolean
+  - variable: registry.imagePullPolicy
+    description: "Image pull policy."
+    label: Image pull policy
+    type: string
+- variable: useMtlsDefaults
+  default: true
+  description: "Use default mTLS settings."
+  label: Use default mTLS settings
+  type: boolean
+  show_subquestion_if: false
+  group: "Mutual TLS"
+  subquestions:
+  - variable: mtls.mode
+    description: "mTLS mode for pod-to-pod communication."
+    label: mTLS mode
+    type: enum
+    options:
+    - "off"
+    - "permissive"
+    - "strict"
+  - variable: mtls.caTTL
+    description: "The CA/signing key TTL in hours(h) or minutes(m)."
+    label: mTLS caTTL
+    type: string
+  - variable: mtls.svidTTL
+    description: "The TTL of certificates issued to workloads in hours(h) or minutes(m)."
+    label: mTLS svidTTL
+    type: string
+  - variable: mtls.trustDomain
+    description: "The trust domain of the NGINX Service Mesh."
+    label: mTLS trust domain
+    type: string
+  - variable: mtls.persistentStorage
+    description: "Use persistent storage; 'on' assumes that a StorageClass exists."
+    label: mTLS persistent storage
+    type: enum
+    options:
+    - "on"
+    - "off"
+  - variable: mtls.spireServerKeyManager
+    description: "Storage logic for SPIRE Server's private keys."
+    label: mTLS spire server key manager
+    type: enum
+    options:
+    - "disk"
+    - "memory"
+  - variable: mtls.caKeyType
+    description: "The key type used for the SPIRE Server CA."
+    label: mTLS ca key type
+    type: enum
+    options:
+    - "ec-p256"
+    - "ec-p384"
+    - "rsa-2048"
+    - "rsa-4096"
+- variable: disableAutoInjection
+  description: "Disable automatic sidecar injection upon resource creation."
+  label: Disable auto injection
+  type: boolean
+  group: "General Settings"
+- variable: accessControlMode
+  description: "Default access control mode for service-to-service communication."
+  label: Access control mode
+  type: enum
+  options:
+  - "allow"
+  - "deny"
+  group: "General Settings"
+- variable: nginxErrorLogLevel
+  description: "NGINX error log level."
+  label: NGINX error log level.
+  type: enum
+  options:
+  - "debug"
+  - "info"
+  - "notice"
+  - "warn"
+  - "error"
+  - "crit"
+  - "alert"
+  - "emerg"
+  group: "General Settings"
+- variable: nginxLogFormat
+  description: "NGINX log format."
+  label: NGINX log format.
+  type: enum
+  options:
+  - "default"
+  - "json"
+  group: "General Settings"
+- variable: nginxLBMethod
+  description: "NGINX load balancing method."
+  label: NGINX load balancing method.
+  type: enum
+  options:
+  - "least_conn"
+  - "least_time"
+  - "least_time last_byte"
+  - "least_time last_byte inflight"
+  - "random"
+  - "random two"
+  - "random two least_conn"
+  - "random two least_time"
+  - "random two least_time=last_byte"
+  - "round_robin"
+  group: "General Settings"
+- variable: clientMaxBodySize
+  description: "NGINX client max body size."
+  label: NGINX client max body size.
+  type: string
+  valid_chars: "^\\d+[kKmMgG]?$"
+  group: "General Settings"
+- variable: prometheusAddress
+  description: "The address of a Prometheus server deployed in your Kubernetes cluster."
+  label: Prometheus address.
+  type: string
+  group: "General Settings"
+- variable: enableUDP
+  description: "Enable UDP traffic proxying (beta). Linux kernel 4.18 or greater is required."
+  label: Enable UDP
+  type: boolean
+  group: "General Settings"
+

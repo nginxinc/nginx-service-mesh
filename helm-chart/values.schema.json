@@ -308,7 +308,7 @@
         "imageTag": {
           "description": "Tag used for pulling images from registry. ",
           "type": "string",
-          "default": "1.6.0"
+          "default": "1.7.0"
         },
         "key": {
           "description": "Contents of your Google Cloud JSON key file",
