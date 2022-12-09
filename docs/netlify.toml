@@ -1,0 +1,14 @@
+[build]
+  HUGO_VERSION = "0.80.0"
+  publish = "public"
+  command = "hugo --gc"
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Access-Control-Allow-Origin = "https://docs.nginx.com"
+
+[[redirects]]
+  from = "*"
+  to = "/404.html"
+  status = 404

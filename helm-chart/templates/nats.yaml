@@ -67,7 +67,7 @@ spec:
       - name: spire-agent-socket
         {{ if eq .Values.environment "openshift" -}}
         csi:
-          driver: wlapi-mounter.spire.nginx.com
+          driver: csi.spiffe.io
           readOnly: true
         {{- else -}}
         hostPath:
@@ -113,7 +113,7 @@ spec:
         - name: spire-agent-socket
           mountPath: "/run/spire/sockets"
       - name: nats-server
-        image: {{ include "nats.image-server" . }}nats:2.9.3-alpine3.16
+        image: {{ include "nats.image-server" . }}nats:2.9.8-alpine3.16
         imagePullPolicy: {{ .Values.registry.imagePullPolicy }}
         ports:
         - containerPort: 4222

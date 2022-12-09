@@ -1,0 +1,208 @@
+{{- if eq .Values.environment "openshift" }}
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: spiffe-csi-driver
+  labels:
+    app.kubernetes.io/part-of: nginx-service-mesh
+  annotations:
+    "helm.sh/resource-policy": keep
+imagePullSecrets:
+- name: {{ include "registry-key-name" . }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: system:openshift:scc:nginx-mesh-spiffe-csi-driver-permissions
+  labels:
+    app.kubernetes.io/part-of: nginx-service-mesh
+  annotations:
+    "helm.sh/resource-policy": keep
+rules:
+- apiGroups:
+  - security.openshift.io
+  resources:
+  - securitycontextconstraints
+  resourceNames:
+  - nginx-mesh-spiffe-csi-driver-permissions
+  verbs:
+  - use
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: system:openshift:scc:nginx-mesh-spiffe-csi-driver-permissions
+  labels:
+    app.kubernetes.io/part-of: nginx-service-mesh
+  annotations:
+    "helm.sh/resource-policy": keep
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: system:openshift:scc:nginx-mesh-spiffe-csi-driver-permissions
+subjects:
+- kind: ServiceAccount
+  name: spiffe-csi-driver
+  namespace: {{ .Release.Namespace }}
+---
+apiVersion: security.openshift.io/v1
+kind: SecurityContextConstraints
+metadata:
+  name: nginx-mesh-spiffe-csi-driver-permissions
+  labels:
+    app.kubernetes.io/part-of: nginx-service-mesh
+  annotations:
+    "helm.sh/resource-policy": keep
+allowHostDirVolumePlugin: false
+allowHostIPC: false
+allowHostPID: true
+allowHostNetwork: false
+allowHostPorts: false
+allowPrivilegedContainer: true
+seLinuxContext:
+  type: MustRunAs
+readOnlyRootFilesystem: false
+runAsUser:
+  type: RunAsAny
+fsGroup:
+  type: MustRunAs
+volumes:
+- hostPath
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: spiffe-csi-driver
+  labels:
+    app.kubernetes.io/name: spiffe-csi-driver
+    app.kubernetes.io/part-of: nginx-service-mesh
+  annotations:
+    "helm.sh/resource-policy": keep
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: spiffe-csi-driver
+      app.kubernetes.io/part-of: nginx-service-mesh
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: spiffe-csi-driver
+        app.kubernetes.io/part-of: nginx-service-mesh
+    spec:
+      serviceAccountName: spiffe-csi-driver
+      hostPID: true
+      initContainers:
+      - name: set-context
+        image: {{ include "ubuntu.image-server" . }}ubuntu:20.04
+        imagePullPolicy: {{ .Values.registry.imagePullPolicy }}
+        command: ["chcon", "-Rt", "container_file_t", "spire-agent-socket/"]
+        volumeMounts:
+        - name: spire-agent-socket
+          mountPath: /spire-agent-socket
+      containers:
+      - name: spiffe-csi-driver
+        image: {{ include "spiffe-csi.image-server" . }}/spiffe-csi-driver:0.2.1
+        imagePullPolicy: {{ .Values.registry.imagePullPolicy }}
+        args: [
+          "-workload-api-socket-dir", "/spire-agent-socket",
+          "-csi-socket-path", "/spiffe-csi/csi.sock",
+        ]
+        env:
+          # The CSI driver needs a unique node ID. The node name can be
+          # used for this purpose.
+          - name: MY_NODE_NAME
+            valueFrom:
+              fieldRef:
+                fieldPath: spec.nodeName
+        volumeMounts:
+          # The volume containing the SPIRE agent socket. The SPIFFE CSI
+          # driver will mount this directory into containers.
+          - mountPath: /spire-agent-socket
+            name: spire-agent-socket
+            readOnly: true
+          # The volume that will contain the CSI driver socket shared
+          # with the kubelet and the driver registrar.
+          - mountPath: /spiffe-csi
+            name: spiffe-csi-socket-dir
+          # The volume containing mount points for containers.
+          - mountPath: /var/lib/kubelet/pods
+            mountPropagation: Bidirectional
+            name: mountpoint-dir
+        securityContext:
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+              - all
+          privileged: true
+      # This container runs the CSI Node Driver Registrar which takes care
+      # of all the little details required to register a CSI driver with
+      # the kubelet.
+      - name: node-driver-registrar
+        image: {{ include "node-driver.image-server" . }}/csi-node-driver-registrar:v2.6.2
+        imagePullPolicy: {{ .Values.registry.imagePullPolicy }}
+        args: [
+          "-csi-address", "/spiffe-csi/csi.sock",
+          "-kubelet-registration-path", "/var/lib/kubelet/plugins/csi.spiffe.io/csi.sock",
+        ]
+        volumeMounts:
+          # The registrar needs access to the SPIFFE CSI driver socket
+          - mountPath: /spiffe-csi
+            name: spiffe-csi-socket-dir
+          # The registrar needs access to the Kubelet plugin registration
+          # directory
+          - name: kubelet-plugin-registration-dir
+            mountPath: /registration
+      volumes:
+      # This volume is used to share the Workload API socket between the CSI
+      # driver and SPIRE agent. Note, an emptyDir volume could also be used
+      # (if the CSI driver and SPIRE agent shared a pod), however,
+      # this can lead to broken bind mounts in the workload
+      # containers if the agent pod is restarted (since the emptyDir
+      # directory on the node that was mounted into workload containers by
+      # the CSI driver belongs to the old pod instance and is no longer
+      # valid).
+      - name: spire-agent-socket
+        hostPath:
+          path: /run/spire/sockets
+          type: DirectoryOrCreate
+      # This volume is where the socket for kubelet->driver communication lives
+      - name: spiffe-csi-socket-dir
+        hostPath:
+          path: /var/lib/kubelet/plugins/csi.spiffe.io
+          type: DirectoryOrCreate
+      # This volume is where the SPIFFE CSI driver mounts volumes
+      - name: mountpoint-dir
+        hostPath:
+          path: /var/lib/kubelet/pods
+          type: Directory
+      # This volume is where the node-driver-registrar registers the plugin
+      # with kubelet
+      - name: kubelet-plugin-registration-dir
+        hostPath:
+          path: /var/lib/kubelet/plugins_registry
+          type: Directory
+---
+apiVersion: storage.k8s.io/v1
+kind: CSIDriver
+metadata:
+  name: csi.spiffe.io
+  labels:
+    app.kubernetes.io/part-of: nginx-service-mesh
+spec:
+  # Only ephemeral, inline volumes are supported. There is no need for a
+  # controller to provision and attach volumes.
+  attachRequired: false
+
+  # Request the pod information which the CSI driver uses to verify that an
+  # ephemeral mount was requested.
+  podInfoOnMount: true
+
+  # Don't change ownership on the contents of the mount since the Workload API
+  # Unix Domain Socket is typically open to all (i.e. 0777).
+  fsGroupPolicy: None
+
+  # Declare support for ephemeral volumes only.
+  volumeLifecycleModes:
+  - Ephemeral
+{{- end }}

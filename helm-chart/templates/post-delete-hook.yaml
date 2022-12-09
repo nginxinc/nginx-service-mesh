@@ -26,11 +26,15 @@ rules:
 - apiGroups:
   - ''
   resources:
+  - secrets
+  verbs:
+  - delete
+- apiGroups:
+  - ''
+  resources:
   - namespaces
   verbs:
-  - get
   - list
-  - patch
 - apiGroups:
   - spiffeid.spiffe.io
   resources:
@@ -113,16 +117,17 @@ spec:
         - /bin/sh
         - -c
         - |
-          for ns in $(kubectl get ns | awk '{print $1}' | tail -n +2); do
+          for ns in $(kubectl get ns --no-headers -o custom-columns=":metadata.name"); do
             if [ $(kubectl get spiffeids -n $ns 2>/dev/null | wc -l) -ne 0 ]; then
               kubectl patch spiffeid $(kubectl get spiffeids -n $ns | awk '{print $1}' | tail -n +2) --type='merge' -p '{"metadata":{"finalizers":null}}' -n $ns
             fi
           done
+{{- if (include "docker-config-json" .) }}
 ---
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: remove-namespace-label
+  name: remove-registry-secrets
   labels:
     app.kubernetes.io/part-of: nginx-service-mesh
   annotations:
@@ -132,12 +137,12 @@ metadata:
 spec:
   template:
     metadata:
-      name: remove-namespace-label
+      name: remove-registry-secrets
     spec:
       restartPolicy: Never
       serviceAccountName: post-delete
       containers:
-      - name: remove-namespace-label
+      - name: remove-registry-secrets
         image: {{ include "hook.image-server" . }}/kubectl
         imagePullPolicy: {{ .Values.registry.imagePullPolicy }}
         securityContext:
@@ -146,16 +151,10 @@ spec:
         - /bin/sh
         - -c
         - |
-          kubectl label namespace kube-system injector.nsm.nginx.com/auto-inject-
-          kubectl label namespace {{ .Release.Namespace }} injector.nsm.nginx.com/auto-inject- app.kubernetes.io/part-of-
-          {{- if .Values.rancher }}
-          kubectl label namespace ingress-nginx cert-manager injector.nsm.nginx.com/auto-inject-
-          for ns in $(kubectl get ns | awk '{print $1}' | tail -n +2); do
-            case "$ns" in
-              cattle-*) kubectl label namespace $ns injector.nsm.nginx.com/auto-inject- ;;
-            esac
+          for ns in $(kubectl get ns --no-headers -o custom-columns=":metadata.name" | grep -v {{ .Release.Namespace }}); do
+            kubectl -n $ns delete secret {{ include "registry-key-name" . }} --ignore-not-found
           done
-          {{- end }}
+{{- end }}
 {{- if eq .Values.environment "openshift" }}
 ---
 apiVersion: v1
@@ -272,14 +271,20 @@ data:
               while [ $(kubectl get pods -A -o=jsonpath='{.items[?(@.metadata.annotations.injector\.nsm\.nginx\.com/status=="injected")].metadata.name}' | wc -w) -gt 0 ]; do
                 sleep 5
               done
-              kubectl delete daemonset spire-agent
-              kubectl delete serviceaccount spire-agent
-              kubectl delete clusterrole system:openshift:scc:nginx-mesh-spire-agent-permissions
-              kubectl delete rolebinding system:openshift:scc:nginx-mesh-spire-agent-permissions
-              kubectl delete scc nginx-mesh-spire-agent-permissions
-              kubectl delete secret {{ include "registry-key-name" . }}
-              kubectl delete serviceaccount csi-driver-sentinel
-              kubectl delete clusterrolebinding csi-driver-sentinel.builtin.nsm.nginx
+              kubectl delete daemonset spiffe-csi-driver --ignore-not-found
+              kubectl delete serviceaccount spiffe-csi-driver --ignore-not-found
+              kubectl delete clusterrole system:openshift:scc:nginx-mesh-spiffe-csi-driver-permissions --ignore-not-found
+              kubectl delete rolebinding system:openshift:scc:nginx-mesh-spiffe-csi-driver-permissions --ignore-not-found
+              kubectl delete scc nginx-mesh-spiffe-csi-driver-permissions --ignore-not-found
+              # FIXME (sberman): leaving the spire-agent cleanup in for one release as a safety measure
+              kubectl delete daemonset spire-agent --ignore-not-found
+              kubectl delete serviceaccount spire-agent --ignore-not-found
+              kubectl delete clusterrole system:openshift:scc:nginx-mesh-spire-agent-permissions --ignore-not-found
+              kubectl delete rolebinding system:openshift:scc:nginx-mesh-spire-agent-permissions --ignore-not-found
+              kubectl delete scc nginx-mesh-spire-agent-permissions --ignore-not-found
+              kubectl delete secret {{ include "registry-key-name" . }} --ignore-not-found
+              kubectl delete serviceaccount csi-driver-sentinel --ignore-not-found
+              kubectl delete clusterrolebinding csi-driver-sentinel.builtin.nsm.nginx --ignore-not-found
   {{- if (include "docker-config-json" .) }}
   secret.yaml: |
     ---
@@ -323,11 +328,17 @@ spec:
         - |
           res=$(kubectl get pods -o=jsonpath='{.items[?(@.metadata.annotations.injector\.nsm\.nginx\.com/status=="injected")].metadata.name}' -A | wc -w)
           if [ $res -eq 0 ]; then
-            kubectl delete daemonset spire-agent
-            kubectl delete serviceaccount spire-agent
-            kubectl delete clusterrole system:openshift:scc:nginx-mesh-spire-agent-permissions
-            kubectl delete rolebinding system:openshift:scc:nginx-mesh-spire-agent-permissions
-            kubectl delete scc nginx-mesh-spire-agent-permissions
+            kubectl delete daemonset spiffe-csi-driver --ignore-not-found
+            kubectl delete serviceaccount spiffe-csi-driver --ignore-not-found
+            kubectl delete clusterrole system:openshift:scc:nginx-mesh-spiffe-csi-driver-permissions --ignore-not-found
+            kubectl delete rolebinding system:openshift:scc:nginx-mesh-spiffe-csi-driver-permissions --ignore-not-found
+            kubectl delete scc nginx-mesh-spiffe-csi-driver-permissions --ignore-not-found
+            # FIXME (sberman): leaving the spire-agent cleanup in for one release as a safety measure
+            kubectl delete daemonset spire-agent --ignore-not-found
+            kubectl delete serviceaccount spire-agent --ignore-not-found
+            kubectl delete clusterrole system:openshift:scc:nginx-mesh-spire-agent-permissions --ignore-not-found
+            kubectl delete rolebinding system:openshift:scc:nginx-mesh-spire-agent-permissions --ignore-not-found
+            kubectl delete scc nginx-mesh-spire-agent-permissions --ignore-not-found
           else
             idx=$(kubectl get daemonset spire-agent -o json | jq '.spec.template.spec.containers | map(.name == "spire-agent") | index(true)')
             kubectl patch daemonset spire-agent --type=json -p="[{'op': 'remove', 'path': '/spec/template/spec/containers/$idx'}]"
