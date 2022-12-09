@@ -1,0 +1,33 @@
+env:
+  - CGO_ENABLED=0
+
+builds:
+  - id: nginx-meshctl
+    goos:
+      - linux
+      - darwin
+      - windows
+    goarch:
+      - amd64
+      - arm64
+    ignore:
+      - goos: linux
+        goarch: arm64
+      - goos: windows
+        goarch: arm64
+    ldflags:
+      - -s -w -extldflags "-fno-PIC -static" -X main.version={{.Version}} -X main.pkgName=nginx-meshctl
+    main: ./cmd/nginx-meshctl/
+    binary: nginx-meshctl
+
+changelog:
+  skip: true
+
+checksum:
+  name_template: checksums.txt
+
+sboms:
+  - artifacts: archive
+
+archives:
+  - id: nginx-service-mesh
