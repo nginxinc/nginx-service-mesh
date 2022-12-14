@@ -48,7 +48,7 @@ test: output-dir ## Run unit tests for the Go code
 
 .PHONY: lint
 lint: ## Run golangci-lint against code
-	docker run --rm -v $(shell pwd):/nginx-meshctl -w /nginx-meshctl -v $(shell go env GOCACHE):/cache/go -e GOCACHE=/cache/go -e GOLANGCI_LINT_CACHE=/cache/go golangci/golangci-lint:$(GOLANGCI_LINT_VERSION) golangci-lint --color always run
+	docker run --rm -v $(shell pwd):/nginx-service-mesh -w /nginx-service-mesh -v $(shell go env GOCACHE):/cache/go -e GOCACHE=/cache/go -e GOLANGCI_LINT_CACHE=/cache/go golangci/golangci-lint:$(GOLANGCI_LINT_VERSION) golangci-lint --color always run
 
 .PHONY: format
 format: ## Run go fmt against code

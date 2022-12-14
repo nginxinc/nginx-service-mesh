@@ -215,8 +215,8 @@ The following table lists the ports and IP addresses the NGINX Service Mesh side
 
 Notes:
 
-1. All traffic is redirected to these two ports. From there the sidecar determines the traffic type and forwards the traffic to the _Main virtual server_ for that traffic type.
+1. All traffic is redirected to these two ports. From there the sidecar determines the traffic type and forwards the traffic to the *Main virtual server* for that traffic type.
 
-2. The _Permissive virtual server_ is used when permissive mTLS is configured. It's used to accept non-mTLS traffic, for example from Pods that aren't injected with a sidecar. See the [Secure Mesh Traffic using mTLS]({{< ref "/guides/secure-traffic-mtls.md" >}}) for more information on permissive mTLS.
+2. The *Permissive virtual server* is used when permissive mTLS is configured. It's used to accept non-mTLS traffic, for example from Pods that aren't injected with a sidecar. See the [Secure Mesh Traffic using mTLS]({{< ref "/guides/secure-traffic-mtls.md" >}}) for more information on permissive mTLS.
 
 3. The Kubernetes `readinessProbe` and `livenessProbe` need dedicated ports as they're not regular in-band mTLS traffic.

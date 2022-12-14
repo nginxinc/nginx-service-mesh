@@ -36,13 +36,6 @@ From the `NGINX_Service_Mesh` product page, you can select the version you would
 
 To install and deploy NGINX Service Mesh you need to download the `nginx-meshctl` binary for your architecture.
 
-In addition to the binary, you also need access to all of the NGINX Service Mesh docker images.
-There are multiple ways to access these images:
-
-- [Pull the Images from the Docker Registry](#pull-images-from-docker-registry)
-- [Pull the Images from MyF5](https://www.f5.com/myf5)
-- [Download and Push Images to Container Registry](#download-and-push-images-to-container-registry).
-
 ### Install the CLI
 
 The NGINX Service Mesh command-line tool -- `nginx-meshctl` -- allows you to deploy, remove, and interact with the NGINX Service Mesh control plane.

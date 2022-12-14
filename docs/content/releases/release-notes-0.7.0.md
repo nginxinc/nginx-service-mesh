@@ -19,7 +19,7 @@ These release notes provide general information and describe known issues for NG
   - [Updates](#updates)
   - [Resolved Issues](#resolved-issues)
   - [Known Issues](#known-issues)
-  - [Supported Versions](#supported-version)
+  - [Supported Versions](#supported-versions)
   - {{< link "/licenses/license-servicemesh-0.7.0.html" "Open Source Licenses" >}}
   - {{< link "/releases/oss-dependencies/" "Open Source Licenses Addendum" >}} 
 
