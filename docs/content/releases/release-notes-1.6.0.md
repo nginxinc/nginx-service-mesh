@@ -16,7 +16,6 @@ These release notes provide general information and describe known issues for NG
 
 - [NGINX Service Mesh Version 1.6.0](#nginx-service-mesh-version-160)
   - [Updates](#updates)
-  - [Vulnerabilites](#vulnerabilities)
   - [Resolved Issues](#resolved-issues)
   - [Known Issues](#known-issues)
   - {{< link "/about/tech-specs" "Supported Versions" >}}

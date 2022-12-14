@@ -41,9 +41,9 @@ NGINX Plus Ingress Controller will try to fetch certs from the Spire agent that 
     {{< /important >}}
 2. Get access to the NGINX Plus Ingress Controller by applying the `udp-nodeport.yaml` NodePort resource.
    - {{< fa "download" >}} {{< link "/examples/nginx-ingress-controller/udp/udp-nodeport.yaml" "udp-nodeport.yaml" >}}
-4. Check the exposed port from the NodePort service just defined:
+3. Check the exposed port from the NodePort service just defined:
 
-    ```
+    ```bash
     $ kubectl get svc -n nginx-ingress
     NAME                    TYPE       CLUSTER-IP      EXTERNAL-IP   PORT(S)                      AGE
     nginx-ingress           NodePort   10.120.10.134   <none>        80:32705/TCP,443:30181/TCP   57m
@@ -51,9 +51,9 @@ NGINX Plus Ingress Controller will try to fetch certs from the Spire agent that 
     ```
 
     As you can see, our exposed port is `31839`. We'll use this for the remaining steps.
-3. Get the IP of one of your worker nodes:
+4. Get the IP of one of your worker nodes:
 
-    ```
+    ```bash
     $ kubectl get node -o wide
     NAME                                     ... INTERNAL-IP     EXTERNAL-IP ...
     gke-aidan-dev-default-pool-f507f772-qiun ... 10.128.15.210   12.115.30.1  ...
@@ -93,8 +93,8 @@ To route UDP requests to an application in the mesh through the NGINX Plus Ingre
 
 1. Deploy a GlobalConfiguration to configure what port to listen for UDP requests on:
 
-    ```
-    $ kubectl apply -f nic-global-configuration.yaml
+    ```bash
+    kubectl apply -f nic-global-configuration.yaml
     ```
 
     The GlobalConfiguration configures a listener to listen for UDP datagrams on a specified port.
@@ -114,8 +114,8 @@ To route UDP requests to an application in the mesh through the NGINX Plus Ingre
 
 2. Apply the TransportServer to configure UDP traffic to route from the GlobalConfiguration listener your udp-listener app.
 
-    ```
-    $ kubectl apply -f udp-transportserver.yaml
+    ```bash
+    kubectl apply -f udp-transportserver.yaml
     ```
 
     This TransportServer will route requests from the listener supplied in the GlobalConfiguration to a named upstream -- in this case `udp-listener-upstream`. Our upstream is configured to pass traffic to our `udp-listener` service at port 5005, where our udp-listener application lives.
@@ -143,24 +143,24 @@ To route UDP requests to an application in the mesh through the NGINX Plus Ingre
 
 Now that everything for the NGINX Plus Ingress Controller is deployed, we can now send datagrams to the udp-listener application.
 
-3. Use the IP and port defined in the [Install NGINX Plus Ingress Controller](#install-nginx-plus-ingress-controller) section to send a netcat UDP message:
+1. Use the IP and port defined in the [Install NGINX Plus Ingress Controller](#install-nginx-plus-ingress-controller) section to send a netcat UDP message:
 
-    ```
-    $ echo "UDP Datagram Message" | nc -u 12.115.30.1 31839
+    ```bash
+    echo "UDP Datagram Message" | nc -u 12.115.30.1 31839
     ```
 
-4. Check that that the "UDP Datagram Message" text was correctly sent to the udp-listener server:
+2. Check that that the "UDP Datagram Message" text was correctly sent to the udp-listener server:
 
-    ```
+    ```bash
     $ kubectl logs udp-listener-59665d7ffc-drzh2 -c udp-listener
     Listening on UDP port 5005
     UDP Datagram Message
     ```
 
-5. Check that the UDP message is present in the udp-listener sidecar logs:
+3. Check that the UDP message is present in the udp-listener sidecar logs:
     
-    ```
-    $ kubectl logs udp-listener-59665d7ffc-drzh2 -c nginx-mesh-sidecar
+    ```bash
+    kubectl logs udp-listener-59665d7ffc-drzh2 -c nginx-mesh-sidecar
     ...
     2022/01/22 00:09:31 SVID updated for spiffeID: "spiffe://example.org/ns/default/sa/default"
     2022/01/22 00:09:31 Enqueueing event: SPIRE, key: 0xc00007ac00

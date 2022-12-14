@@ -103,6 +103,7 @@ To configure NGINX Plus Ingress Controller to communicate with mesh workloads ov
 1. Add NGINX Service Mesh annotation
 
     The following annotation must be added to the Ingress Controller's Pod spec:
+
     ```yaml
     annotations:
       nsm.nginx.com/enable-ingress: "true"
@@ -264,7 +265,7 @@ To create an internal route, create an [Ingress resource](https://docs.nginx.com
 nsm.nginx.com/internal-route: "true"
 ```
 
-If your non-meshed service is external to Kubernetes, follow the [ExternalName services example](https://github.com/nginxinc/kubernetes-ingress/tree/master/examples/externalname-services).
+If your non-meshed service is external to Kubernetes, follow the [ExternalName services example](https://github.com/nginxinc/kubernetes-ingress/tree/main/examples/custom-resources/externalname-services).
 
 {{<note>}}
 The `nsm.nginx.com/internal-route: "true"` Ingress annotation is still required for routing to external endpoints.
@@ -308,7 +309,7 @@ To crate a TransportServer resource, follow the steps outlined in the [Transport
 
 To learn how to expose a UDP application using NGINX Plus Ingress Controller, see the [Expose a UDP Application with NGINX Plus Ingress Controller]({{< ref "/tutorials/kic/ingress-udp-walkthrough.md" >}}) tutorial.
 
-# Plaintext configuration
+## Plaintext configuration
 
 Deploy NGINX Service Mesh with `mtls-mode` set to `off` and follow the [instructions](https://docs.nginx.com/nginx-ingress-controller/installation) to deploy NGINX Plus Ingress Controller.
 
@@ -326,7 +327,7 @@ it is possible that internal routes could be accessible from the public internet
 We highly recommend [installing  NGINX Plus Ingress Controller with mTLS enabled](#install-nginx-plus-ingress-controller-with-mtls-enabled).
 {{< /caution >}}
 
-# OpenTracing Integration
+## OpenTracing Integration
 
 To enable traces to span from NGINX Plus Ingress Controller through the backend services in the Mesh, you'll first need to [build the NGINX Plus Ingress Controller image](https://docs.nginx.com/nginx-ingress-controller/installation/building-ingress-controller-image/#) with the OpenTracing module.
 Refer to the [NGINX Ingress Controller guide to using OpenTracing](https://docs.nginx.com/nginx-ingress-controller/third-party-modules/opentracing/) for more information.
@@ -378,7 +379,7 @@ The example below uses the snippets annotation. Starting with NGINX Plus Ingress
      opentracing_operation_name "nginx-ingress";
 ```
 
-# NGINX Plus Ingress Controller Metrics
+## NGINX Plus Ingress Controller Metrics
 
 To enable metrics collection for the NGINX Plus Ingress Controller, take the following steps:
 
@@ -410,7 +411,7 @@ To enable metrics collection for the NGINX Plus Ingress Controller, take the fol
 
     This allows metrics scraped from NGINX Plus Ingress Controller Pods to be associated with the resource that created the Pods.
 
-## View the metrics in Prometheus
+### View the metrics in Prometheus
 
 The NGINX Service Mesh uses the Pod's container name setting to identify the NGINX Plus Ingress Controller metrics that should be consumed by the Prometheus server.
 The Prometheus job targets all Pods that have the container name `nginx-plus-ingress`.
@@ -437,7 +438,7 @@ To view the metrics, use port-forwarding:
 kubectl port-forward -n nginx-mesh svc/prometheus 9090
 ```
 
-## Monitor your application in Grafana
+### Monitor your application in Grafana
 
 NGINX Service Mesh provides a [custom dashboard](https://github.com/nginxinc/nginx-service-mesh/tree/main/examples/grafana) that you can import into your Grafana deployment to monitor your application. To import and view the dashboard, port-forward your Grafana service:
 
