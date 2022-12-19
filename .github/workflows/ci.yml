@@ -70,7 +70,7 @@ jobs:
           format: 'sarif'
           output: 'trivy-results-nginx-service-mesh.sarif'
       - name: Upload Trivy scan results to GitHub Security tab
-        uses: github/codeql-action/upload-sarif@b2a92eb56d8cb930006a1c6ed86b0782dd8a4297 # v2.1.35
+        uses: github/codeql-action/upload-sarif@959cbb7472c4d4ad70cdfe6f4976053fe48ab394 # v2.1.37
         continue-on-error: true
         with:
           sarif_file: 'trivy-results-nginx-service-mesh.sarif'
