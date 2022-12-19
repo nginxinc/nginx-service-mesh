@@ -13,7 +13,7 @@ require (
 	github.com/servicemeshinterface/smi-sdk-go v0.5.0
 	github.com/spf13/cobra v1.6.1
 	github.com/xeipuuv/gojsonschema v1.2.0
-	golang.org/x/text v0.4.0
+	golang.org/x/text v0.5.0
 	gopkg.in/yaml.v2 v2.4.0
 	helm.sh/helm/v3 v3.10.3
 	k8s.io/api v0.25.4
