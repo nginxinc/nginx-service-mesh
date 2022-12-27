@@ -10,11 +10,6 @@ builds:
     goarch:
       - amd64
       - arm64
-    ignore:
-      - goos: linux
-        goarch: arm64
-      - goos: windows
-        goarch: arm64
     ldflags:
       - -s -w -extldflags "-fno-PIC -static" -X main.version={{.Version}} -X main.pkgName=nginx-meshctl
     main: ./cmd/nginx-meshctl/
@@ -29,5 +24,23 @@ checksum:
 sboms:
   - artifacts: archive
 
+release:
+  ids: [nginx-meshctl]
+  header: |
+    NGINX Service Mesh Release {{.Version}}
+
+    [Release Notes](https://docs.nginx.com/nginx-service-mesh/releases/release-notes-{{.Version}}/)
+
 archives:
-  - id: nginx-service-mesh
+  - id: nginx-meshctl
+    builds: [nginx-meshctl]
+    name_template: nginx-meshctl_{{ .Version }}_{{ .Os }}_{{ .Arch }}
+    format_overrides:
+      - goos: windows
+        format: zip
+
+blobs:
+  - provider: azblob
+    bucket: '{{.Env.AZURE_BUCKET_NAME}}'
+    extra_files:
+      - glob: ./dist/**.sbom
