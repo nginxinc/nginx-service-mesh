@@ -8,7 +8,7 @@ GOOS ?= $(shell go env GOOS)
 GOARCH ?= $(shell go env GOARCH)
 
 ifeq ($(GOOS),windows)
-    BIN_EXTENSION=.exe
+    EXTENSION=.exe
 endif
 
 .DEFAULT_GOAL := help
@@ -38,7 +38,7 @@ linker_flags = -s -w -extldflags "-fno-PIC -static" -X main.version=$(VERSION) -
 build: build-cli ## Build all Go binaries
 
 build-cli: output-dir ## Build the nginx-meshctl binary
-	CGO_ENABLED=0 go build -ldflags '$(linker_flags) -X main.pkgName=nginx-meshctl' -o $(OUTPUT_DIR)/$(GOOS)-$(GOARCH)/nginx-meshctl$(BIN_EXTENSION) cmd/nginx-meshctl/main.go
+	CGO_ENABLED=0 go build -ldflags '$(linker_flags) -X main.pkgName=nginx-meshctl' -o $(OUTPUT_DIR)/$(GOOS)-$(GOARCH)/nginx-meshctl$(EXTENSION) cmd/nginx-meshctl/main.go
 
 .PHONY: test
 test: output-dir ## Run unit tests for the Go code
