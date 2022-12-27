@@ -10,17 +10,8 @@ import (
 
 	"github.com/spf13/cobra"
 
-	// exec k8s auth methods.
-	_ "k8s.io/client-go/plugin/pkg/client/auth/exec"
-
-	// gcp k8s auth methods.
-	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
-
-	// oidc k8s auth methods.
-	_ "k8s.io/client-go/plugin/pkg/client/auth/oidc"
-
-	// openstack k8s auth methods.
-	_ "k8s.io/client-go/plugin/pkg/client/auth/openstack"
+	// client-go auth methods.
+	_ "k8s.io/client-go/plugin/pkg/client/auth"
 )
 
 // Setup creates the root command and adds all sub commands.
