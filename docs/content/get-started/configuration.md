@@ -162,6 +162,8 @@ If not specified, then the global defaults will be used.
 | Label                                                                                                         | Values                |
 |---------------------------------------------------------------------------------------------------------------|-----------------------|
 | [injector.nsm.nginx.com/auto-inject]({{< ref "/guides/inject-sidecar-proxy.md#automatic-proxy-injection" >}}) | `enabled`, `disabled` |
+| [nsm.nginx.com/enable-ingress]({{< ref "/tutorials/kic/deploy-with-kic.md#secure-communication-between-nginx-plus-ingress-controller-and-nginx-service-mesh" >}}) | `true`, `false` |
+| [nsm.nginx.com/enable-egress]({{< ref "/tutorials/kic/deploy-with-kic.md#enable-egress" >}})                                                                      | `true`, `false` |
 {{% /table %}}
 
 ### Pod Annotations
@@ -169,14 +171,14 @@ If not specified, then the global defaults will be used.
 {{% table %}}
 | Annotation                                                                                                                                                        | Values                                 | Default       |
 |-------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------|---------------|
-| [injector.nsm.nginx.com/auto-inject]({{< ref "/guides/inject-sidecar-proxy.md#automatic-proxy-injection" >}}) (deprecated)                                        | `true`, `false`                        | `true`        |
+| [injector.nsm.nginx.com/auto-inject]({{< ref "/guides/inject-sidecar-proxy.md#automatic-proxy-injection" >}}) (deprecated, use label instead)                     | `true`, `false`                        | `true`        |
 | [config.nsm.nginx.com/mtls-mode]({{< ref "/guides/secure-traffic-mtls.md#change-the-mtls-setting-for-a-resource" >}})                                             | `off`, `permissive`, `strict`          | `permissive`  |
 | [config.nsm.nginx.com/client-max-body-size](#client-max-body-size)                                                                                                | `0`, `64k`, `10m`, ...                 | `1m`          |
 | [config.nsm.nginx.com/ignore-incoming-ports]({{< ref "/guides/inject-sidecar-proxy.md#ignore-specific-ports" >}})                                                 | list of port strings                   | ""            |
 | [config.nsm.nginx.com/ignore-outgoing-ports]({{< ref "/guides/inject-sidecar-proxy.md#ignore-specific-ports" >}})                                                 | list of port strings                   | ""            |
 | [config.nsm.nginx.com/default-egress-allowed]({{< ref "/tutorials/kic/deploy-with-kic.md#enable-egress" >}})                                                    | `true`, `false`                        | `false`       |
-| [nsm.nginx.com/enable-ingress]({{< ref "/tutorials/kic/deploy-with-kic.md#secure-communication-between-nginx-plus-ingress-controller-and-nginx-service-mesh" >}}) | `true`, `false` | `false`       |
-| [nsm.nginx.com/enable-egress]({{< ref "/tutorials/kic/deploy-with-kic.md#enable-egress" >}})                                                                    | `true`, `false` | `false`       |
+| [nsm.nginx.com/enable-ingress]({{< ref "/tutorials/kic/deploy-with-kic.md#secure-communication-between-nginx-plus-ingress-controller-and-nginx-service-mesh" >}}) (deprecated, use label instead) | `true`, `false` | `false`       |
+| [nsm.nginx.com/enable-egress]({{< ref "/tutorials/kic/deploy-with-kic.md#enable-egress" >}}) (deprecated, use label instead)                                      | `true`, `false` | `false`       |
 {{% /table %}}
 
 The Pod labels and annotations should be added to the **PodTemplateSpec** of a Deployment, StatefulSet, and so on, **before** injecting the sidecar proxy.

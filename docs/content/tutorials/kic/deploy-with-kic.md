@@ -100,17 +100,21 @@ To configure NGINX Plus Ingress Controller to communicate with mesh workloads ov
     - The `nginx-plus` argument is required since this feature is only available with NGINX Plus. If you do not specify this flag, the Ingress Controller will fail to start.
     - The `spire-agent-address` passes the address of the SPIRE agent `/run/spire/sockets/agent.sock` to the Ingress Controller.
 
-1. Add NGINX Service Mesh annotation
+1. Add NGINX Service Mesh label
 
-    The following annotation must be added to the Ingress Controller's Pod spec:
+    The following label must be added to the Ingress Controller's Pod spec:
 
     ```yaml
-    annotations:
+    labels:
       nsm.nginx.com/enable-ingress: "true"
       ...
     ```
 
-    This annotation prevents NGINX Service Mesh from automatically injecting the sidecar into the Ingress Controller Pod.
+    This label prevents NGINX Service Mesh from automatically injecting the sidecar into the Ingress Controller Pod.
+
+    {{<note>}}In NGINX Service Mesh versions prior to v1.7.0, the `nsm.nginx.com/enable-ingress: "true"` annotation was used instead of a label.
+    Support for this annotation will be removed in a future release.
+    {{</note>}}
 
 
 1. Add SPIFFE label
@@ -214,13 +218,18 @@ deployments are not supported. {{</note>}}
 ### Enable with Manifests
 If you are installing NGINX Plus Ingress Controller with manifests follow the [Install with Manifests](#install-with-manifests) instructions and make the following changes to the NGINX Plus Ingress Controller Pod spec:
 
-- Add the following annotation to the NGINX Plus Ingress Controller Pod spec:
+- Add the following label to the NGINX Plus Ingress Controller Pod spec:
 
     ```bash
     nsm.nginx.com/enable-egress: "true"
     ```
 
-  This annotation prevents automatic injection of the sidecar proxy and configures the NGINX Plus Ingress Controller as the egress endpoint of the mesh.
+  This label prevents automatic injection of the sidecar proxy and configures the NGINX Plus Ingress Controller as the egress endpoint of the mesh.
+
+  {{<note>}}
+  In NGINX Service Mesh versions prior to v1.7.0, the `nsm.nginx.com/enable-egress: "true"` annotation was used instead of a label.
+  Support for this annotation will be removed in a future release.
+  {{</note>}}
 
 - Add the following command-line argument to the container args in the NGINX Plus Ingress Controller Pod spec:
 
@@ -313,12 +322,17 @@ To learn how to expose a UDP application using NGINX Plus Ingress Controller, se
 
 Deploy NGINX Service Mesh with `mtls-mode` set to `off` and follow the [instructions](https://docs.nginx.com/nginx-ingress-controller/installation) to deploy NGINX Plus Ingress Controller.
 
-Add the enable-ingress and/or the enable-egress annotation shown below to the NGINX Plus Ingress Controller Pod spec:
+Add the enable-ingress and/or the enable-egress label shown below to the NGINX Plus Ingress Controller Pod spec:
 
 ```bash
 nsm.nginx.com/enable-ingress: "true"
 nsm.nginx.com/enable-egress: "true"
 ```
+
+{{<note>}}
+In NGINX Service Mesh versions prior to v1.7.0, `nsm.nginx.com/enable-ingress: "true"` and `nsm.nginx.com/enable-egress: "true"` annotations were used instead of labels.
+Support for these annotations will be removed in a future release.
+{{</note>}}
 
 {{< caution >}}
 All communication between NGINX Plus Ingress Controller and the services in the mesh will be over plaintext!
