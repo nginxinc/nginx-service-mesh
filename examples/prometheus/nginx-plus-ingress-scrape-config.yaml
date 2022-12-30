@@ -5,6 +5,12 @@
     - source_labels: [__meta_kubernetes_pod_container_name]
       action: keep
       regex: nginx-plus-ingress
+    - source_labels: [__meta_kubernetes_pod_label_nsm_nginx_com_enable_ingress]
+      action: keep
+      regex: true
+    - source_labels: [__meta_kubernetes_pod_label_nsm_nginx_com_enable_egress]
+      action: keep
+      regex: true
     - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
       action: keep
       regex: true
