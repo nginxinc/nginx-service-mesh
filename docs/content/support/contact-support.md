@@ -8,7 +8,7 @@ draft: false
 docs: "DOCS-718"
 ---
 
-Thank you for your interest in NGINX Service Mesh. NGINX Service Mesh can be installed via helm charts, or by [downloading nginx-meshctl](https://downloads.f5.com/esd/product.jsp?sw=NGINX-Public&pro=NGINX_Service_Mesh), under the NGINX Product Family.
+Thank you for your interest in NGINX Service Mesh. NGINX Service Mesh can be installed via helm charts, or by [downloading nginx-meshctl](https://github.com/nginxinc/nginx-service-mesh/releases/latest).
 
 <!-- markdown-link-check-disable -->
 ### Resources
