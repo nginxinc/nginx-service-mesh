@@ -76,11 +76,11 @@ The following tables list the software versions NGINX Service Mesh supports and 
 ### Images
 #### Distributed Images
 
-- `nginx-mesh-api`: NGINX Service Mesh API Server.
-- `nginx-mesh-metrics`: Gets Pod (and other Kubernetes resources) metrics. Refer to [SMI Metrics on GitHub](https://github.com/servicemeshinterface/smi-metrics) and `nginx-meshctl help top` for more information.
-- `nginx-mesh-sidecar`: NGINX Service Mesh sidecar.
-- `nginx-mesh-init`: NGINX Service Mesh sidecar init container. Sets up `iptables` for the sidecar.
-- `nginx-mesh-cert-reloader`: NGINX Service Mesh certificate reloader. Loads and rotates certificates for the NATs server.
+- `docker-registry.nginx.com/nsm/nginx-mesh-api`: NGINX Service Mesh API Server.
+- `docker-registry.nginx.com/nsm/nginx-mesh-metrics`: Gets Pod (and other Kubernetes resources) metrics. Refer to [SMI Metrics on GitHub](https://github.com/servicemeshinterface/smi-metrics) and `nginx-meshctl help top` for more information.
+- `docker-registry.nginx.com/nsm/nginx-mesh-sidecar`: NGINX Service Mesh sidecar.
+- `docker-registry.nginx.com/nsm/nginx-mesh-init`: NGINX Service Mesh sidecar init container. Sets up `iptables` for the sidecar.
+- `docker-registry.nginx.com/nsm/nginx-mesh-cert-reloader`: NGINX Service Mesh certificate reloader. Loads and rotates certificates for the NATs server.
 
 #### Third Party Images
 NGINX Service Mesh also pulls the following publicly-accessible third-party container images into your Kubernetes cluster in order to function:

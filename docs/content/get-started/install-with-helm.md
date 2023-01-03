@@ -25,7 +25,7 @@ NGINX Service Mesh supports Helm versions 3.2.0 and newer.
 
 #### Kubernetes users
 
-- You have a working Kubernetes cluster, version 1.18 or newer.
+- You have a working and [supported]({{< ref "/about/tech-specs.md#supported-versions" >}}) Kubernetes cluster.
 - You followed the [Kubernetes Platform Setup]( {{< ref "/get-started/kubernetes-platform/_index.md" >}} ) guide to **prepare your cluster** to work with NGINX Service Mesh.
 
 #### OpenShift users

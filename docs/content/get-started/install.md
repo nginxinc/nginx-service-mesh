@@ -11,7 +11,7 @@ docs: "DOCS-681"
 
 ## Overview
 
-This topic contains instructions for downloading and installing NGINX Service Mesh using the `nginx-meshctl` command line tool.
+This guide contains instructions for downloading and installing NGINX Service Mesh using the `nginx-meshctl` command line tool.
 
 For Helm users, see how to [Install NGINX Service Mesh using Helm]( {{< ref "/get-started/install-with-helm.md" >}} ).
 
@@ -19,42 +19,35 @@ For Helm users, see how to [Install NGINX Service Mesh using Helm]( {{< ref "/ge
 
 {{< important >}} Before installing NGINX Service Mesh, make sure you've completed the following steps. {{< /important >}}
 
-- You have a working Kubernetes cluster, version 1.18 or newer.
+- You have a working and [supported]({{< ref "/about/tech-specs.md#supported-versions" >}}) Kubernetes cluster.
 - You followed the [Kubernetes]( {{< ref "/get-started/kubernetes-platform/_index.md" >}} ) or [OpenShift]( {{< ref "/get-started/openshift-platform/_index.md" >}} ) Platform Setup guide to **prepare your cluster** to work with NGINX Service Mesh.
 - You have the Kubernetes `kubectl` command-line utility configured on the machine where you want to install NGINX Service Mesh.
 - You reviewed the [Configuration Options for NGINX Service Mesh]( {{< ref "/get-started/configuration.md" >}} ).
 
-### Download NGINX Service Mesh
- 
-{{< note >}}
-NGINX Microservice Bundle customers can download the `nginx-meshctl` tool from [MyF5](https://www.f5.com/myf5).
-{{< /note >}}
+### Download nginx-meshctl
 
-In order to download NGINX Service Mesh, you'll need to register for an account at the [F5 Downloads](https://downloads.f5.com) site.
-Once you have registered, click on the `Find a Download` button to see a list of the available products and select the `NGINX_Service_Mesh` product line.
-From the `NGINX_Service_Mesh` product page, you can select the version you would like to install from the dropdown menu and click on the product name to view the files available for download. 
+The NGINX Service Mesh command-line tool -- `nginx-meshctl` -- allows you to deploy, remove, and interact with the NGINX Service Mesh control plane.
 
-To install and deploy NGINX Service Mesh you need to download the `nginx-meshctl` binary for your architecture.
+To install NGINX Service Mesh, you need to download the `nginx-meshctl` binary for your architecture. The latest version of `nginx-meshctl` is available on our [Github releases](https://github.com/nginxinc/nginx-service-mesh/releases/latest) page.
 
 ### Install the CLI
 
-The NGINX Service Mesh command-line tool -- `nginx-meshctl` -- allows you to deploy, remove, and interact with the NGINX Service Mesh control plane.
 The following sections describe how to install the CLI on Linux, macOS, and Windows.
 
 #### Install on Linux
 
-1. Download the appropriate binary for your architecture, `nginx-meshctl_linux-amd64.gz`.
+1. Download the appropriate binary for your architecture, either `nginx-meshctl_<version>_linux_amd64.tar.gz` or `nginx-meshctl_<version>_linux_arm64.tar.gz`.
 
 1. Unzip the binary.
 
     ```bash
-    gunzip nginx-meshctl_linux-amd64.gz
+    tar -xvf nginx-meshctl_<version>_linux_amd64.tar.gz nginx-meshctl
     ```
 
 1. Move the `nginx-meshctl` executable in to your PATH.
 
     ```bash
-    sudo mv nginx-meshctl_linux-amd64 /usr/local/bin/nginx-meshctl
+    sudo mv nginx-meshctl /usr/local/bin/nginx-meshctl
     ```
 
 1. Ensure the `nginx-meshctl` is executable.
@@ -71,18 +64,18 @@ The following sections describe how to install the CLI on Linux, macOS, and Wind
 
 #### Install on macOS
 
-1. Download the appropriate binary for your architecture, either `nginx-meshctl_darwin-arm64.gz` for M1 Macs or `nginx-meshctl_darwin-amd64` for Intel based Macs.
+1. Download the appropriate binary for your architecture, either `nginx-meshctl_<version>_darwin_arm64.tar.gz` for M1 Macs or `nginx-meshctl_<version>_darwin_amd64.tar.gz` for Intel based Macs.
 
 1. Unzip the binary.
 
     ```bash
-    gunzip nginx-meshctl_darwin-amd64.gz
+    tar -xvf nginx-meshctl_<version>_darwin_amd64.tar.gz nginx-meshctl
     ```
 
 1. Move the `nginx-meshctl` executable in to your PATH.
 
     ```bash
-    sudo mv nginx-meshctl_darwin-amd64 /usr/local/bin/nginx-meshctl
+    sudo mv nginx-meshctl /usr/local/bin/nginx-meshctl
     ```
 
 1. Ensure the `nginx-meshctl` is executable.
@@ -99,7 +92,9 @@ The following sections describe how to install the CLI on Linux, macOS, and Wind
 
 #### Install on Windows
 
-1. Download the appropriate binary for your architecture, `nginx-meshctl_windows-amd64.exe`
+1. Download the appropriate binary for your architecture, either `nginx-meshctl_<version>_windows_amd64.zip` or `nginx-meshctl_<version>_windows_arm64.zip`.
+
+1. Extract the binary, `nginx-meshctl.exe`, from the zip file.
 
 1. Add the binary to your PATH and rename.
 
@@ -118,57 +113,10 @@ NGINX Service Mesh distributes a number of images and pulls additional publicly-
 NGINX Service Mesh images are pulled in automatically when deploying the mesh. However, if desired, you can manually download and push them to your own container registry that your cluster can access.
 
 {{< important >}}
-It is highly recommended that you match the version number when downloading the `nginx-meshctl` binary and `nginx-mesh-images` package. We make no compatibility guarantees across versions. For information on how to upgrade your existing mesh, see [Upgrade NGINX Service Mesh]( {{< ref "/guides/upgrade.md" >}}).
+To ensure compatibility, the image versions need to match the version of `nginx-meshctl` that you downloaded. If using Helm, the image versions need to match the chart's `appVersion`.
 {{< /important >}}
 
-Follow these steps to download, load, tag, and push the images:
-
-1. Download the `nginx-mesh-images.X.Y.Z.tar.gz` file. Where X.Y.Z is the appropriate version and matches the binary downloaded in the previous section; for example, 1.0.0.
-
-Each image file is a Docker-formatted tar archive. You can use the `docker load` command to make them accessible by your local Docker daemon.
-For instructions on how to download these files see the [Download NGINX Service Mesh](#download-nginx-service-mesh) section.
-
-1. Extract the contents of the tar archive and `cd` into the release directory.
-
-   ```bash
-   tar zxvf nginx-mesh-images.X.Y.Z.tar.gz
-   cd nginx-mesh-images-X.Y.Z
-   ```
-
-1. Run the `docker load` command for each of the image files listed below.
-
-   - nginx-mesh-api.X.Y.Z.tar.gz
-   - nginx-mesh-metrics.X.Y.Z.tar.gz
-   - nginx-mesh-init.X.Y.Z.tar.gz
-   - nginx-mesh-sidecar.X.Y.Z.tar.gz
-   - nginx-mesh-cert-reloader.X.Y.Z.tar.gz
-
-   ```bash
-   for image in $(ls)
-   do
-     docker load < $image
-   done
-   ```
-
-1. Tag each image appropriately for your environment and registry location.
-
-   - nginx-mesh-api
-   - nginx-mesh-metrics
-   - nginx-mesh-init
-   - nginx-mesh-sidecar
-   - nginx-mesh-cert-reloader
-
-   ```bash
-   docker tag <image-name>:X.Y.Z <your-docker-registry>/<image-name>:X.Y.Z
-   ```
-
-1. Push each image.
-
-   ```bash
-   docker push <your-docker-registry>/<image-name>:X.Y.Z
-   ```
-
-1. When deploying NGINX Service Mesh using `nginx-meshctl`, set the `--registry-server` flag to your registry. If using Helm, set the `registry.server` field to your registry.
+When deploying NGINX Service Mesh using `nginx-meshctl`, set the `--registry-server` flag to your registry. If using Helm, set the `registry.server` field to your registry.
 
 #### Air Gap Environment
 

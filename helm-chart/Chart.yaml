@@ -4,4 +4,4 @@ description: NGINX Service Mesh
 version: 0.7.0
 appVersion: 1.7.0
 kubeVersion: ">= 1.18-0"
-icon: https://raw.githubusercontent.com/nginxinc/nginx-service-mesh/master/helm-chart/chart-icon.png
+icon: https://raw.githubusercontent.com/nginxinc/nginx-service-mesh/main/helm-chart/chart-icon.png
