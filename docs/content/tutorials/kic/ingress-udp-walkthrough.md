@@ -1,6 +1,6 @@
 ---
-title: "Expose a UDP Application with NGINX Plus Ingress Controller"
-description: "This topic describes the steps to deploy NGINX Plus Ingress Controller for Kubernetes, to expose a UDP application within NGINX Service Mesh."
+title: "Expose a UDP Application with NGINX Ingress Controller"
+description: "This topic describes the steps to deploy NGINX Ingress Controller for Kubernetes, to expose a UDP application within NGINX Service Mesh."
 weight: 230
 categories: ["tutorials"]
 toc: true
@@ -14,13 +14,20 @@ Follow this tutorial to deploy the NGINX Plus Ingress Controller with NGINX Serv
 Objectives:
 
 - Deploy NGINX Service Mesh.
-- Install NGINX Plus Ingress Controller.
+- Install NGINX Ingress Controller.
 - Deploy the example `udp-listener` app.
   - {{< fa "download" >}} {{< link "/examples/nginx-ingress-controller/udp/udp-listener.yaml" "udp-listener.yaml" >}}
-- Create a Kubernetes GlobalConfiguration resource to establish a NGINX Plus Ingress Controller UDP listener.
+- Create a Kubernetes GlobalConfiguration resource to establish a NGINX Ingress Controller UDP listener.
 - Create a Kubernetes TransportServer resource for the udp-listener application.
 
-{{< note >}} The NGINX Plus version of NGINX Plus Ingress Controller is required for this tutorial. {{< /note >}}
+{{< note >}}
+There are two versions of NGINX Ingress Controller for Kubernetes: NGINX Open Source and NGINX Plus.
+To complete this tutorial, you must use either:
+
+- Open Source NGINX Ingress Controller version 3.0+ or greater
+- NGINX Plus version of NGINX Ingress Controller
+
+{{< /note >}}
 
 ### Install NGINX Service Mesh
 
@@ -28,18 +35,18 @@ Follow the installation [instructions]( {{< ref "/get-started/install.md" >}} ) 
 
 {{< caution >}} 
 Before proceeding, verify that the mesh is running (Step 2 of the installation [instructions]( {{< ref "/get-started/install.md" >}} )).
-NGINX Plus Ingress Controller will try to fetch certs from the Spire agent that gets deployed by NGINX Service Mesh on startup. If the mesh is not running, NGINX Plus Ingress controller will fail to start.  
+NGINX Ingress Controller will try to fetch certs from the Spire agent that gets deployed by NGINX Service Mesh on startup. If the mesh is not running, NGINX Ingress controller will fail to start.  
 {{< /caution >}}
 
-### Install NGINX Plus Ingress Controller
+### Install NGINX Ingress Controller
 
-1. [Install NGINX Plus Ingress Controller]( {{< ref "/tutorials/kic/deploy-with-kic.md#install-nginx-plus-ingress-controller-with-mtls-enabled">}} ) with the option to allow UDP ingress traffic. This tutorial will demonstrate installation as a Deployment.
+1. [Install NGINX Ingress Controller]( {{< ref "/tutorials/kic/deploy-with-kic.md#install-nginx-ingress-controller-with-mtls-enabled">}} ) with the option to allow UDP ingress traffic. This tutorial will demonstrate installation as a Deployment.
     - Follow the instructions to [enable UDP]( {{< ref "/tutorials/kic/deploy-with-kic.md#enable-udp-traffic" >}} )
 
     {{< important >}}
     mTLS does not affect UDP communication, as mTLS in NGINX Service Mesh applies only to TCP traffic at this time.
     {{< /important >}}
-2. Get access to the NGINX Plus Ingress Controller by applying the `udp-nodeport.yaml` NodePort resource.
+2. Get access to the NGINX Ingress Controller by applying the `udp-nodeport.yaml` NodePort resource.
    - {{< fa "download" >}} {{< link "/examples/nginx-ingress-controller/udp/udp-nodeport.yaml" "udp-nodeport.yaml" >}}
 3. Check the exposed port from the NodePort service just defined:
 
@@ -63,7 +70,7 @@ NGINX Plus Ingress Controller will try to fetch certs from the Spire agent that 
     We'll use `12.115.30.1`.
  
  {{< note >}}
- At this point, you should have the NGINX Plus Ingress Controller running in your cluster; you can deploy the udp-listener example app to test out the mesh integration, or use NGINX Plus Ingress controller to expose one of your own apps. 
+ At this point, you should have the NGINX Ingress Controller running in your cluster; you can deploy the udp-listener example app to test out the mesh integration, or use NGINX Ingress controller to expose one of your own apps. 
  {{< /note >}}
 
 ### Deploy the udp-listener App
@@ -86,7 +93,7 @@ udp-listener-59665d7ffc-drzh2   2/2     Running   0          4s
 
 ### Expose the udp-listener App
 
-To route UDP requests to an application in the mesh through the NGINX Plus Ingress Controller, you will need both a GlobalConfiguration and TransportServer Resource.
+To route UDP requests to an application in the mesh through the NGINX Ingress Controller, you will need both a GlobalConfiguration and TransportServer Resource.
 
 - {{< fa "download" >}} {{< link "/examples/nginx-ingress-controller/udp/nic-global-configuration.yaml" "nic-global-configuration.yaml" >}}
 - {{< fa "download" >}} {{< link "/examples/nginx-ingress-controller/udp/udp-transportserver.yaml" "udp-transportserver.yaml" >}}
@@ -141,9 +148,9 @@ To route UDP requests to an application in the mesh through the NGINX Plus Ingre
 
 ### Send Datagrams to the udp-listener App
 
-Now that everything for the NGINX Plus Ingress Controller is deployed, we can now send datagrams to the udp-listener application.
+Now that everything for the NGINX Ingress Controller is deployed, we can now send datagrams to the udp-listener application.
 
-1. Use the IP and port defined in the [Install NGINX Plus Ingress Controller](#install-nginx-plus-ingress-controller) section to send a netcat UDP message:
+1. Use the IP and port defined in the [Install NGINX Ingress Controller](#install-nginx-ingress-controller) section to send a netcat UDP message:
 
     ```bash
     echo "UDP Datagram Message" | nc -u 12.115.30.1 31839

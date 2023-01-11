@@ -12,7 +12,6 @@ spec:
       labels:
         app: nginx-ingress
         nsm.nginx.com/daemonset: nginx-ingress
-        spiffe.io/spiffeid: "true"
         nsm.nginx.com/enable-ingress: "true"
         #nsm.nginx.com/enable-egress: "true"
       annotations:
@@ -48,9 +47,6 @@ spec:
             - ALL
             add:
             - NET_BIND_SERVICE
-        volumeMounts:
-        - mountPath: /run/spire/sockets
-          name: spire-agent-socket
         env:
         - name: POD_NAMESPACE
           valueFrom:
@@ -68,15 +64,8 @@ spec:
           - -nginx-plus
           - -nginx-configmaps=$(POD_NAMESPACE)/nginx-config
           - -default-server-tls-secret=$(POD_NAMESPACE)/default-server-secret
-          - -spire-agent-address=/run/spire/sockets/agent.sock
           - -enable-prometheus-metrics
           - -enable-latency-metrics
-          #- -enable-internal-routes
           # Needed for UDP
           # - -enable-preview-policies
           # - -global-configuration=nginx-ingress/nginx-configuration
-      volumes:
-      - hostPath:
-          path: /run/spire/sockets
-          type: DirectoryOrCreate
-        name: spire-agent-socket
