@@ -1,6 +1,6 @@
 ---
-title: "Deploy with NGINX Plus Ingress Controller"
-description: "This topic describes how to install and use the NGINX Plus Ingress Controller with NGINX Service Mesh"
+title: "Deploy with NGINX Ingress Controller"
+description: "This topic describes how to install and use the NGINX Ingress Controller with NGINX Service Mesh"
 weight: 200
 draft: false
 toc: true
@@ -29,23 +29,23 @@ The supported NGINX Plus Ingress Controller versions for each release are listed
 The documentation for the latest stable release of NGINX Ingress Controller is available at [docs.nginx.com/nginx-ingress-controller](https://docs.nginx.com/nginx-ingress-controller/).
 For version specific documentation, deployment configs, and configuration examples, select the tag corresponding to your desired version in [GitHub](https://github.com/nginxinc/kubernetes-ingress/tags). 
 
-## Secure Communication Between NGINX Plus Ingress Controller and NGINX Service Mesh
+## Secure Communication Between NGINX Ingress Controller and NGINX Service Mesh
 
-The NGINX Plus Ingress Controller can participate in the mTLS cert exchange with services in the mesh without being injected with the sidecar proxy. The SPIRE server - the certificate authority of the mesh - issues certs and keys for NGINX Plus Ingress Controller and pushes them to the SPIRE agents running on each node in the cluster. NGINX Plus Ingress Controller fetches these certs and keys from the SPIRE agent via a unix socket and uses them to communicate with services in the mesh.
+The NGINX Ingress Controller can participate in the mTLS cert exchange with services in the mesh without being injected with the sidecar proxy. The SPIRE server - the certificate authority of the mesh - issues certs and keys for NGINX Ingress Controller and pushes them to the SPIRE agents running on each node in the cluster. NGINX Ingress Controller fetches these certs and keys from the SPIRE agent via a unix socket and uses them to communicate with services in the mesh.
 
-## Cert Rotation with NGINX Plus Ingress Controller
+## Cert Rotation with NGINX Ingress Controller
 
 The `ttl` of the SVID certificates issued by SPIRE is set to `1hr` by default. You can change this when deploying the mesh; refer to the [nginx-meshctl]({{< ref "nginx-meshctl.md" >}}) documentation for more information.
 
-When using NGINX Plus Ingress Controller with mTLS enabled, it is best practice to keep the `ttl` at 1 hour or greater.
+When using NGINX Ingress Controller with mTLS enabled, it is best practice to keep the `ttl` at 1 hour or greater.
 
 ## Install NGINX Ingress Controller with mTLS enabled
 
-To configure NGINX Plus Ingress Controller to communicate with mesh workloads over mTLS you need to make a modification to the Ingress Controller's Pod spec. This section describes each modification that is required, but if you'd like to jump to installation, go to the [Install with Manifests](#install-with-manifests) or [Install with Helm](#install-with-helm) sections. 
+To configure NGINX Ingress Controller to communicate with mesh workloads over mTLS you need to make a modification to the Ingress Controller's Pod spec. This section describes each modification that is required, but if you'd like to jump to installation, go to the [Install with Manifests](#install-with-manifests) or [Install with Helm](#install-with-helm) sections. 
 
 1. Add NGINX Service Mesh label
 
-   One or both of the following labels must be added to the Ingress Controller's Pod spec:
+   One or both of the following labels must be added to the Ingress Controller's Pod spec, depending on your use case:
 
     ```yaml
     labels:
@@ -59,7 +59,7 @@ To configure NGINX Plus Ingress Controller to communicate with mesh workloads ov
       ...
     ```
 
-   This label prevents NGINX Service Mesh from automatically injecting the sidecar into the Ingress Controller Pod.
+   These labels tell NGINX Service Mesh to mutate the Ingress Controller Pod with the proper configuration in order to properly integrate with the mesh.
 
    {{<note>}}In NGINX Service Mesh versions prior to v1.7.0, the `nsm.nginx.com/enable-ingress: "true"` annotation was used instead of a label.
    Support for this annotation will be removed in a future release.
@@ -78,15 +78,53 @@ If you would like to enable egress traffic, refer to the [Enable Egress](#enable
 
 ### Install with Manifests
 
-Before installing NGINX Plus Ingress Controller, you must install NGINX Service Mesh with an [mTLS mode]({{< ref "/guides/secure-traffic-mtls.md" >}}) of `permissive`, or `strict`.
-NGINX Plus Ingress Controller will try to fetch certs from the SPIRE agent on startup. If it cannot reach the SPIRE agent, startup will fail, and NGINX Plus Ingress Controller will go into CrashLoopBackoff state. The state will resolve once NGINX Ingress Controller connects to the SPIRE agent.
+Before installing NGINX Ingress Controller, you must install NGINX Service Mesh with an [mTLS mode]({{< ref "/guides/secure-traffic-mtls.md" >}}) of `permissive`, or `strict`.
+NGINX Ingress Controller will try to fetch certs from the SPIRE agent on startup. If it cannot reach the SPIRE agent, startup will fail, and NGINX Ingress Controller will go into CrashLoopBackoff state. The state will resolve once NGINX Ingress Controller connects to the SPIRE agent.
 For instructions on how to install NGINX Service Mesh, see the [Installation]({{< ref "/get-started/install.md" >}}) guide.
 
 {{< note >}}
 Before continuing, check the NGINX Ingress Controller [supported versions](#supported-versions) section and make sure you are working off the correct release tag for all NGINX Ingress Controller instructions.
 {{< /note >}}
 
-1. Build or Pull the NGINX OSS/Plus Ingress Controller image:
+#### NGINX OSS Ingress Controller
+
+1. Build or Pull the NGINX OSS Ingress Controller image:
+    - [Create and push your NGINX Docker image](https://docs.nginx.com/nginx-ingress-controller/installation/building-ingress-controller-image/).
+    - For NGINX OSS Ingress you can also [pull the NGINX Docker image](https://docs.nginx.com/nginx-ingress-controller/installation/pulling-ingress-controller-image/).
+1. Set up Kubernetes Resources for [NGINX Ingress Controller](https://docs.nginx.com/nginx-ingress-controller/installation/installation-with-manifests/) using Kubernetes manifests:
+    - [Configure role-based access control (RBAC)](https://docs.nginx.com/nginx-ingress-controller/installation/installation-with-manifests/#1-configure-rbac)
+    - [Create Common Resources](https://docs.nginx.com/nginx-ingress-controller/installation/installation-with-manifests/#2-create-common-resources)
+1. Create the NGINX Ingress Controller as a **Deployment** or **DaemonSet** in Kubernetes using one of the following example manifests:
+    - Kubernetes Deployment: {{< fa "download" >}} {{< link "/examples/nginx-ingress-controller/oss/nginx-ingress.yaml" "`nginx-ingress-controller/oss/nginx-ingress.yaml`" >}}
+    - Kubernetes DaemonSet: {{< fa "download" >}} {{< link "/examples/nginx-ingress-controller/oss/nginx-ingress-daemonset.yaml" "`nginx-ingress-controller/oss/nginx-ingress-daemonset.yaml`" >}}
+    - OpenShift Deployment: {{< fa "download" >}} {{< link "/examples/nginx-ingress-controller/oss/openshift/nginx-ingress.yaml" "`nginx-ingress-controller/oss/openshift/nginx-ingress.yaml`" >}}
+    - Openshift DaemonSet:  {{< fa "download" >}} {{< link "/examples/nginx-ingress-controller/oss/openshift/nginx-ingress-daemonset.yaml" "`nginx-ingress-controller/oss/openshift/nginx-ingress-daemonset.yaml`" >}}
+      {{< note >}} The provided manifests configure NGINX Ingress Controller for ingress traffic only. If you would like to enable egress traffic, refer to the [Enable Egress](#enable-with-manifests) section of this guide. {{< /note >}}
+      {{< important >}} Be sure to replace the `nginx-ingress:version` image used in the manifest with the chosen image from a supported Container registry; or the container image that you have built. {{< /important >}}
+
+    - *OpenShift only*:
+
+      Download the SecurityContextConstraint necessary to run NGINX Ingress Controller in an OpenShift environment.
+
+        - {{< fa "download" >}} {{< link "/examples/nginx-ingress-controller/oss/openshift/nic-scc.yaml" "`nginx-ingress-controller/oss/openshift/nic-scc.yaml`" >}}
+
+        - Apply the `nginx-ingress-permissions` SecurityContextConstraint:
+
+          ```bash
+          kubectl apply -f nic-scc.yaml
+          ```
+
+        - Install the OpenShift CLI by following the steps in their [documentation](https://docs.openshift.com/container-platform/4.7/cli_reference/openshift_cli/getting-started-cli.html#installing-openshift-cli).
+
+        - Add the `nginx-ingress-permissions` to the ServiceAccount of the NGINX Ingress Controller.
+
+          ```bash
+          oc adm policy add-scc-to-user nginx-ingress-permissions -z nginx-ingress -n nginx-ingress
+          ```
+
+#### NGINX Plus Ingress Controller
+
+1. Build or Pull the NGINX Plus Ingress Controller image:
     - [Create and push your NGINX Plus Docker image](https://docs.nginx.com/nginx-ingress-controller/installation/building-ingress-controller-image/).
     - For NGINX Plus Ingress releases >= `1.12.0` you can also [pull the NGINX Plus Docker image](https://docs.nginx.com/nginx-ingress-controller/installation/pulling-ingress-controller-image/).
 1. Set up Kubernetes Resources for [NGINX Plus Ingress Controller](https://docs.nginx.com/nginx-ingress-controller/installation/installation-with-manifests/) using Kubernetes manifests:
@@ -122,13 +160,13 @@ Before continuing, check the NGINX Ingress Controller [supported versions](#supp
 
 ### Install with Helm 
 
-Before installing NGINX Plus Ingress Controller, you must install NGINX Service Mesh with an [mTLS mode]({{< ref "/guides/secure-traffic-mtls.md" >}}) of `permissive`, or `strict`.
-NGINX Ingress Controller will try to fetch certs from the SPIRE agent on startup. If it cannot reach the SPIRE agent, startup will fail, and NGINX Plus Ingress Controller will go into CrashLoopBackoff state. The state will resolve once NGINX Ingress Controller connects to the SPIRE agent.
+Before installing NGINX Ingress Controller, you must install NGINX Service Mesh with an [mTLS mode]({{< ref "/guides/secure-traffic-mtls.md" >}}) of `permissive`, or `strict`.
+NGINX Ingress Controller will try to fetch certs from the SPIRE agent on startup. If it cannot reach the SPIRE agent, startup will fail, and NGINX Ingress Controller will go into CrashLoopBackoff state. The state will resolve once NGINX Ingress Controller connects to the SPIRE agent.
 For instructions on how to install NGINX Service Mesh, see the [Installation]({{< ref "/get-started/install.md" >}}) guide.
    
 {{< note >}} NGINX Plus Ingress Controller v2.2+ or NGINX OSS Ingress Controller v3.0+ is required to deploy via Helm and integrate with NGINX Service Mesh. {{< /note >}}
 
-Follow the [instructions](https://docs.nginx.com/nginx-ingress-controller/installation/installation-with-helm/) to install the NGINX Plus version of the Ingress Controller with Helm.
+Follow the [instructions](https://docs.nginx.com/nginx-ingress-controller/installation/installation-with-helm/) to install the NGINX Ingress Controller with Helm.
 Set the `nginxServiceMesh.enable` parameter to `true`.
 {{< note >}} This will configure NGINX Ingress Controller to route ingress traffic to NGINX Service Mesh workloads. If you would like to enable egress traffic, refer to the [Enable Egress](#enable-with-helm) section of this guide. {{< /note >}}
 
@@ -148,15 +186,15 @@ To learn how to expose your applications using NGINX Ingress Controller, refer t
 
 ## Enable Egress
 
-You can configure NGINX Plus Ingress Controller to act as the egress endpoint of the mesh, enabling your meshed services to communicate securely with external, non-meshed services.
+You can configure NGINX Ingress Controller to act as the egress endpoint of the mesh, enabling your meshed services to communicate securely with external, non-meshed services.
 
 {{<note>}} Multiple endpoints for a single egress deployment are supported, but multiple egress
 deployments are not supported. {{</note>}}
 
 ### Enable with Manifests
-If you are installing NGINX Plus Ingress Controller with manifests follow the [Install with Manifests](#install-with-manifests) instructions and make the following changes to the NGINX Plus Ingress Controller Pod spec:
+If you are installing NGINX Ingress Controller with manifests follow the [Install with Manifests](#install-with-manifests) instructions and make the following change to the NGINX Ingress Controller Pod spec:
 
-- Add the following label to the NGINX Plus Ingress Controller Pod spec:
+- Add the following label to the NGINX Ingress Controller Pod spec:
 
     ```yaml
     labels:
@@ -166,7 +204,7 @@ If you are installing NGINX Plus Ingress Controller with manifests follow the [I
 
   This label prevents automatic injection of the sidecar proxy and configures the NGINX Ingress Controller as the egress endpoint of the mesh.
   
-  This will create a virtual server block in NGINX Plus Ingress Controller that terminates TLS connections using the SPIFFE certs fetched from the SPIRE agent.
+  This will create a virtual server block in NGINX Ingress Controller that terminates TLS connections using the SPIFFE certs fetched from the SPIRE agent.
 
   {{<note>}}
   In NGINX Service Mesh versions prior to v1.7.0, the `nsm.nginx.com/enable-egress: "true"` annotation was used instead of a label.
@@ -179,9 +217,9 @@ If you are installing NGINX Plus Ingress Controller with manifests follow the [I
 
 If you are installing NGINX Ingress Controller with Helm, follow the [Install with Helm](#install-with-helm) instructions and set `nginxServiceMesh.enableEgress` to `true`.
 
-### Allow Pods to route egress traffic through NGINX Plus Ingress Controller
+### Allow Pods to route egress traffic through NGINX Ingress Controller
 
-If egress is enabled you can configure Pods to route **all** egress traffic - requests to non-meshed services - through NGINX Plus Ingress Controller.
+If egress is enabled you can configure Pods to route **all** egress traffic - requests to non-meshed services - through NGINX Ingress Controller.
 This feature can be enabled by adding the following annotation to the Pod spec of an application Pod:
 
 ```bash
@@ -192,7 +230,7 @@ This annotation can be removed or changed after deployment and the egress behavi
 
 ### Create internal routes for non-meshed services
 
-Internal routes represent a route from NGINX Plus Ingress Controller to a non-meshed service.
+Internal routes represent a route from NGINX Ingress Controller to a non-meshed service.
 This route is called "internal" because it is only accessible from a Pod in the mesh and is not accessible from the public internet.
 
 {{< caution >}}
@@ -221,7 +259,7 @@ There are a couple ways to enable both ingress and egress traffic using the NGIN
 You can either allow both ingress and egress traffic through the same NGINX Ingress Controller,
 or deploy two NGINX Ingress Controllers: one for handling ingress traffic only and the other for handling egress traffic.
 
-For the single deployment option, follow the [installation instructions](#install-nginx-plus-ingress-controller-with-mtls-enabled) and the instructions to [Enable Egress](#enable-egress).
+For the single deployment option, follow the [installation instructions](#install-nginx-ingress-controller-with-mtls-enabled) and the instructions to [Enable Egress](#enable-egress).
 If you would like to configure two Ingress Controllers to keep ingress and egress traffic separate you can leverage [Ingress Classes](https://docs.nginx.com/nginx-ingress-controller/installation/running-multiple-ingress-controllers/#ingress-class).
 
 ## Enable UDP Traffic
@@ -270,7 +308,7 @@ Support for these annotations will be removed in a future release.
 All communication between NGINX Ingress Controller and the services in the mesh will be over plaintext!
 We do not recommend using the egress feature with a plaintext deployment of NGINX Ingress Controller,
 it is possible that internal routes could be accessible from the public internet.
-We highly recommend [installing NGINX Ingress Controller with mTLS enabled](#install-nginx-plus-ingress-controller-with-mtls-enabled).
+We highly recommend [installing NGINX Ingress Controller with mTLS enabled](#install-nginx-ingress-controller-with-mtls-enabled).
 {{< /caution >}}
 
 ## OpenTracing Integration
@@ -295,7 +333,7 @@ nginx-meshctl config
 }
 ```
 
-You will need to provide these values in the `opentracing-tracer-config` field of the NGINX Plus Ingress Controller ConfigMap.
+You will need to provide these values in the `opentracing-tracer-config` field of the NGINX Ingress Controller ConfigMap.
 
 Below is an example of the config for Jaeger:
 
@@ -325,9 +363,43 @@ The example below uses the snippets annotation. Starting with NGINX Plus Ingress
      opentracing_operation_name "nginx-ingress";
 ```
 
-## NGINX Plus Ingress Controller Metrics
+## NGINX Ingress Controller Metrics
 
-To enable metrics collection for the NGINX Ingress Controller, take the following steps:
+### NGINX OSS Ingress Controller Metrics
+
+To enable metrics collection for the NGINX OSS Ingress Controller, take the following steps:
+
+1. Run the NGINX Ingress Controller with the `-enable-prometheus-metrics` command line argument.
+   The NGINX Ingress Controller exposes [NGINX metrics](https://github.com/nginxinc/nginx-prometheus-exporter#exported-metrics)
+   in Prometheus format via the `/metrics` path on port 9113. This port is customizable via the `-prometheus-metrics-listen-port` command-line argument; consult the
+   [Command Line Arguments](https://docs.nginx.com/nginx-ingress-controller/configuration/global-configuration/command-line-arguments/) section of the NGINX Ingress Controller docs for more information on available command line arguments.
+
+1. Add the following Prometheus annotations NGINX OSS Ingress Controller Pod spec:
+
+   ```yaml
+   prometheus.io/scrape: "true"
+   prometheus.io/port: "<prometheus-metrics-listen-port>"
+   ```
+
+1. Add the resource name as a label to the NGINX Ingress Controller Pod spec:
+
+    - For *Deployment*:
+
+      ```yaml
+      nsm.nginx.com/deployment: <name of NGINX Ingress Controller Deployment>
+      ```
+
+    - For *DaemonSet*:
+
+      ```yaml
+      nsm.nginx.com/daemonset: <name of NGINX Ingress Controller DaemonSet>
+      ```
+
+   This allows metrics scraped from NGINX OSS Ingress Controller Pods to be associated with the resource that created the Pods.
+
+### NGINX Plus Ingress Controller Metrics
+
+To enable metrics collection for the NGINX Plus Ingress Controller, take the following steps:
 
 1. Run the NGINX Ingress Controller with both the `-enable-prometheus-metrics` and `-enable-latency-metrics` command line arguments.
     The NGINX Ingress Controller exposes [NGINX metrics](https://github.com/nginxinc/nginx-prometheus-exporter#exported-metrics) and latency metrics
@@ -360,12 +432,12 @@ To enable metrics collection for the NGINX Ingress Controller, take the followin
 ### View the metrics in Prometheus
 
 The NGINX Service Mesh uses the Pod's container name setting to identify the NGINX Ingress Controller metrics that should be consumed by the Prometheus server.
-The Prometheus job targets all Pods that have the container name `nginx-plus-ingress`.
 
-Add the `nginx-ingress` scrape config to your Prometheus configuration and consult
+Add the applicable `nginx-ingress` scrape config to your Prometheus configuration and consult
 [Monitoring and Tracing]( {{< ref "/guides/monitoring-and-tracing.md#prometheus" >}} ) for installation instructions.
 
 - {{< fa "download" >}} {{< link "/examples/nginx-ingress-scrape-config.yaml" "`nginx-ingress-scrape-config.yaml`" >}}
+- {{< fa "download" >}} {{< link "/examples/nginx-plus-ingress-scrape-config.yaml" "`nginx-plus-ingress-scrape-config.yaml`" >}}
 
 ## Available metrics
 For a list of the NGINX Ingress Controller metrics, consult the [Available Metrics](https://docs.nginx.com/nginx-ingress-controller/logging-and-monitoring/prometheus/#available-metrics) section of the NGINX Ingress Controller docs.
