@@ -20,7 +20,7 @@ Objectives:
 - Create a Kubernetes Ingress resource for the Bookinfo application.
 
 {{< note >}}
-All communication between the NGINX Plus Ingress Controller and the Bookinfo application occurs over mTLS.
+All communication between the NGINX Ingress Controller and the Bookinfo application occurs over mTLS.
 {{< /note >}}
 
 {{< note >}}
@@ -46,7 +46,7 @@ Before proceeding, verify that the mesh is running (Step 2 of the installation [
 NGINX Ingress Controller will try to fetch certs from the Spire agent that gets deployed by NGINX Service Mesh on startup. If the mesh is not running, NGINX Ingress controller will fail to start.  
 {{< /caution >}}
 
-### Install NGINX Plus Ingress Controller
+### Install NGINX Ingress Controller
 
 1. [Install NGINX Ingress Controller with mTLS enabled]( {{< ref "/tutorials/kic/deploy-with-kic.md#install-nginx-ingress-controller-with-mtls-enabled">}} ). This tutorial will demonstrate installation as a Deployment.
 2. [Get Access to the Ingress Controller](https://docs.nginx.com/nginx-ingress-controller/installation/installation-with-manifests/#4-get-access-to-the-ingress-controller). This tutorial creates a LoadBalancer Service for the NGINX Ingress Controller.
@@ -183,4 +183,4 @@ productpage-v1
                 From       nginx-plus-ingress  100.00%       196ms  160ms  75ms  6
 ```
 
-You can also view the Grafana dashboard, which provides additional statistics on your application, by following the [Monitor your application in Grafana]( {{< ref "/tutorials/kic/deploy-with-kic.md#monitor-your-application-in-grafana" >}} ) section of our Expose an Application with NGINX Plus Ingress Controller guide.
+You can also view the Grafana dashboard, which provides additional statistics on your application, by following the [Monitor your application in Grafana]( {{< ref "/tutorials/kic/deploy-with-kic.md#monitor-your-application-in-grafana" >}} ) section of our Expose an Application with NGINX Ingress Controller guide.

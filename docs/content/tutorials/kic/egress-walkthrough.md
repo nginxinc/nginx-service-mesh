@@ -35,7 +35,7 @@ to a non-meshed service.
 ## Install NGINX Service Mesh
 
 {{< note >}}
-If you want to view metrics for NGINX Plus Ingress Controller, ensure that you have deployed Prometheus and Grafana and then configure NGINX Service Mesh to integrate with them when installing. Refer to the [Monitoring and Tracing]( {{< ref "/guides/monitoring-and-tracing.md" >}} ) guide for instructions.
+If you want to view metrics for NGINX Ingress Controller, ensure that you have deployed Prometheus and Grafana and then configure NGINX Service Mesh to integrate with them when installing. Refer to the [Monitoring and Tracing]( {{< ref "/guides/monitoring-and-tracing.md" >}} ) guide for instructions.
 {{< /note >}}
 
 1. Follow the installation [instructions]( {{< ref "/get-started/install.md" >}} ) to install NGINX Service Mesh on your Kubernetes cluster.
@@ -143,7 +143,7 @@ Now, let's use NGINX Ingress Controller to create a secure internal route from t
 
 ### Install NGINX Ingress Controller
 
-1. [Install the NGINX Ingress Controller]( {{< ref "/tutorials/kic/deploy-with-kic.md#install-nginx-plus-ingress-controller-with-mtls-enabled">}} ). This tutorial will demonstrate installation as a Deployment.
+1. [Install the NGINX Ingress Controller]( {{< ref "/tutorials/kic/deploy-with-kic.md#install-nginx-ingress-controller-with-mtls-enabled">}} ). This tutorial will demonstrate installation as a Deployment.
     - Follow the instructions to [enable egress]( {{< ref "/tutorials/kic/deploy-with-kic.md#enable-egress" >}} )
 
 1. Verify the NGINX Ingress Controller is running:
@@ -160,7 +160,7 @@ The sidecar proxy will route egress traffic to the NGINX Ingress Controller's Po
 
 ### Create an internal route to the legacy target service
 
-To create an internal route from the NGINX Plus Ingress Controller to the legacy `target` Service, we need to create
+To create an internal route from the NGINX Ingress Controller to the legacy `target` Service, we need to create
 an Ingress resource with the annotation `nsm.nginx.com/internal-route: "true"`.
 
 {{< tip >}}
@@ -227,7 +227,7 @@ Events:
 
 ### Allow the egress-driver application to route egress traffic to NGINX Ingress Controller
 
-To enable the `egress-driver` application to send egress requests to NGINX Plus Ingress Controller, edit the `egress-driver` Pod and add the following annotation:
+To enable the `egress-driver` application to send egress requests to NGINX Ingress Controller, edit the `egress-driver` Pod and add the following annotation:
  `config.nsm.nginx.com/default-egress-allowed: "true"`
 
 To verify that the default egress route is configured look at the logs of the proxy container:
