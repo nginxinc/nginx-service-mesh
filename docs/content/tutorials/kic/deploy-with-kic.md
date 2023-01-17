@@ -480,7 +480,8 @@ Here is a view of the provided "NGINX Mesh Top" dashboard:
 NGINX Service Mesh version v1.7+ provides a mutating webhook that detects and configures instances of NGINX Ingress Controller.
 
 #### Pod Spec Changes 
-1.  NSM mounts and configures the SPIRE agent socket based on environment
+
+1. NSM mounts and configures the SPIRE agent socket based on environment
 
    The SPIRE agent socket needs to be mounted to the Ingress Controller Pod so the Ingress Controller can fetch its certificates and keys from the SPIRE agent. This allows the Ingress Controller to authenticate with workloads in the mesh. For more information on how SPIRE distributes certificates see the [SPIRE]({{< ref "/about/architecture#spire" >}}) section in the architecture doc. 
     
