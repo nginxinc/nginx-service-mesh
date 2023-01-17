@@ -60,8 +60,12 @@ To configure NGINX Ingress Controller to communicate with mesh workloads over mT
     ```
 
    These labels tell NGINX Service Mesh to mutate the Ingress Controller Pod with the proper configuration in order to properly integrate with the mesh.
+   {{<note>}}
+   To learn more about how NGINX Service Mesh mutates NGINX Ingress Controller instances, refer to the NGINX Service Mesh's [Integrating NGINX Ingress Controller with NSM](#integrating-nginx-ingress-controller-with-nsm) guide.
+   {{</note>}}
 
-   {{<note>}}In NGINX Service Mesh versions prior to v1.7.0, the `nsm.nginx.com/enable-ingress: "true"` annotation was used instead of a label.
+   {{<note>}}
+   In NGINX Service Mesh versions prior to v1.7.0, the `nsm.nginx.com/enable-ingress: "true"` annotation was used instead of a label.
    Support for this annotation will be removed in a future release.
    {{</note>}}
 
@@ -469,3 +473,87 @@ Then you can navigate your browser to `localhost:3000` to view Grafana.
 Here is a view of the provided "NGINX Mesh Top" dashboard:
 
 {{< img src="/img/grafana.png" >}}
+
+## Integrating NGINX Ingress Controller with NSM
+
+### Mutating Webhook
+NGINX Service Mesh version v1.7+ provides a mutating webhook that detects and configures instances of NGINX Ingress Controller.
+
+#### Pod Spec Changes 
+1.  NSM mounts and configures the SPIRE agent socket based on environment
+
+   The SPIRE agent socket needs to be mounted to the Ingress Controller Pod so the Ingress Controller can fetch its certificates and keys from the SPIRE agent. This allows the Ingress Controller to authenticate with workloads in the mesh. For more information on how SPIRE distributes certificates see the [SPIRE]({{< ref "/about/architecture#spire" >}}) section in the architecture doc. 
+    
+- *Kubernetes*
+
+      The following `hostPath` is added as a volume to the Ingress Controller's Pod spec:
+
+        ```yaml
+        volumes:
+        - hostPath:
+            path: /run/spire/sockets
+            type: DirectoryOrCreate
+          name: spire-agent-socket
+        ```
+
+      NSM also mounts the socket to the Ingress Controller's container spec:
+
+        ```yaml
+        volumeMounts:
+        - mountPath: /run/spire/sockets
+          name: spire-agent-socket
+        ```
+
+- *OpenShift*
+
+    To mount the SPIRE agent socket in OpenShift, NSM adds the following `csi` driver to the Ingress Controller's Pod spec:
+
+    ```yaml
+    volumes:
+    - csi:
+      driver: csi.spiffe.io
+      readOnly: true
+    name: spire-agent-socket
+    ```
+
+    and mount the socket to the Ingress Controller's container spec:
+
+    ```yaml
+    volumeMounts:
+    - mountPath: /run/spire/sockets
+      name: spire-agent-socket
+    ```
+
+    For more information as to why a CSI Driver is needed for loading the agent socket in OpenShift, see [Introduction]({{< ref "/get-started/openshift-platform/considerations#introduction" >}}) in the OpenShift Considerations doc.
+
+1. NSM adds a command line argument
+
+   The following argument is added to the Ingress Controller's container args:
+
+    ```yaml
+    args:
+      - -spire-agent-address=/run/spire/sockets/agent.sock
+      ...
+    - 
+    ```
+
+    - The `spire-agent-address` passes the address of the SPIRE agent `/run/spire/sockets/agent.sock` to the Ingress Controller.
+
+   If egress is enabled NSM also adds the following argument to the Ingress Controller's container args:
+
+    ```yaml
+    args:
+      - -enable-internal-routes
+      ...
+    - 
+    ```
+
+1. NSM adds a SPIFFE label
+
+    ```yaml
+    labels:
+      spiffe.io/spiffeid: "true"
+      ...
+    ```
+
+   This label tells SPIRE to generate a certificate for the Ingress Controller Pod(s).
