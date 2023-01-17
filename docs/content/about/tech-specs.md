@@ -57,7 +57,7 @@ The following tables list the software versions NGINX Service Mesh supports and 
 {{% table %}}
 | NGINX Service Mesh | NGINX Plus (sidecar) | SPIRE   | NATS                  | Prometheus \*           | Grafana \*            | Jaeger           \*             | Zipkin \*                 |
 |--------------------|----------------------|---------|-----------------------|-------------------------|-----------------------|---------------------------------|---------------------------|
-| v1.7.0             | R28                  | 1.5.2   | nats:2.9.8-alpine3.16 | ---                     | ---                   | ---                             | ---                       |
+| v1.7.0             | R28                  | 1.5.4   | nats:2.9-alpine       | ---                     | ---                   | ---                             | ---                       |
 | v1.6.0             | R27                  | 1.4.4   | nats:2.9.3-alpine3.16 | ---                     | ---                   | ---                             | ---                       |
 | v1.5.0             | R27                  | 1.3.2   | nats:2.8.4-alpine3.15 | ---                     | ---                   | ---                             | ---                       |
 | v1.4.1             | R25                  | 1.2.0   | nats:2.7.2-alpine3.15 | prom/prometheus:v2.33.1 | grafana/grafana:8.3.4 | jaegertracing/all-in-one:1.31.0 | openzipkin/zipkin:2.23.16 |
@@ -86,17 +86,17 @@ The following tables list the software versions NGINX Service Mesh supports and 
 NGINX Service Mesh also pulls the following publicly-accessible third-party container images into your Kubernetes cluster in order to function:
 
 {{% table %}}
-| Component  | Image path(s)                                                          | Version tag      |
-|------------|------------------------------------------------------------------------|------------------|
-| SPIRE      | gcr.io/spiffe-io/spire-server                                          | 1.5.2            |
-|            | gcr.io/spiffe-io/k8s-workload-registrar                                | 1.5.2            |
-|            | gcr.io/spiffe-io/spire-agent                                           | 1.5.2            |
-|            | curlimages/curl                                                        | latest           |
-|            | ubuntu (OpenShift only)                                                | 20.04            |
-|            | ghcr.io/spiffe/spiffe-csi-driver (OpenShift only)                      | 0.2.1            |
-|            | registry.k8s.io/sig-storage/csi-node-driver-registrar (OpenShift only) | v2.6.2           |
-| NATS       | nats                                                                   | 2.9.8-alpine3.16 |
-| Helm hooks | bitnami/kubectl                                                        | latest           |
+| Component  | Image path(s)                                                          | Version tag |
+|------------|------------------------------------------------------------------------|-------------|
+| SPIRE      | gcr.io/spiffe-io/spire-server                                          | 1.5.4       |
+|            | gcr.io/spiffe-io/k8s-workload-registrar                                | 1.5.4       |
+|            | gcr.io/spiffe-io/spire-agent                                           | 1.5.4       |
+|            | curlimages/curl                                                        | latest      |
+|            | ubuntu (OpenShift only)                                                | 22.04       |
+|            | ghcr.io/spiffe/spiffe-csi-driver (OpenShift only)                      | 0.2.1       |
+|            | registry.k8s.io/sig-storage/csi-node-driver-registrar (OpenShift only) | v2.7.0      |
+| NATS       | nats                                                                   | 2.9-alpine  |
+| Helm hooks | bitnami/kubectl                                                        | latest      |
 {{% /table %}}
 
 ### Libraries

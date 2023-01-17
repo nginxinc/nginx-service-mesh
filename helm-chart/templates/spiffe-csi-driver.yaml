@@ -94,7 +94,7 @@ spec:
       hostPID: true
       initContainers:
       - name: set-context
-        image: {{ include "ubuntu.image-server" . }}ubuntu:20.04
+        image: {{ include "ubuntu.image-server" . }}ubuntu:22.04
         imagePullPolicy: {{ .Values.registry.imagePullPolicy }}
         command: ["chcon", "-Rt", "container_file_t", "spire-agent-socket/"]
         volumeMounts:
@@ -139,7 +139,7 @@ spec:
       # of all the little details required to register a CSI driver with
       # the kubelet.
       - name: node-driver-registrar
-        image: {{ include "node-driver.image-server" . }}/csi-node-driver-registrar:v2.6.2
+        image: {{ include "node-driver.image-server" . }}/csi-node-driver-registrar:v2.7.0
         imagePullPolicy: {{ .Values.registry.imagePullPolicy }}
         args: [
           "-csi-address", "/spiffe-csi/csi.sock",
