@@ -20,14 +20,10 @@ metadata:
   annotations:
     "helm.sh/resource-policy": keep
 rules:
-- apiGroups:
-  - security.openshift.io
-  resources:
-  - securitycontextconstraints
-  resourceNames:
-  - nginx-mesh-spiffe-csi-driver-permissions
-  verbs:
-  - use
+- apiGroups: ["security.openshift.io"]
+  resources: ["securitycontextconstraints"]
+  resourceNames: ["nginx-mesh-spiffe-csi-driver-permissions"]
+  verbs: ["use"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
@@ -133,7 +129,7 @@ spec:
           readOnlyRootFilesystem: true
           capabilities:
             drop:
-              - all
+            - all
           privileged: true
       # This container runs the CSI Node Driver Registrar which takes care
       # of all the little details required to register a CSI driver with

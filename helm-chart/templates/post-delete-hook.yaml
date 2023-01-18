@@ -23,36 +23,20 @@ metadata:
     "helm.sh/hook-delete-policy": hook-succeeded,hook-failed
     "helm.sh/hook-weight": "-5"
 rules:
-- apiGroups:
-  - ''
-  resources:
-  - secrets
-  verbs:
-  - delete
-- apiGroups:
-  - ''
-  resources:
-  - namespaces
-  verbs:
-  - list
-- apiGroups:
-  - spiffeid.spiffe.io
-  resources:
-  - spiffeids
-  verbs:
-  - get
-  - list
-  - patch
-  - update
+- apiGroups: [""]
+  resources: ["secrets"]
+  verbs: ["delete"]
+- apiGroups: [""]
+  resources: ["namespaces"]
+  verbs: ["list"]
+- apiGroups: ["spiffeid.spiffe.io"]
+  resources: ["spiffeids"]
+  verbs: ["get", "list", "patch", "update"]
 {{- if eq .Values.environment "openshift" }}
-- apiGroups:
-  - security.openshift.io
-  resources:
-  - securitycontextconstraints
-  resourceNames:
-  - post-delete-permissions.builtin.nsm.nginx
-  verbs:
-  - use
+- apiGroups: ["security.openshift.io"]
+  resources: ["securitycontextconstraints"]
+  resourceNames: ["post-delete-permissions.builtin.nsm.nginx"]
+  verbs: ["use"]
 {{- end }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1

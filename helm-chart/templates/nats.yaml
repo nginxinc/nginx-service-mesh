@@ -76,8 +76,6 @@ spec:
         {{- end }}
       shareProcessNamespace: true
       terminationGracePeriodSeconds: 60
-      imagePullSecrets:
-      - name: {{ include "registry-key-name" . }}
       initContainers:
       - name: nginx-mesh-cert-reloader-init
         image: {{ .Values.registry.server }}/nginx-mesh-cert-reloader:{{ .Values.registry.imageTag }}
@@ -88,30 +86,30 @@ spec:
           runAsUser: 2102
           capabilities:
             drop:
-              - all
+            - all
             add:
-              - NET_ADMIN
-              - KILL
+            - NET_ADMIN
+            - KILL
         volumeMounts:
         - name: tls
-          mountPath: "/etc/ssl"
+          mountPath: /etc/ssl
         - name: spire-agent-socket
-          mountPath: "/run/spire/sockets"
+          mountPath: /run/spire/sockets
       containers:
       - name: nginx-mesh-cert-reloader
         image: {{ .Values.registry.server }}/nginx-mesh-cert-reloader:{{ .Values.registry.imageTag }}
         imagePullPolicy: {{ .Values.registry.imagePullPolicy }}
         args:
-        - "-pid"
-        - "/var/run/nats/nats.pid"
-        - "-is-daemon"
+        - -pid
+        - /var/run/nats/nats.pid
+        - -is-daemon
         volumeMounts:
         - name: pid
-          mountPath: "/var/run/nats"
+          mountPath: /var/run/nats
         - name: tls
-          mountPath: "/etc/ssl"
+          mountPath: /etc/ssl
         - name: spire-agent-socket
-          mountPath: "/run/spire/sockets"
+          mountPath: /run/spire/sockets
       - name: nats-server
         image: {{ include "nats.image-server" . }}nats:2.9-alpine
         imagePullPolicy: {{ .Values.registry.imagePullPolicy }}
@@ -122,17 +120,17 @@ spec:
           name: monitor
         command:
         - nats-server
-        - "--config"
-        - "/etc/nats-config/nats.conf"
+        - --config
+        - /etc/nats-config/nats.conf
         securityContext:
           allowPrivilegeEscalation: false
           privileged: false
           runAsUser: 2102
           capabilities:
             drop:
-              - all
+            - all
             add:
-              - NET_ADMIN
+            - NET_ADMIN
         env:
         - name: POD_NAME
           valueFrom:
@@ -146,20 +144,20 @@ spec:
           value: "$(POD_NAME).nats-server.$(POD_NAMESPACE).svc"
         volumeMounts:
         - name: config-volume
-          mountPath: "/etc/nats-config"
+          mountPath: /etc/nats-config
         - name: pid
-          mountPath: "/var/run/nats"
+          mountPath: /var/run/nats
         - name: tls
-          mountPath: "/etc/ssl"
+          mountPath: /etc/ssl
         livenessProbe:
           httpGet:
-            path: "/"
+            path: /
             port: 8222
           initialDelaySeconds: 10
           timeoutSeconds: 5
         readinessProbe:
           httpGet:
-            path: "/"
+            path: /
             port: 8222
           initialDelaySeconds: 10
           timeoutSeconds: 5
@@ -167,6 +165,6 @@ spec:
           preStop:
             exec:
               command:
-              - "/bin/sh"
-              - "-c"
-              - "/nats-server -sl=ldm=/var/run/nats/nats.pid && /bin/sleep 60"
+              - /bin/sh
+              - -c
+              - /nats-server -sl=ldm=/var/run/nats/nats.pid && /bin/sleep 60
