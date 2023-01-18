@@ -1,0 +1,4 @@
+baseURL = "https://mesh-preview.netlify.app/nginx-service-mesh"
+title = "NGINX Service Mesh Preview Docs "
+publishDir = "public/nginx-service-mesh"
+canonifyURLs = false

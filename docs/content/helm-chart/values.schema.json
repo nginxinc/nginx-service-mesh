@@ -1,0 +1,646 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "title": "NGINX Service Mesh Values",
+  "type": "object",
+  "properties": {
+    "mtls": {
+      "type": "object",
+      "properties": {
+        "mode": {
+          "description": "mTLS mode for pod-to-pod communication",
+          "type": "string",
+          "enum": ["off", "permissive", "strict"],
+          "default": "permissive"
+        },
+        "caTTL": {
+          "description": "The CA/signing key TTL in hours(h). Min value 24h. Max value 999999h.",
+          "type": "string",
+          "pattern": "^1[0-9]{2,5}(h)|2[4-9](h)|2[0-9][0-9]{1,5}(h)|[3-9][0-9]{1,5}(h)$",
+          "default": "720h"
+        },
+        "svidTTL": {
+          "description": "The TTL of certificates issued to workloads in hours(h) or minutes(m). Max value is 999999.",
+          "type": "string",
+          "pattern": "^[1-9][0-9]{0,5}(h|m)$",
+          "default": "1h"
+        },
+        "trustDomain": {
+          "description": "The trust domain of the NGINX Service Mesh",
+          "type": "string",
+          "default": "example.org"
+        },
+        "persistentStorage": {
+          "description": "Use persistent storage",
+          "type": "string",
+          "enum": ["on", "off"],
+          "default": "on"
+        },
+        "spireServerKeyManager": {
+          "description": "Storage logic for SPIRE Server's private keys",
+          "type": "string",
+          "enum": ["disk", "memory"],
+          "default": "disk"
+        },
+        "caKeyType": {
+          "description": "The key type used for the SPIRE Server CA",
+          "type": "string",
+          "enum": ["ec-p256", "ec-p384", "rsa-2048", "rsa-4096"],
+          "default": "ec-p256"
+        },
+        "upstreamAuthority": {
+          "description": "Upstream authority settings",
+          "type": "object",
+          "properties": {
+            "disk": {
+              "description": "Disk object",
+              "type": "object",
+              "properties": {
+                "cert": {
+                  "description": "Contents of your PEM encoded certificate file",
+                  "type": "string",
+                  "minLength": 1
+                },
+                "key": {
+                  "description": "Contents of your PEM encoded key file",
+                  "type": "string",
+                  "minLength": 1
+                },
+                "bundle": {
+                  "description": "Contents of your CA bundle file",
+                  "type": "string"
+                }
+              },
+              "required": ["cert", "key"]
+            },
+            "awsPCA": {
+              "description": "AWS PCA object",
+              "type": "object",
+              "properties": {
+                "region": {
+                  "description": "AWS region to use",
+                  "type": "string",
+                  "minLength": 1
+                },
+                "certificateAuthorityArn": {
+                  "description": "ARN of the upstream CA certificate",
+                  "type": "string",
+                  "minLength": 1
+                },
+                "awsAccessKeyID": {
+                  "description": "AWS access key ID",
+                  "type": "string"
+                },
+                "awsSecretAccessKey": {
+                  "description": "AWS secret access key",
+                  "type": "string"
+                },
+                "caSigningTemplateArn": {
+                  "description": "ARN of the signing template to use for the server's CA",
+                  "type": "string"
+                },
+                "signingAlgorithm": {
+                  "description": "Signing algorithm to use for the server's CA",
+                  "type": "string"
+                },
+                "assumeRoleArn": {
+                  "description": " ARN of an IAM role to assume",
+                  "type": "string"
+                },
+                "endpoint": {
+                  "description": "Endpoint as hostname or fully-qualified URI that overrides the default endpoint",
+                  "type": "string"
+                },
+                "supplementalBundle": {
+                  "description": "Contents of a PEM encoded CA certificates file that should be additionally included in the bundle",
+                  "type": "string"
+                }
+              },
+              "required": ["region", "certificateAuthorityArn"]
+            },
+            "awsSecret": {
+              "description": "AWS Secret object",
+              "type": "object",
+              "properties": {
+                "region": {
+                  "description": "AWS region to use",
+                  "type": "string",
+                  "minLength": 1
+                },
+                "certFileArn": {
+                  "description": "ARN of the upstream CA certificate",
+                  "type": "string",
+                  "minLength": 1
+                },
+                "keyFileArn": {
+                  "description": "ARN of the upstream CA key file",
+                  "type": "string",
+                  "minLength": 1
+                },
+                "awsAccessKeyID": {
+                  "description": "AWS access key ID",
+                  "type": "string"
+                },
+                "awsSecretKeyID": {
+                  "description": "AWS secret access key",
+                  "type": "string"
+                },
+                "awsSecretToken": {
+                  "description": "AWS secret token",
+                  "type": "string"
+                },
+                "assumeRoleArn": {
+                  "description": "ARN of role to assume",
+                  "type": "string"
+                }
+              },
+              "required": ["region", "certFileArn", "keyFileArn"]
+            },
+            "vault": {
+              "description": "Vault object",
+              "type": "object",
+              "properties": {
+                "vaultAddr": {
+                  "description": "URL of the Vault server",
+                  "type": "string",
+                  "minLength": 1
+                },
+                "namespace": {
+                  "description": "Vault namespace",
+                  "type": "string",
+                  "minLength": 1
+                },
+                "caCert": {
+                  "description": "Contents of a PEM encoded CA certificate file to verify the Vault server certificate",
+                  "type": "string",
+                  "minLength": 1
+                },
+                "pkiMountPoint": {
+                  "description": "Name of the mount point where the PKI secret engine is mounted",
+                  "type": "string",
+                  "default": "pki"
+                },
+                "insecureSkipVerify": {
+                  "description": "If true, vault client accepts any server certificates",
+                  "type": "boolean",
+                  "default": false
+                },
+                "certAuth": {
+                  "description": "Client certificate authentication object",
+                  "type": "object",
+                  "properties": {
+                    "clientCert": {
+                      "description": "Contents of your client cert file",
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "clientKey": {
+                      "description": "Contents of your client key file",
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "certAuthMountPoint": {
+                      "description": "Name of the mount point where TLS certificate auth method is mounted",
+                      "type": "string",
+                      "default": "cert"
+                    },
+                    "certAuthRoleName": {
+                      "description": "Name of the vault role. If given, the plugin authenticates against only the named role. Default to trying all roles.",
+                      "type": "string"
+                    }
+                  },
+                  "required": ["clientCert", "clientKey"]
+                },
+                "tokenAuth": {
+                  "description": "Token authentication object",
+                  "type": "object",
+                  "properties": {
+                    "token": {
+                      "description": "Token string set into X-Vault-Token header",
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  },
+                  "required": ["token"]
+                },
+                "approleAuth": {
+                  "description": "AppRole authentication object",
+                  "type": "object",
+                  "properties": {
+                    "approleID": {
+                      "description": "An identifier of AppRole",
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "approleSecretID": {
+                      "description": "A credential of AppRole",
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "approleAuthMountPoint": {
+                      "description": "Name of the mount point where the AppRole auth method is mounted",
+                      "type": "string",
+                      "default": "approle"
+                    }
+                  },
+                  "required": ["approleID", "approleSecretID"]
+                }
+              },
+              "required": ["vaultAddr", "namespace", "caCert"],
+              "oneOf": [
+                {"required": ["certAuth"]},
+                {"required": ["tokenAuth"]},
+                {"required": ["approleAuth"]}
+              ]
+            },
+            "certManager": {
+              "description": "Cert Manager object",
+              "type": "object",
+              "properties": {
+                "namespace": {
+                  "description": "The namespace to create CertificateRequests for signing",
+                  "type": "string",
+                  "minLength": 1
+                },
+                "issuerName": {
+                  "description": "The name of the issuer to reference in CertificateRequests",
+                  "type": "string",
+                  "minLength": 1
+                },
+                "issuerKind": {
+                  "description": "The kind of the issuer to reference in CertificateRequests",
+                  "type": "string",
+                  "default": "Issuer"
+                },
+                "issuerGroup": {
+                  "description": "The group of the issuer to reference in CertificateRequests",
+                  "type": "string",
+                  "default": "cert-manager.io"
+                },
+                "kubeConfig": {
+                  "description": "Contents of the kubeconfig file used to connect to the Kubernetes cluster",
+                  "type": "string"
+                }
+              },
+              "required": ["namespace", "issuerName"]
+            }
+          },
+          "oneOf": [
+            {"$ref": "#/definitions/emptyObject"},
+            {"required": ["disk"]},
+            {"required": ["awsPCA"]},
+            {"required": ["awsSecret"]},
+            {"required": ["vault"]},
+            {"required": ["certManager"]}
+          ]
+        }
+      },
+      "required": ["mode", "caTTL", "svidTTL", "trustDomain", "persistentStorage", "spireServerKeyManager"]
+    },
+    "registry": {
+      "description": "NGINX Service Mesh image registry settings",
+      "type": "object",
+      "properties": {
+        "server": {
+          "description": "Hostname:port (if needed) for registry and path to images",
+          "type": "string",
+          "default": "docker-registry.nginx.com/nsm"
+        },
+        "imageTag": {
+          "description": "Tag used for pulling images from registry. ",
+          "type": "string",
+          "default": "1.7.0"
+        },
+        "key": {
+          "description": "Contents of your Google Cloud JSON key file",
+          "type": "string"
+        },
+        "username": {
+          "description": "Username for accessing private registry",
+          "type": "string"
+        },
+        "password": {
+          "description": "Password for accessing private registry",
+          "type": "string"
+        },
+        "disablePublicImages": {
+          "description": "Disable the pulling of third party images from public repositories",
+          "type": "boolean",
+          "default": false
+        },
+        "imagePullPolicy": {
+          "description": "Image pull policy",
+          "type": "string",
+          "enum": ["Never", "IfNotPresent", "Always"],
+          "default": "IfNotPresent"
+        }
+      },
+      "oneOf": [
+        {
+          "properties": {
+            "username": {"$ref": "#/definitions/nonEmptyString"},
+            "password": {"$ref": "#/definitions/nonEmptyString"},
+            "key": {"$ref": "#/definitions/emptyString"}
+          }
+        },
+        {
+          "properties": {
+            "key": {"$ref": "#/definitions/nonEmptyString"},
+            "username": {"$ref": "#/definitions/emptyString"},
+            "password": {"$ref": "#/definitions/emptyString"}
+          }
+        },
+        {
+          "properties": {
+            "key": {"$ref": "#/definitions/emptyString"},
+            "username": {"$ref": "#/definitions/emptyString"},
+            "password": {"$ref": "#/definitions/emptyString"}
+          }
+        }
+      ],
+      "required": ["server", "imageTag", "disablePublicImages", "imagePullPolicy"]
+    },
+    "accessControlMode": {
+      "description": "Default access control mode for service-to-service communication",
+      "type": "string",
+      "enum": ["allow", "deny"]
+    },
+    "environment": {
+      "description": "Environment to deploy the mesh into",
+      "type": "string",
+      "enum": ["kubernetes", "openshift"]
+    },
+    "enableUDP": {
+      "description": "Enable UDP traffic proxying (beta). Linux kernel 4.18 or greater is required.",
+      "type": "boolean"
+    },
+    "nginxErrorLogLevel": {
+      "description": "NGINX error log level",
+      "type": "string",
+      "enum": ["debug", "info", "notice", "warn", "error", "crit", "alert", "emerg"]
+    },
+    "nginxLogFormat": {
+      "description": "NGINX log format",
+      "type": "string",
+      "enum": ["default", "json"]
+    },
+    "nginxLBMethod": {
+      "description": "NGINX load balancing method",
+      "type": "string",
+      "enum": ["least_conn", "least_time", "least_time last_byte", "least_time last_byte inflight", "random", "random two", "random two least_conn", "random two least_time", "random two least_time=last_byte", "round_robin"]
+    },
+    "clientMaxBodySize": {
+      "description": "NGINX client max body size",
+      "type": "string",
+      "pattern": "^\\d+[kKmMgG]?$"
+    },
+    "prometheusAddress": {
+      "description": "The address of a Prometheus server deployed in your Kubernetes cluster",
+      "type": "string"
+    },
+    "disableAutoInjection": {
+      "description": "Disable automatic sidecar injection upon resource creation",
+      "type": "boolean"
+    },
+    "enabledNamespaces": {
+      "description": "Enable automatic sidecar injection for specific namespaces",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "autoInjection": {
+      "description": "NGINX Service Mesh auto-injection settings",
+      "type": "object",
+      "properties": {
+        "disable": {
+          "description": "Disable automatic sidecar injection upon resource creation",
+          "type": "boolean"
+        },
+        "disabledNamespaces": {
+          "description": "Disable automatic sidecar injection for specific namespace",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "enabledNamespaces": {
+          "description": "Enable automatic sidecar injection for specific namespaces",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "disable": {
+                "const": true
+              }
+            }
+          },
+          "then":{
+            "properties": {
+              "disabledNamespaces": {
+                "$ref": "#/definitions/emptyArray"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "disable": {
+                "const": false
+              }
+            }
+          },
+          "then":{
+            "properties": {
+              "enabledNamespaces": {
+                "$ref": "#/definitions/emptyArray"
+              }
+            }
+          }
+        }
+      ],
+      "required": ["disable"]
+    },
+    "tracing": {
+      "description": "NGINX Service Mesh tracing settings",
+      "type": "object",
+      "oneOf": [
+        {"$ref": "#/definitions/tracingConfig"},
+        {"$ref": "#/definitions/emptyObject"}
+      ]
+    },
+    "telemetry":{
+      "description": "NGINX Service Mesh telemetry settings",
+      "type": "object",
+      "oneOf": [
+        {"$ref": "#/definitions/telemetryConfig"},
+        {"$ref": "#/definitions/emptyObject"}
+      ]
+    }
+  },
+  "definitions": {
+    "nonEmptyString": {
+      "type": "string",
+      "minLength": 1
+    },
+    "emptyString": {
+      "type": "string",
+      "const": ""
+    },
+    "nonEmptyArray": {
+      "type": "array",
+      "minItems": 1
+    },
+    "emptyArray": {
+      "type": "array",
+      "maxItems": 0
+    },
+    "emptyObject": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {}
+    },
+    "telemetryConfig": {
+      "properties": {
+        "samplerRatio": {
+          "description": "The percentage of traces that are processed and exported to the telemetry backend. Float between 0 and 1",
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0
+        },
+        "exporters": {
+          "type": "object",
+          "properties": {
+            "otlp": {
+              "type": "object",
+              "description": "The configuration for an OTLP gRPC exporter",
+              "properties": {
+                "host": {
+                  "description": "The host of the OpenTelemetry gRPC exporter to connect to",
+                  "type": "string",
+                  "minLength": 1
+                },
+                "port": {
+                  "description": "The port of the OpenTelemetry gRPC exporter to connect to",
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 65535
+                }
+              },
+              "required": ["host", "port"]
+            }
+          }
+        }
+      },
+      "required": ["samplerRatio", "exporters"]
+    },
+    "tracingConfig": {
+      "properties": {
+        "sampleRate": {
+          "description": "The sample rate to use for tracing. Float between 0 and 1",
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0
+        },
+        "backend": {
+          "description": "The tracing backend that you want to use",
+          "type": "string",
+          "enum": ["zipkin", "datadog", "jaeger"]
+        },
+        "address": {
+          "description": "The address of a tracing server deployed in your Kubernetes cluster",
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": ["address", "backend", "sampleRate"]
+    }
+  },
+  "allOf": [
+  {
+    "if": {
+      "properties": {
+        "disableAutoInjection": {
+          "const": false
+        }
+      }
+    },
+    "then":{
+      "properties": {
+        "enabledNamespaces": {
+          "$ref": "#/definitions/emptyArray"
+        }
+      }
+    }
+  },
+  {
+    "if": {
+      "properties": {
+        "disableAutoInjection": {
+          "const": true
+        }
+      }
+    },
+    "then":{
+      "properties": {
+        "autoInjection": {
+          "properties": {
+            "disabledNamespaces": {
+              "$ref": "#/definitions/emptyArray"
+            }
+          }
+        }
+      }
+    }
+  }
+],
+  "anyOf": [
+    {
+      "properties": {
+        "telemetry": {
+          "$ref": "#/definitions/emptyObject"
+        },
+        "tracing": {
+          "$ref": "#/definitions/tracingConfig"
+        }
+      }
+    },
+    {
+      "properties": {
+        "telemetry": {
+          "$ref": "#/definitions/emptyObject"
+        },
+        "tracing": {
+          "$ref": "#/definitions/emptyObject"
+        }
+      }
+    },
+    {
+      "properties": {
+        "telemetry": {
+          "$ref": "#/definitions/telemetryConfig"
+        },
+        "tracing": {
+          "$ref": "#/definitions/emptyObject"
+        }
+      }
+    }
+  ],
+  "required": [
+    "mtls",
+    "registry",
+    "accessControlMode",
+    "environment",
+    "nginxErrorLogLevel",
+    "nginxLogFormat",
+    "nginxLBMethod",
+    "autoInjection",
+    "disableAutoInjection"
+  ]
+}

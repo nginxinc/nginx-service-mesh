@@ -1,5 +1,6 @@
 title = "NGINX Service Mesh"
-#baseURL = "/"
+baseURL = "/"
+publishDir = "public/nginx-service-mesh"
 enableGitInfo = false
 staticDir = ["static"]
 languageCode = "en-us"
