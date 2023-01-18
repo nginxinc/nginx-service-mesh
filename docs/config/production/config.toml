@@ -1,4 +1,4 @@
 baseURL = "https://docs.nginx.com/nginx-service-mesh"
-title = "NGINX Service Mesh Docs "
+title = "NGINX Service Mesh Docs"
 publishDir = "public/nginx-service-mesh"
 canonifyURLs = false
