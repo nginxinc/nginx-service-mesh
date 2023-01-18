@@ -1,0 +1,82 @@
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: httproutegroups.specs.smi-spec.io
+  labels:
+    app.kubernetes.io/part-of: nginx-service-mesh
+spec:
+  group: specs.smi-spec.io
+  names:
+    kind: HTTPRouteGroup
+    listKind: HTTPRouteGroupList
+    plural: httproutegroups
+    shortNames:
+    - htr
+    singular: httproutegroup
+  scope: Namespaced
+  versions:
+  - name: v1alpha3
+    schema:
+      openAPIV3Schema:
+        description: HTTPRouteGroup is the Schema for the httproutegroups API It is
+          used to describe HTTP/1 and HTTP/2 traffic. It enumerates the routes that
+          can be served by an application.
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation
+              of an object. Servers should convert recognized schemas to the latest
+              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this
+              object represents. Servers may infer this from the endpoint the client
+              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: HTTPRouteGroupSpec defines the desired state of HTTPRouteGroup
+              It is the specification for a HTTPRouteGroup
+            properties:
+              matches:
+                description: Routes for inbound traffic
+                items:
+                  description: HTTPMatch defines an individual route for HTTP traffic
+                  properties:
+                    headers:
+                      additionalProperties:
+                        type: string
+                      description: Headers is a list of headers used to match HTTP traffic
+                      type: object
+                    methods:
+                      description: Methods for inbound traffic as defined in RFC 7231
+                        https://tools.ietf.org/html/rfc7231#section-4
+                      items:
+                        type: string
+                      type: array
+                    name:
+                      description: Name is the name of the match for referencing in a TrafficTarget
+                      type: string
+                    pathRegex:
+                      description: PathRegex is a regular expression defining the route
+                      type: string
+                  type: object
+                type: array
+            type: object
+          status:
+            description: HTTPRouteGroupStatus defines the observed state of HTTPRouteGroup
+            type: object
+        required:
+        - spec
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+status:
+  acceptedNames:
+    kind: ""
+    plural: ""
+  conditions: []
+  storedVersions: []

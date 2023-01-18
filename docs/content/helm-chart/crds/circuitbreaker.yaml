@@ -1,0 +1,78 @@
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: circuitbreakers.specs.smi.nginx.com
+  labels:
+    app.kubernetes.io/part-of: nginx-service-mesh
+spec:
+  group: specs.smi.nginx.com
+  scope: Namespaced
+  names:
+    kind: CircuitBreaker
+    listKind: CircuitBreakerList
+    shortNames:
+    - cb
+    plural: circuitbreakers
+    singular: circuitbreaker
+  versions:
+  - name: v1alpha1
+    served: true
+    storage: true
+    schema:
+      openAPIV3Schema:
+        type: object
+        required:
+        - spec
+        properties:
+          spec:
+            description: Specifications of this circuit breaker.
+            type: object
+            required:
+            - destination
+            - errors
+            - timeoutSeconds
+            properties:
+              destination:
+                description: The destination of this circuit breaker.
+                type: object
+                required:
+                - name
+                - kind
+                properties:
+                  kind:
+                    description: Kind of the destination.
+                    type: string
+                    enum:
+                    - Service
+                  name:
+                    description: Name of the destination.
+                    type: string
+                    minLength: 1
+                  namespace:
+                    description: Namespace of the destination.
+                    type: string
+              errors:
+                description: The number of errors allowed within the timeout before
+                  tripping the circuit.
+                type: integer
+                minimum: 0
+              timeoutSeconds:
+                description: The timeout window for errors to occur, and the amount
+                  of time to wait before closing the circuit.
+                type: integer
+                minimum: 0
+              fallback:
+                description: The fallback Service to send traffic to when the circuit
+                  is tripped.
+                type: object
+                properties:
+                  service:
+                    description: The fallback Service to send traffic to when the
+                      circuit is tripped.
+                    type: string
+                  port:
+                    description: The port of the fallback Service.
+                    type: integer
+                    minimum: 0
+                    maximum: 65535

@@ -1,0 +1,4 @@
+baseURL = "https://docs-staging.nginx.com/nginx-service-mesh"
+title = "STAGING -- NGINX Service Mesh Docs"
+publishDir = "public/nginx-service-mesh"
+canonifyURLs = false

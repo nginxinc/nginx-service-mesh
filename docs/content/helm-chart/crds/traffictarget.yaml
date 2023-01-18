@@ -1,0 +1,128 @@
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: traffictargets.access.smi-spec.io
+  labels:
+    app.kubernetes.io/part-of: nginx-service-mesh
+spec:
+  group: access.smi-spec.io
+  names:
+    kind: TrafficTarget
+    listKind: TrafficTargetList
+    plural: traffictargets
+    shortNames:
+    - tt
+    singular: traffictarget
+  scope: Namespaced
+  versions:
+  - name: v1alpha2
+    schema:
+      openAPIV3Schema:
+        description: TrafficTarget associates a set of traffic definitions (rules)
+          with a service identity which is allocated to a group of pods. Access is
+          controlled via referenced TrafficSpecs and by a list of source service identities.
+          * If a pod which holds the referenced service identity makes a call to the
+          destination on one of the defined routes then access   will be allowed *
+          Any pod which attempts to connect and is not in the defined list of sources
+          will be denied * Any pod which is in the defined list, but attempts to connect
+          on a route which is not in the list of the   TrafficSpecs will be denied
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation
+              of an object. Servers should convert recognized schemas to the latest
+              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this
+              object represents. Servers may infer this from the endpoint the client
+              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: TrafficTargetSpec is the specification of a TrafficTarget
+            properties:
+              destination:
+                description: Selector is the pod or group of pods to allow ingress
+                  traffic
+                properties:
+                  kind:
+                    description: Kind is the type of Subject to allow ingress (ServiceAccount | Group)
+                    type: string
+                  name:
+                    description: Name of the Subject, i.e. ServiceAccountName
+                    type: string
+                  namespace:
+                    description: Namespace where the Subject is deployed
+                    type: string
+                  port:
+                    description: Port defines a TCP port to apply the TrafficTarget to
+                    type: integer
+                required:
+                - kind
+                - name
+                type: object
+              rules:
+                description: Rules are the traffic rules to allow (HTTPRoutes | TCPRoute)
+                items:
+                  description: TrafficTargetRule is the TrafficSpec to allow for a TrafficTarget
+                  properties:
+                    kind:
+                      description: Kind is the kind of TrafficSpec to allow
+                      type: string
+                    matches:
+                      description: Matches is a list of TrafficSpec routes to allow traffic for
+                      items:
+                        type: string
+                      type: array
+                    name:
+                      description: Name of the TrafficSpec to use
+                      type: string
+                  required:
+                  - kind
+                  - name
+                  type: object
+                type: array
+              sources:
+                description: Sources are the pod or group of pods to allow ingress traffic
+                items:
+                  description: IdentityBindingSubject is a Kubernetes objects which
+                    should be allowed access to the TrafficTarget
+                  properties:
+                    kind:
+                      description: Kind is the type of Subject to allow ingress (ServiceAccount | Group)
+                      type: string
+                    name:
+                      description: Name of the Subject, i.e. ServiceAccountName
+                      type: string
+                    namespace:
+                      description: Namespace where the Subject is deployed
+                      type: string
+                    port:
+                      description: Port defines a TCP port to apply the TrafficTarget to
+                      type: integer
+                  required:
+                  - kind
+                  - name
+                  type: object
+                type: array
+            required:
+            - destination
+            type: object
+          status:
+            description: TrafficTargetStatus defines the observed state of UDPRoute
+            type: object
+        required:
+        - spec
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+status:
+  acceptedNames:
+    kind: ""
+    plural: ""
+  conditions: []
+  storedVersions: []

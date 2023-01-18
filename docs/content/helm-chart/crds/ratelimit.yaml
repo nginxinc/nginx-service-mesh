@@ -1,0 +1,175 @@
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: ratelimits.specs.smi.nginx.com
+  labels:
+    app.kubernetes.io/part-of: nginx-service-mesh
+spec:
+  group: specs.smi.nginx.com
+  scope: Namespaced
+  names:
+    kind: RateLimit
+    listKind: RateLimitList
+    shortNames:
+    - rl
+    plural: ratelimits
+    singular: ratelimit
+  versions:
+  - name: v1alpha1
+    served: true
+    storage: false
+    schema:
+      openAPIV3Schema:
+        type: object
+        properties:
+          spec:
+            type: object
+            required:
+            - name
+            - destination
+            - rate
+            properties:
+              destination:
+                description: The destination of this rate limit.
+                type: object
+                required:
+                - name
+                - kind
+                properties:
+                  kind:
+                    description: Kind of the destination.
+                    type: string
+                    minLength: 1
+                  name:
+                    description: Name of the destination.
+                    type: string
+                    minLength: 1
+                  namespace:
+                    description: Namespace of the destination.
+                    type: string
+              sources:
+                description: Sources of this rate limit.
+                type: array
+                items:
+                  type: object
+                  required:
+                  - name
+                  - kind
+                  properties:
+                    kind:
+                      description: Kind of this source.
+                      type: string
+                      minLength: 1
+                    name:
+                      description: Name of this source.
+                      type: string
+                      minLength: 1
+                    namespace:
+                      description: Namespace of this source.
+                      type: string
+              name:
+                description: Name of this rate limit spec.
+                type: string
+                minLength: 1
+              rate:
+                description: The allowed rate of traffic.
+                type: string
+                pattern: "^[0-9]+r/[s,m]$"
+              burst:
+                description: The number of requests to allow beyond the given rate.
+                type: integer
+                minimum: 0
+              delay:
+                description: The number of requests after which to delay requests.
+                x-kubernetes-int-or-string: true
+  - name: v1alpha2
+    served: true
+    storage: true
+    schema:
+      openAPIV3Schema:
+        type: object
+        properties:
+          spec:
+            type: object
+            required:
+            - name
+            - destination
+            - rate
+            properties:
+              destination:
+                description: The destination of this rate limit.
+                type: object
+                required:
+                - name
+                - kind
+                properties:
+                  kind:
+                    description: Kind of the destination.
+                    type: string
+                    minLength: 1
+                  name:
+                    description: Name of the destination.
+                    type: string
+                    minLength: 1
+                  namespace:
+                    description: Namespace of the destination.
+                    type: string
+              sources:
+                description: Sources of this rate limit.
+                type: array
+                items:
+                  type: object
+                  required:
+                  - name
+                  - kind
+                  properties:
+                    kind:
+                      description: Kind of this source.
+                      type: string
+                      minLength: 1
+                    name:
+                      description: Name of this source.
+                      type: string
+                      minLength: 1
+                    namespace:
+                      description: Namespace of this source.
+                      type: string
+              name:
+                description: Name of this rate limit spec.
+                type: string
+                minLength: 1
+              rate:
+                description: The allowed rate of traffic.
+                type: string
+                pattern: "^[0-9]+r/[s,m]$"
+              burst:
+                description: The number of requests to allow beyond the given rate.
+                type: integer
+                minimum: 0
+              delay:
+                description: The number of requests after which to delay requests.
+                x-kubernetes-int-or-string: true
+              rules:
+                description: Routing rules of this rate limit.
+                type: array
+                items:
+                  type: object
+                  required:
+                  - name
+                  - kind
+                  properties:
+                    kind:
+                      description: Kind of this routing rule.
+                      type: string
+                      enum:
+                      - HTTPRouteGroup
+                    name:
+                      description: Name of this routing rule.
+                      type: string
+                      minLength: 1
+                    matches:
+                      description: Match conditions of this routing rule.
+                      type: array
+                      items:
+                        type: string
