@@ -15,14 +15,9 @@ metadata:
   labels:
     app.kubernetes.io/part-of: nginx-service-mesh
 rules:
-- apiGroups:
-  - ''
-  resources:
-  - pods
-  - nodes
-  - nodes/proxy
-  verbs:
-  - get
+- apiGroups: [""]
+  resources: ["pods", "nodes", "nodes/proxy"]
+  verbs: ["get"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
@@ -86,8 +81,8 @@ spec:
         image: {{ include "spire.image-server" . }}/spire-agent:1.5.4
         imagePullPolicy: {{ .Values.registry.imagePullPolicy }}
         args:
-        - "-config"
-        - "/run/spire/config/agent.conf"
+        - -config
+        - /run/spire/config/agent.conf
         volumeMounts:
         - name: spire-config
           mountPath: /run/spire/config
@@ -100,24 +95,17 @@ spec:
         - name: spire-token
           mountPath: /var/run/secrets/tokens
         livenessProbe:
-          exec:
-            command:
-            - "/opt/spire/bin/spire-agent"
-            - healthcheck
-            - "-shallow"
-            - "-socketPath"
-            - "/run/spire/sockets/agent.sock"
+          httpGet:
+            path: /live
+            port: 8080
           failureThreshold: 2
           initialDelaySeconds: 15
           periodSeconds: 60
           timeoutSeconds: 3
         readinessProbe:
-          exec:
-            command:
-            - "/opt/spire/bin/spire-agent"
-            - healthcheck
-            - "-socketPath"
-            - "/run/spire/sockets/agent.sock"
+          httpGet:
+            path: /ready
+            port: 8080
           initialDelaySeconds: 5
           periodSeconds: 5
       volumes:
@@ -147,14 +135,10 @@ metadata:
   labels:
     app.kubernetes.io/part-of: nginx-service-mesh
 rules:
-- apiGroups:
-  - security.openshift.io
-  resources:
-  - securitycontextconstraints
-  resourceNames:
-  - nginx-mesh-spire-agent-permissions
-  verbs:
-  - use
+- apiGroups: ["security.openshift.io"]
+  resources: ["securitycontextconstraints"]
+  resourceNames: ["nginx-mesh-spire-agent-permissions"]
+  verbs: ["use"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding

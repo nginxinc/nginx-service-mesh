@@ -15,57 +15,26 @@ metadata:
   labels:
     app.kubernetes.io/part-of: nginx-service-mesh
 rules:
-- apiGroups:
-  - ''
-  resources:
-  - pods
-  - nodes
-  verbs:
-  - get
-- apiGroups:
-  - ''
-  resources:
-  - configmaps
-  resourceNames:
-  - spire-bundle
-  verbs:
-  - get
-  - patch
-- apiGroups:
-  - authentication.k8s.io
-  resources:
-  - tokenreviews
-  verbs:
-  - create
-- apiGroups:
-  - apiregistration.k8s.io
-  resources:
-  - apiservices
-  verbs:
-  - get
-  - list
-  - patch
-  - watch
-- apiGroups:
-  - admissionregistration.k8s.io
-  resources:
-  - mutatingwebhookconfigurations
-  - validatingwebhookconfigurations
-  verbs:
-  - get
-  - list
-  - patch
-  - watch
+- apiGroups: [""]
+  resources: ["pods", "nodes"]
+  verbs: ["get"]
+- apiGroups: [""]
+  resources: ["configmaps"]
+  resourceNames: ["spire-bundle"]
+  verbs: ["get", "patch"]
+- apiGroups: ["authentication.k8s.io"]
+  resources: ["tokenreviews"]
+  verbs: ["create"]
+- apiGroups: ["apiregistration.k8s.io"]
+  resources: ["apiservices"]
+  verbs: ["get", "list", "patch", "watch"]
+- apiGroups: ["admissionregistration.k8s.io"]
+  resources: ["mutatingwebhookconfigurations", "validatingwebhookconfigurations"]
+  verbs: ["get", "list", "patch", "watch"]
 {{- if .Values.mtls.upstreamAuthority.certManager }}
-- apiGroups:
-  - cert-manager.io
-  resources:
-  - certificaterequests
-  verbs:
-  - get
-  - list
-  - create
-  - delete
+- apiGroups: ["cert-manager.io"]
+  resources: ["certificaterequests"]
+  verbs: ["get", "list", "create", "delete"]
 {{- end }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
@@ -90,36 +59,15 @@ metadata:
   labels:
     app.kubernetes.io/part-of: nginx-service-mesh
 rules:
-- apiGroups:
-  - ''
-  resources:
-  - endpoints
-  - pods
-  - nodes
-  verbs:
-  - get
-  - list
-  - watch
-- apiGroups:
-  - spiffeid.spiffe.io
-  resources:
-  - spiffeids
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - spiffeid.spiffe.io
-  resources:
-  - spiffeids/status
-  verbs:
-  - get
-  - patch
-  - update
+- apiGroups: [""]
+  resources: ["endpoints", "pods", "nodes"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["spiffeid.spiffe.io"]
+  resources: ["spiffeids"]
+  verbs: ["create", "delete", "get", "list", "patch", "update", "watch"]
+- apiGroups: ["spiffeid.spiffe.io"]
+  resources: ["spiffeids/status"]
+  verbs: ["get", "patch", "update"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
@@ -190,9 +138,8 @@ metadata:
     app.kubernetes.io/name: spire-server
     app.kubernetes.io/part-of: nginx-service-mesh
 spec:
-  type: ClusterIP
   ports:
-  - name: grpc
+  - name: api
     protocol: TCP
     port: 8081
     targetPort: 8081
@@ -231,20 +178,12 @@ webhooks:
       namespace: {{ .Release.Namespace }}
       path: "/validate-spiffeid-spiffe-io-v1beta1-spiffeid"
   sideEffects: None
-  admissionReviewVersions:
-    - v1
-    - v1beta1
+  admissionReviewVersions: ["v1"]
   rules:
-  - apiGroups:
-    - spiffeid.spiffe.io
-    apiVersions:
-    - v1beta1
-    operations:
-    - CREATE
-    - UPDATE
-    - DELETE
-    resources:
-    - spiffeids
+  - apiGroups: ["spiffeid.spiffe.io"]
+    apiVersions: ["v1beta1"]
+    operations: ["CREATE", "UPDATE", "DELETE"]
+    resources: ["spiffeids"]
     scope: Namespaced
 ---
 apiVersion: apps/v1
@@ -276,105 +215,105 @@ spec:
       serviceAccountName: spire-server
       shareProcessNamespace: true
       containers:
+      - name: spire-server
+        image: {{ include "spire.image-server" . }}/spire-server:1.5.4
+        imagePullPolicy: {{ .Values.registry.imagePullPolicy }}
+        args:
+        - -config
+        - /run/spire/config/server.conf
+        ports:
         - name: spire-server
-          image: {{ include "spire.image-server" . }}/spire-server:1.5.4
-          imagePullPolicy: {{ .Values.registry.imagePullPolicy }}
-          args:
-            - '-config'
-            - /run/spire/config/server.conf
-          ports:
-            - name: spire-server
-              protocol: TCP
-              containerPort: 8081
-          {{- if (include "ua-vault-env-name" .) }}
-          env:
-          - name: {{ include "ua-vault-env-name" . }}
-            valueFrom:
-              secretKeyRef:
-                name: spire-server
-                key: {{ include "ua-vault-env-name" . }}
-          {{- end }}
-          volumeMounts:
-            - name: spire-config
-              mountPath: /run/spire/config
-              readOnly: true
-            {{- if (include "ua-secret-mountpath" .) }}
-            - name: spire-secrets
-              mountPath: {{ include "ua-secret-mountpath" . }}
-              readOnly: true
-            {{- end }}
-            {{- if eq .Values.mtls.persistentStorage "on" }}
-            - name: spire-data
-              mountPath: /run/spire/data
-              readOnly: false
-            {{- end }}
-            - name: spire-server-socket
-              mountPath: /run/spire/sockets
-              readOnly: false
-          livenessProbe:
-            httpGet:
-              port: 8082
-              path: /live
-            failureThreshold: 2
-            initialDelaySeconds: 15
-            periodSeconds: 60
-            timeoutSeconds: 3
-          readinessProbe:
-            httpGet:
-              port: 8082
-              path: /ready
-            initialDelaySeconds: 5
-            periodSeconds: 5
-        - name: k8s-workload-registrar
-          image: {{ include "spire.image-server" . }}/k8s-workload-registrar:1.5.4
-          imagePullPolicy: {{ .Values.registry.imagePullPolicy }}
-          args:
-            - '-config'
-            - /run/spire/config/k8s-workload-registrar.conf
-          ports:
-            - name: webhook
-              protocol: TCP
-              containerPort: 9443
-          env:
-            - name: MY_POD_NAMESPACE
-              valueFrom:
-                fieldRef:
-                  fieldPath: metadata.namespace
-          volumeMounts:
-            - name: k8s-workload-registrar-config
-              mountPath: /run/spire/config
-              readOnly: true
-            - name: spire-server-socket
-              mountPath: /run/spire/sockets
-              readOnly: true
-      volumes:
+          protocol: TCP
+          containerPort: 8081
+        {{- if (include "ua-vault-env-name" .) }}
+        env:
+        - name: {{ include "ua-vault-env-name" . }}
+          valueFrom:
+            secretKeyRef:
+              name: spire-server
+              key: {{ include "ua-vault-env-name" . }}
+        {{- end }}
+        volumeMounts:
         - name: spire-config
-          configMap:
-            name: spire-server
-        {{- if (include "ua-secret-name" .) }}
+          mountPath: /run/spire/config
+          readOnly: true
+        {{- if (include "ua-secret-mountpath" .) }}
         - name: spire-secrets
-          secret:
-            secretName: spire-server
-            items:
-            - key: {{ include "ua-secret-name" . }}
-              path: {{ include "ua-secret-name" . }}
+          mountPath: {{ include "ua-secret-mountpath" . }}
+          readOnly: true
+        {{- end }}
+        {{- if eq .Values.mtls.persistentStorage "on" }}
+        - name: spire-data
+          mountPath: /run/spire/data
+          readOnly: false
         {{- end }}
         - name: spire-server-socket
-          emptyDir: {}
+          mountPath: /run/spire/sockets
+          readOnly: false
+        livenessProbe:
+          httpGet:
+            port: 8082
+            path: /live
+          failureThreshold: 2
+          initialDelaySeconds: 15
+          periodSeconds: 60
+          timeoutSeconds: 3
+        readinessProbe:
+          httpGet:
+            port: 8082
+            path: /ready
+          initialDelaySeconds: 5
+          periodSeconds: 5
+      - name: k8s-workload-registrar
+        image: {{ include "spire.image-server" . }}/k8s-workload-registrar:1.5.4
+        imagePullPolicy: {{ .Values.registry.imagePullPolicy }}
+        args:
+        - -config
+        - /run/spire/config/k8s-workload-registrar.conf
+        ports:
+        - name: webhook
+          protocol: TCP
+          containerPort: 9443
+        env:
+          - name: MY_POD_NAMESPACE
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.namespace
+        volumeMounts:
         - name: k8s-workload-registrar-config
-          configMap:
-            name: k8s-workload-registrar
+          mountPath: /run/spire/config
+          readOnly: true
+        - name: spire-server-socket
+          mountPath: /run/spire/sockets
+          readOnly: true
+      volumes:
+      - name: spire-config
+        configMap:
+          name: spire-server
+      {{- if (include "ua-secret-name" .) }}
+      - name: spire-secrets
+        secret:
+          secretName: spire-server
+          items:
+          - key: {{ include "ua-secret-name" . }}
+            path: {{ include "ua-secret-name" . }}
+      {{- end }}
+      - name: spire-server-socket
+        emptyDir: {}
+      - name: k8s-workload-registrar-config
+        configMap:
+          name: k8s-workload-registrar
   {{- if eq .Values.mtls.persistentStorage "on" }}
   volumeClaimTemplates:
-    - metadata:
-        name: spire-data
-        namespace: {{ .Release.Namespace }}
-      spec:
-        accessModes:
-          - ReadWriteOnce
-        resources:
-          requests:
-            storage: 1Gi
+  - metadata:
+      name: spire-data
+      namespace: {{ .Release.Namespace }}
+    spec:
+      accessModes:
+      - ReadWriteOnce
+      resources:
+        requests:
+          storage: 1Gi
   {{- end }}
 {{- if eq .Values.environment "openshift" }}
 ---
@@ -385,14 +324,10 @@ metadata:
   labels:
     app.kubernetes.io/part-of: nginx-service-mesh
 rules:
-- apiGroups:
-  - security.openshift.io
-  resources:
-  - securitycontextconstraints
-  resourceNames:
-  - nginx-mesh-spire-server-permissions
-  verbs:
-  - use
+- apiGroups: ["security.openshift.io"]
+  resources: ["securitycontextconstraints"]
+  resourceNames: ["nginx-mesh-spire-server-permissions"]
+  verbs: ["use"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
