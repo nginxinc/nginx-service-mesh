@@ -1,26 +1,26 @@
 [build]
   base = "docs/"
   publish = "public"
-  command = "hugo --gc"
+  command = "./scripts/copy-docs.sh && hugo --gc"
   ignore = "git diff --quiet $COMMIT_REF $CACHED_COMMIT_REF -- ./"
 
 [build.environment]
   HUGO_VERSION = "0.80.0"
 
 [context.docs-development]
-  command = "hugo --gc -e development"
+  command = "./scripts/copy-docs.sh && hugo --gc -e development"
 
 [context.docs-staging]
-  command = "hugo --gc -e staging"
+  command = "./scripts/copy-docs.sh && hugo --gc -e staging"
 
 [context.docs-preview]
-  command = "hugo --gc -e preview"
+  command = "./scripts/copy-docs.sh && hugo --gc -e preview"
 
 [context.branch-deploy]
-  command = "hugo --gc -d public/nginx-service-mesh -b $DEPLOY_PRIME_URL/nginx-service-mesh"
+  command = "./scripts/copy-docs.sh && hugo --gc -d public/nginx-service-mesh -b $DEPLOY_PRIME_URL/nginx-service-mesh"
 
 [context.deploy-preview]
-  command = "hugo --gc -d public/nginx-service-mesh -b $DEPLOY_PRIME_URL/nginx-service-mesh"
+  command = "./scripts/copy-docs.sh && hugo --gc -d public/nginx-service-mesh -b $DEPLOY_PRIME_URL/nginx-service-mesh"
 
 [[headers]]
   for = "/*"
