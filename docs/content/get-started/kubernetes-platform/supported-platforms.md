@@ -9,9 +9,9 @@ docs: "DOCS-688"
 
 ## Supported Platforms
 
-NGINX Service Mesh supports Kubernetes versions 1.18-1.22.
+NGINX Service Mesh supports Kubernetes versions 1.24-1.26.
 
-The Kubernetes platforms listed below work with NGINX Service Mesh. Additional Kubernetes platforms may work, though they haven't been tested.
+The Kubernetes platforms listed below work with NGINX Service Mesh. Additional Kubernetes platforms and versions may work, though they haven't been tested.
 
 - Azure Kubernetes Service (AKS)
 - Elastic Kubernetes Service (EKS)
