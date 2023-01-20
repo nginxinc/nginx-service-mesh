@@ -16,11 +16,14 @@ The following tables list the software versions NGINX Service Mesh supports and 
 ### Supported Versions
 
 {{% table %}}
-| NGINX Service Mesh | NGINX Plus Ingress Controller (ingress) | NGINX Plus Ingress Controller (egress) | Helm     | Rancher  |
-|--------------------|-----------------------------------------|----------------------------------------|----------|----------|
-| v1.7.0             | 1.12, 2.2, 2.3                          | 2.2, 2.3                               | 3.2+     | 2.6, 2.7 |
-| v1.6.0             | 1.12, 2.2, 2.3                          | 2.2, 2.3                               | 3.2+     | 2.5, 2.6 |
+| NGINX Service Mesh | Kubernetes\*  | OpenShift\*   | NGINX Plus Ingress Controller (ingress) | NGINX Plus Ingress Controller (egress) | Helm     | Rancher  |
+|--------------------|---------------|---------------|-----------------------------------------|----------------------------------------|----------|----------|
+| v1.7.0             | 1.24 - 1.26   | 4.10 - 4.11   | 1.12, 2.2, 2.3                          | 2.2, 2.3                               | 3.2+     | 2.6, 2.7 |
+| v1.6.0             | 1.22 - 1.24   | 4.9 - 4.10    | 1.12, 2.2, 2.3                          | 2.2, 2.3                               | 3.2+     | 2.5, 2.6 |
 {{% /table %}}
+
+\* Versions listed have been tested and verfied to work with NGINX Service Mesh. Other versions may work, but given the scope of available versions and platforms,
+we have limited our testing to the officially supported Kubernetes and OpenShift versions at the time of release.
 
 {{% table %}}
 | NGINX Service Mesh | SMI Traffic Access | SMI Traffic Metrics | SMI Traffic Specs | SMI Traffic Split | NSM RateLimit      | NSM CircuitBreaker |
