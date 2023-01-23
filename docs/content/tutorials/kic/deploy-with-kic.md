@@ -369,46 +369,12 @@ The example below uses the snippets annotation. Starting with NGINX Plus Ingress
 
 ## NGINX Ingress Controller Metrics
 
-### NGINX OSS Ingress Controller Metrics
-
-To enable metrics collection for the NGINX OSS Ingress Controller, take the following steps:
+To enable metrics collection for the NGINX Ingress Controller, take the following steps:
 
 1. Run the NGINX Ingress Controller with the `-enable-prometheus-metrics` command line argument.
    The NGINX Ingress Controller exposes [NGINX metrics](https://github.com/nginxinc/nginx-prometheus-exporter#exported-metrics)
    in Prometheus format via the `/metrics` path on port 9113. This port is customizable via the `-prometheus-metrics-listen-port` command-line argument; consult the
    [Command Line Arguments](https://docs.nginx.com/nginx-ingress-controller/configuration/global-configuration/command-line-arguments/) section of the NGINX Ingress Controller docs for more information on available command line arguments.
-
-1. Add the following Prometheus annotations NGINX OSS Ingress Controller Pod spec:
-
-   ```yaml
-   prometheus.io/scrape: "true"
-   prometheus.io/port: "<prometheus-metrics-listen-port>"
-   ```
-
-1. Add the resource name as a label to the NGINX Ingress Controller Pod spec:
-
-    - For *Deployment*:
-
-      ```yaml
-      nsm.nginx.com/deployment: <name of NGINX Ingress Controller Deployment>
-      ```
-
-    - For *DaemonSet*:
-
-      ```yaml
-      nsm.nginx.com/daemonset: <name of NGINX Ingress Controller DaemonSet>
-      ```
-
-   This allows metrics scraped from NGINX OSS Ingress Controller Pods to be associated with the resource that created the Pods.
-
-### NGINX Plus Ingress Controller Metrics
-
-To enable metrics collection for the NGINX Plus Ingress Controller, take the following steps:
-
-1. Run the NGINX Plus Ingress Controller with both the `-enable-prometheus-metrics` and `-enable-latency-metrics` command line arguments.
-    The NGINX Plus Ingress Controller exposes [NGINX metrics](https://github.com/nginxinc/nginx-prometheus-exporter#exported-metrics) and latency metrics
-    in Prometheus format via the `/metrics` path on port 9113. This port is customizable via the `-prometheus-metrics-listen-port` command-line argument; consult the
-    [Command Line Arguments](https://docs.nginx.com/nginx-ingress-controller/configuration/global-configuration/command-line-arguments/) section of the NGINX Ingress Controller docs for more information on available command line arguments.
 
 1. Add the following Prometheus annotations NGINX Ingress Controller Pod spec:
 
@@ -431,7 +397,16 @@ To enable metrics collection for the NGINX Plus Ingress Controller, take the fol
       nsm.nginx.com/daemonset: <name of NGINX Ingress Controller DaemonSet>
       ```
 
-    This allows metrics scraped from NGINX Ingress Controller Pods to be associated with the resource that created the Pods.
+   This allows metrics scraped from NGINX Ingress Controller Pods to be associated with the resource that created the Pods.
+
+#### Enabling NGINX Plus Ingress Controller Metrics
+
+To enable the additional metrics collection for the NGINX Plus Ingress Controller, take the following step:
+
+1. Add the additional command line arguments `-enable-prometheus-metrics` and `-enable-latency-metrics`
+    The NGINX Plus Ingress Controller exposes [NGINX metrics](https://github.com/nginxinc/nginx-prometheus-exporter#exported-metrics) and latency metrics
+    in Prometheus format via the `/metrics` path on port 9113. This port is customizable via the `-prometheus-metrics-listen-port` command-line argument; consult the
+    [Command Line Arguments](https://docs.nginx.com/nginx-ingress-controller/configuration/global-configuration/command-line-arguments/) section of the NGINX Ingress Controller docs for more information on available command line arguments.
 
 ### View the metrics in Prometheus
 
