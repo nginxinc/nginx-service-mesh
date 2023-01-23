@@ -399,7 +399,7 @@ To enable metrics collection for the NGINX Ingress Controller, take the followin
 
    This allows metrics scraped from NGINX Ingress Controller Pods to be associated with the resource that created the Pods.
 
-#### Enabling NGINX Plus Ingress Controller Metrics
+### Enabling NGINX Plus Ingress Controller Metrics
 
 To enable the additional metrics collection for the NGINX Plus Ingress Controller, take the following step:
 
