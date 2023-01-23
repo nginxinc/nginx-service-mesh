@@ -16,7 +16,7 @@ You can deploy NGINX Ingress Controller for Kubernetes with NGINX Service Mesh t
 There are two versions of NGINX Ingress Controller for Kubernetes: NGINX Open Source and NGINX Plus.
 To deploy NGINX Ingress Controller with NGINX Service Mesh, you must use either:
 
-- Open Source NGINX Ingress Controller version 3.0+ or greater
+- Open Source NGINX Ingress Controller version 3.0+
 - NGINX Plus version of NGINX Ingress Controller
 
 Visit the [NGINX Ingress Controller](https://www.nginx.com/products/nginx-ingress-controller/) product page for more information.
@@ -376,6 +376,10 @@ To enable metrics collection for the NGINX Ingress Controller, take the followin
    in Prometheus format via the `/metrics` path on port 9113. This port is customizable via the `-prometheus-metrics-listen-port` command-line argument; consult the
    [Command Line Arguments](https://docs.nginx.com/nginx-ingress-controller/configuration/global-configuration/command-line-arguments/) section of the NGINX Ingress Controller docs for more information on available command line arguments.
 
+{{< note >}}
+If using the NGINX Plus Ingress Controller, add this additional flag to enable latency metrics. `-enable-latency-metrics`
+{{< /note >}}
+
 1. Add the following Prometheus annotations NGINX Ingress Controller Pod spec:
 
    ```yaml
@@ -398,10 +402,6 @@ To enable metrics collection for the NGINX Ingress Controller, take the followin
       ```
 
    This allows metrics scraped from NGINX Ingress Controller Pods to be associated with the resource that created the Pods.
-
-{{< note >}}
-If using N+ controller, add this additional flag to enable latency metrics. `-enable-latency-metrics`
-{{< /note >}}
 
 ### View the metrics in Prometheus
 

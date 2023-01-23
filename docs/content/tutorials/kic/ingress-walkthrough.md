@@ -27,7 +27,7 @@ All communication between the NGINX Ingress Controller and the Bookinfo applicat
 There are two versions of NGINX Ingress Controller for Kubernetes: NGINX Open Source and NGINX Plus.
 To complete this tutorial, you must use either:
 
-- Open Source NGINX Ingress Controller version 3.0+ or greater
+- Open Source NGINX Ingress Controller version 3.0+
 - NGINX Plus version of NGINX Ingress Controller
 
 {{< /note >}}

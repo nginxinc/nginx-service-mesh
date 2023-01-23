@@ -14,7 +14,7 @@ Learn how to create internal routes in NGINX Ingress Controller to securely rout
 There are two versions of NGINX Ingress Controller for Kubernetes: NGINX Open Source and NGINX Plus.
 To complete this tutorial, you must use either:
 
-- Open Source NGINX Ingress Controller version 3.0+ or greater
+- Open Source NGINX Ingress Controller version 3.0+
 - NGINX Plus version of NGINX Ingress Controller
 
 {{< /note >}}
