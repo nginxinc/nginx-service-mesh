@@ -61,7 +61,7 @@ To configure NGINX Ingress Controller to communicate with mesh workloads over mT
 
    These labels tell NGINX Service Mesh to mutate the Ingress Controller Pod with the proper configuration in order to properly integrate with the mesh.
    {{<note>}}
-   To learn more about how NGINX Service Mesh mutates NGINX Ingress Controller instances, refer to the NGINX Service Mesh's [Integrating NGINX Ingress Controller with NSM](#integrating-nginx-ingress-controller-with-nsm) guide.
+   To learn more about how NGINX Service Mesh mutates NGINX Ingress Controller instances, refer to the [Integrating NGINX Ingress Controller with NGINX Service Mesh](#integrating-nginx-ingress-controller-with-nginx-service-mesh) section.
    {{</note>}}
 
    {{<note>}}
@@ -134,7 +134,7 @@ Before continuing, check the NGINX Ingress Controller [supported versions](#supp
 1. Set up Kubernetes Resources for [NGINX Plus Ingress Controller](https://docs.nginx.com/nginx-ingress-controller/installation/installation-with-manifests/) using Kubernetes manifests:
     - [Configure role-based access control (RBAC)](https://docs.nginx.com/nginx-ingress-controller/installation/installation-with-manifests/#1-configure-rbac)
     - [Create Common Resources](https://docs.nginx.com/nginx-ingress-controller/installation/installation-with-manifests/#2-create-common-resources)
-1. Create the NGINX Ingress Controller as a **Deployment** or **DaemonSet** in Kubernetes using one of the following example manifests:
+1. Create the NGINX Plus Ingress Controller as a **Deployment** or **DaemonSet** in Kubernetes using one of the following example manifests:
     - Kubernetes Deployment: {{< fa "download" >}} {{< link "/examples/nginx-ingress-controller/nginx-plus-ingress.yaml" "`nginx-ingress-controller/nginx-plus-ingress.yaml`" >}}
     - Kubernetes DaemonSet: {{< fa "download" >}} {{< link "/examples/nginx-ingress-controller/nginx-plus-ingress-daemonset.yaml" "`nginx-ingress-controller/nginx-plus-ingress-daemonset.yaml`" >}}
     - OpenShift Deployment: {{< fa "download" >}} {{< link "/examples/nginx-ingress-controller/openshift/nginx-plus-ingress.yaml" "`nginx-ingress-controller/openshift/nginx-plus-ingress.yaml`" >}}
@@ -405,8 +405,8 @@ To enable metrics collection for the NGINX OSS Ingress Controller, take the foll
 
 To enable metrics collection for the NGINX Plus Ingress Controller, take the following steps:
 
-1. Run the NGINX Ingress Controller with both the `-enable-prometheus-metrics` and `-enable-latency-metrics` command line arguments.
-    The NGINX Ingress Controller exposes [NGINX metrics](https://github.com/nginxinc/nginx-prometheus-exporter#exported-metrics) and latency metrics
+1. Run the NGINX Plus Ingress Controller with both the `-enable-prometheus-metrics` and `-enable-latency-metrics` command line arguments.
+    The NGINX Plus Ingress Controller exposes [NGINX metrics](https://github.com/nginxinc/nginx-prometheus-exporter#exported-metrics) and latency metrics
     in Prometheus format via the `/metrics` path on port 9113. This port is customizable via the `-prometheus-metrics-listen-port` command-line argument; consult the
     [Command Line Arguments](https://docs.nginx.com/nginx-ingress-controller/configuration/global-configuration/command-line-arguments/) section of the NGINX Ingress Controller docs for more information on available command line arguments.
 
@@ -474,14 +474,14 @@ Here is a view of the provided "NGINX Mesh Top" dashboard:
 
 {{< img src="/img/grafana.png" >}}
 
-## Integrating NGINX Ingress Controller with NSM
+## Integrating NGINX Ingress Controller with NGINX Service Mesh
 
 ### Mutating Webhook
 NGINX Service Mesh version v1.7+ provides a mutating webhook that detects and configures instances of NGINX Ingress Controller.
 
 #### Pod Spec Changes 
 
-1. NSM mounts and configures the SPIRE agent socket based on environment
+1. NGINX Service Mesh mounts and configures the SPIRE agent socket based on environment
 
    The SPIRE agent socket needs to be mounted to the Ingress Controller Pod so the Ingress Controller can fetch its certificates and keys from the SPIRE agent. This allows the Ingress Controller to authenticate with workloads in the mesh. For more information on how SPIRE distributes certificates see the [SPIRE]({{< ref "/about/architecture#spire" >}}) section in the architecture doc. 
     
@@ -497,7 +497,7 @@ NGINX Service Mesh version v1.7+ provides a mutating webhook that detects and co
           name: spire-agent-socket
         ```
 
-      NSM also mounts the socket to the Ingress Controller's container spec:
+      NGINX Service Mesh also mounts the socket to the Ingress Controller's container spec:
 
         ```yaml
         volumeMounts:
@@ -507,7 +507,7 @@ NGINX Service Mesh version v1.7+ provides a mutating webhook that detects and co
 
 - *OpenShift*
 
-    To mount the SPIRE agent socket in OpenShift, NSM adds the following `csi` driver to the Ingress Controller's Pod spec:
+    To mount the SPIRE agent socket in OpenShift, NGINX Service Mesh adds the following `csi` driver to the Ingress Controller's Pod spec:
 
     ```yaml
     volumes:
@@ -527,7 +527,7 @@ NGINX Service Mesh version v1.7+ provides a mutating webhook that detects and co
 
     For more information as to why a CSI Driver is needed for loading the agent socket in OpenShift, see [Introduction]({{< ref "/get-started/openshift-platform/considerations#introduction" >}}) in the OpenShift Considerations doc.
 
-1. NSM adds a command line argument
+1. NGINX Service Mesh adds a command line argument
 
    The following argument is added to the Ingress Controller's container args:
 
@@ -540,7 +540,7 @@ NGINX Service Mesh version v1.7+ provides a mutating webhook that detects and co
 
     - The `spire-agent-address` passes the address of the SPIRE agent `/run/spire/sockets/agent.sock` to the Ingress Controller.
 
-   If egress is enabled NSM also adds the following argument to the Ingress Controller's container args:
+   If egress is enabled NGINX Service Mesh also adds the following argument to the Ingress Controller's container args:
 
     ```yaml
     args:
@@ -549,7 +549,7 @@ NGINX Service Mesh version v1.7+ provides a mutating webhook that detects and co
     - 
     ```
 
-1. NSM adds a SPIFFE label
+1. NGINX Service Mesh adds a SPIFFE label
 
     ```yaml
     labels:
@@ -557,4 +557,4 @@ NGINX Service Mesh version v1.7+ provides a mutating webhook that detects and co
       ...
     ```
 
-   This label tells SPIRE to generate a certificate for the Ingress Controller Pod(s).
+   These labels tell NGINX Service Mesh to mutate the Ingress Controller Pod with the proper configuration in order to properly integrate with the mesh.
