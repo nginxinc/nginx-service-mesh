@@ -6,7 +6,7 @@ replace github.com/servicemeshinterface/smi-controller-sdk => github.com/sjberma
 
 require (
 	github.com/deepmap/oapi-codegen v1.12.4
-	github.com/getkin/kin-openapi v0.112.0
+	github.com/getkin/kin-openapi v0.113.0
 	github.com/labstack/echo/v4 v4.10.0
 	github.com/maxbrunsfeld/counterfeiter/v6 v6.5.0
 	github.com/onsi/ginkgo v1.16.5
@@ -114,6 +114,7 @@ require (
 	github.com/nxadm/tail v1.4.8 // indirect
 	github.com/opencontainers/go-digest v1.0.0 // indirect
 	github.com/opencontainers/image-spec v1.1.0-rc2 // indirect
+	github.com/perimeterx/marshmallow v1.1.4 // indirect
 	github.com/peterbourgon/diskv v2.0.1+incompatible // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/prometheus/client_golang v1.14.0 // indirect
