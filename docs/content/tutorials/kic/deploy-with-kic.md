@@ -399,14 +399,9 @@ To enable metrics collection for the NGINX Ingress Controller, take the followin
 
    This allows metrics scraped from NGINX Ingress Controller Pods to be associated with the resource that created the Pods.
 
-### Enabling NGINX Plus Ingress Controller Metrics
-
-To enable the additional metrics collection for the NGINX Plus Ingress Controller, take the following step:
-
-1. Add the additional command line arguments `-enable-prometheus-metrics` and `-enable-latency-metrics`
-    The NGINX Plus Ingress Controller exposes [NGINX metrics](https://github.com/nginxinc/nginx-prometheus-exporter#exported-metrics) and latency metrics
-    in Prometheus format via the `/metrics` path on port 9113. This port is customizable via the `-prometheus-metrics-listen-port` command-line argument; consult the
-    [Command Line Arguments](https://docs.nginx.com/nginx-ingress-controller/configuration/global-configuration/command-line-arguments/) section of the NGINX Ingress Controller docs for more information on available command line arguments.
+{{< note >}}
+If using N+ controller, add this additional flag to enable latency metrics. `-enable-latency-metrics`
+{{< /note >}}
 
 ### View the metrics in Prometheus
 
