@@ -51,3 +51,4 @@
       regex: pod_owner
     - source_labels: [pod_name]
       target_label: dst_pod
+
