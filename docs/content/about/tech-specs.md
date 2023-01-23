@@ -18,7 +18,7 @@ The following tables list the software versions NGINX Service Mesh supports and 
 {{% table %}}
 | NGINX Service Mesh | Kubernetes | OpenShift | NGINX Ingress Controller | NGINX Plus Ingress Controller | Helm     | Rancher  |
 |--------------------|------------|-----------|--------------------------|-------------------------------|----------|----------|
-| v1.7.0 - latest    | 1.22+      | 4.9+      | 3.0.1+                   | 2.2+                          | 3.2+     | 2.5+     |
+| v1.7.0+            | 1.22+      | 4.9+      | 3.0.1+                   | 2.2+                          | 3.2+     | 2.5+     |
 | v1.6.0             | 1.22+      | 4.9+      | --                       | 2.2+                          | 3.2+     | 2.5+     |
 {{% /table %}}
 
