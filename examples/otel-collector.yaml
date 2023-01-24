@@ -51,7 +51,7 @@ spec:
     spec:
       containers:
       - name: otel-collector
-        image: otel/opentelemetry-collector:0.55.0
+        image: otel/opentelemetry-collector:latest
         command:
           - /otelcol
           - --config=/conf/otel-collector-config.yaml
