@@ -13,7 +13,7 @@ docs: "DOCS-721"
 You can deploy NGINX Ingress Controller for Kubernetes with NGINX Service Mesh to control both ingress and [egress](#enable-egress) traffic.
 
 {{< important >}}
-NGINX Ingress Controller can be used free with NGINX Open Source and paying customers have access to NGINX Ingress Controller with NGINX Plus.
+NGINX Ingress Controller can be used for free with NGINX Open Source. Paying customers have access to NGINX Ingress Controller with NGINX Plus.
 To deploy NGINX Ingress Controller with NGINX Service Mesh, you must use either:
 
 - Open Source NGINX Ingress Controller version 3.0+

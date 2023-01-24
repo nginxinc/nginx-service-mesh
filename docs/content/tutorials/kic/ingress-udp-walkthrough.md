@@ -21,7 +21,7 @@ Objectives:
 - Create a Kubernetes TransportServer resource for the udp-listener application.
 
 {{< note >}}
-NGINX Ingress Controller can be used free with NGINX Open Source and paying customers have access to NGINX Ingress Controller with NGINX Plus.
+NGINX Ingress Controller can be used for free with NGINX Open Source. Paying customers have access to NGINX Ingress Controller with NGINX Plus.
 To complete this tutorial, you must use either:
 
 - Open Source NGINX Ingress Controller version 3.0+
