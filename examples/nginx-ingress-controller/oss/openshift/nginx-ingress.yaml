@@ -13,18 +13,17 @@ spec:
       labels:
         app: nginx-ingress
         nsm.nginx.com/deployment: nginx-ingress
-        spiffe.io/spiffeid: "true"
-      annotations:
         nsm.nginx.com/enable-ingress: "true"
         #nsm.nginx.com/enable-egress: "true"
+      annotations:
         prometheus.io/scrape: "true"
         prometheus.io/port: "9113"
     spec:
       serviceAccountName: nginx-ingress
       containers:
-      - image: nginx-plus-ingress:version
+      - image: nginx-ingress:version
         imagePullPolicy: Always
-        name: nginx-plus-ingress
+        name: nginx-ingress
         ports:
         - name: http
           containerPort: 80
@@ -47,9 +46,6 @@ spec:
             - ALL
             add:
             - NET_BIND_SERVICE
-        volumeMounts:
-        - mountPath: /run/spire/sockets
-          name: spire-agent-socket
         env:
         - name: POD_NAMESPACE
           valueFrom:
@@ -64,18 +60,9 @@ spec:
             fieldRef:
               fieldPath: spec.serviceAccountName
         args:
-          - -nginx-plus
           - -nginx-configmaps=$(POD_NAMESPACE)/nginx-config
           - -default-server-tls-secret=$(POD_NAMESPACE)/default-server-secret
-          - -spire-agent-address=/run/spire/sockets/agent.sock
           - -enable-prometheus-metrics
-          - -enable-latency-metrics
-          #- -enable-internal-routes
           # Needed for UDP
           # - -enable-preview-policies
           # - -global-configuration=nginx-ingress/nginx-configuration
-      volumes:
-      - csi:
-          driver: csi.spiffe.io
-          readOnly: true
-        name: spire-agent-socket

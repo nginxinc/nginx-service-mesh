@@ -1,6 +1,6 @@
 ---
-title: "Expose an Application with NGINX Plus Ingress Controller"
-description: "This topic provides a walkthrough of deploying NGINX Plus Ingress Controller for Kubernetes to expose an application within NGINX Service Mesh."
+title: "Expose an Application with NGINX Ingress Controller"
+description: "This topic provides a walkthrough of deploying NGINX Ingress Controller for Kubernetes to expose an application within NGINX Service Mesh."
 weight: 220
 categories: ["tutorials"]
 toc: true
@@ -9,26 +9,33 @@ docs: "DOCS-723"
 
 ## Overview
 
-Follow this tutorial to deploy the NGINX Plus Ingress Controller with NGINX Service Mesh and an example application.
+Follow this tutorial to deploy the NGINX Ingress Controller with NGINX Service Mesh and an example application.
 
 Objectives:
 
 - Deploy the NGINX Service Mesh.
-- Install NGINX Plus Ingress Controller.
+- Install NGINX Ingress Controller.
 - Deploy the example `bookinfo` app.
   - {{< fa "download" >}} {{< link "/examples/bookinfo.yaml" >}}
 - Create a Kubernetes Ingress resource for the Bookinfo application.
 
 {{< note >}}
-All communication between the NGINX Plus Ingress Controller and the Bookinfo application occurs over mTLS.
+All communication between the NGINX Ingress Controller and the Bookinfo application occurs over mTLS.
 {{< /note >}}
 
-{{< note >}} The NGINX Plus version of NGINX Plus Ingress Controller is required for this tutorial. {{< /note >}}
+{{< note >}}
+There are two versions of NGINX Ingress Controller for Kubernetes: NGINX Open Source and NGINX Plus.
+To complete this tutorial, you must use either:
+
+- Open Source NGINX Ingress Controller version 3.0+
+- NGINX Plus version of NGINX Ingress Controller
+
+{{< /note >}}
 
 ### Install NGINX Service Mesh
 
 {{< note >}}
-If you want to view metrics for NGINX Plus Ingress Controller, ensure that you have deployed Prometheus and Grafana and then configure NGINX Service Mesh to integrate with them when installing. Refer to the [Monitoring and Tracing]( {{< ref "/guides/monitoring-and-tracing.md" >}} ) guide for instructions.
+If you want to view metrics for NGINX Ingress Controller, ensure that you have deployed Prometheus and Grafana and then configure NGINX Service Mesh to integrate with them when installing. Refer to the [Monitoring and Tracing]( {{< ref "/guides/monitoring-and-tracing.md" >}} ) guide for instructions.
 {{< /note >}}
 
 Follow the installation [instructions]( {{< ref "/get-started/install.md" >}} ) to install NGINX Service Mesh on your Kubernetes cluster.
@@ -36,14 +43,14 @@ You can either deploy the Mesh with the default value for [mTLS mode]( {{< ref "
 
 {{< caution >}} 
 Before proceeding, verify that the mesh is running (Step 2 of the installation [instructions]( {{< ref "/get-started/install.md" >}} )).
-NGINX Plus Ingress Controller will try to fetch certs from the Spire agent that gets deployed by NGINX Service Mesh on startup. If the mesh is not running, NGINX Plus Ingress controller will fail to start.  
+NGINX Ingress Controller will try to fetch certs from the Spire agent that gets deployed by NGINX Service Mesh on startup. If the mesh is not running, NGINX Ingress controller will fail to start.  
 {{< /caution >}}
 
-### Install NGINX Plus Ingress Controller
+### Install NGINX Ingress Controller
 
-1. [Install NGINX Plus Ingress Controller with mTLS enabled]( {{< ref "/tutorials/kic/deploy-with-kic.md#install-nginx-plus-ingress-controller-with-mtls-enabled">}} ). This tutorial will demonstrate installation as a Deployment.
-2. [Get Access to the Ingress Controller](https://docs.nginx.com/nginx-ingress-controller/installation/installation-with-manifests/#4-get-access-to-the-ingress-controller). This tutorial creates a LoadBalancer Service for the NGINX Plus Ingress Controller.
-3. Find the public IP address of your NGINX Plus Ingress Controller Service.
+1. [Install NGINX Ingress Controller with mTLS enabled]( {{< ref "/tutorials/kic/deploy-with-kic.md#install-nginx-ingress-controller-with-mtls-enabled">}} ). This tutorial will demonstrate installation as a Deployment.
+2. [Get Access to the Ingress Controller](https://docs.nginx.com/nginx-ingress-controller/installation/installation-with-manifests/#4-get-access-to-the-ingress-controller). This tutorial creates a LoadBalancer Service for the NGINX Ingress Controller.
+3. Find the public IP address of your NGINX Ingress Controller Service.
 
     ```bash
     kubectl get svc -n nginx-ingress
@@ -52,7 +59,7 @@ NGINX Plus Ingress Controller will try to fetch certs from the Spire agent that 
     ```
  
  {{< note >}}
- At this point, you should have the NGINX Plus Ingress Controller running in your cluster; you can deploy the Bookinfo example app to test out the mesh integration, or use NGINX Plus Ingress controller to expose one of your own apps. 
+ At this point, you should have the NGINX Ingress Controller running in your cluster; you can deploy the Bookinfo example app to test out the mesh integration, or use NGINX Ingress controller to expose one of your own apps. 
  {{< /note >}}
 
 ### Deploy the Bookinfo App
@@ -136,7 +143,7 @@ spec:
 
 To access the Bookinfo application:
 
-1. Modify `/etc/hosts` so that requests to `bookinfo.example.com` resolve to NGINX Plus Ingress Controller's public IP address.
+1. Modify `/etc/hosts` so that requests to `bookinfo.example.com` resolve to NGINX Ingress Controller's public IP address.
     Add the following line to your `/etc/hosts` file:
     
     ```bash
@@ -176,4 +183,4 @@ productpage-v1
                 From       nginx-plus-ingress  100.00%       196ms  160ms  75ms  6
 ```
 
-You can also view the Grafana dashboard, which provides additional statistics on your application, by following the [Monitor your application in Grafana]( {{< ref "/tutorials/kic/deploy-with-kic.md#monitor-your-application-in-grafana" >}} ) section of our Expose an Application with NGINX Plus Ingress Controller guide.
+You can also view the Grafana dashboard, which provides additional statistics on your application, by following the [Monitor your application in Grafana]( {{< ref "/tutorials/kic/deploy-with-kic.md#monitor-your-application-in-grafana" >}} ) section of our Expose an Application with NGINX Ingress Controller guide.

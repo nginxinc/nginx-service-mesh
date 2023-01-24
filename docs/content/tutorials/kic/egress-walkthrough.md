@@ -1,6 +1,6 @@
 ---
-title: "Configure a Secure Egress Route with NGINX Plus Ingress Controller"
-description: "This topic provides a walkthrough of how to securely route egress traffic through NGINX Plus Ingress Controller for Kubernetes with NGINX Service Mesh."
+title: "Configure a Secure Egress Route with NGINX Ingress Controller"
+description: "This topic provides a walkthrough of how to securely route egress traffic through NGINX Ingress Controller for Kubernetes with NGINX Service Mesh."
 weight: 210
 categories: ["tutorials"]
 toc: true
@@ -9,12 +9,19 @@ docs: "DOCS-722"
 
 ## Overview
 
-Learn how to create internal routes in NGINX Plus Ingress Controller to securely route egress traffic to non-meshed services. 
-{{< note >}} The NGINX Plus version of NGINX Ingress Controller is required for this tutorial. {{< /note >}}
+Learn how to create internal routes in NGINX Ingress Controller to securely route egress traffic to non-meshed services. 
+{{< note >}}
+There are two versions of NGINX Ingress Controller for Kubernetes: NGINX Open Source and NGINX Plus.
+To complete this tutorial, you must use either:
+
+- Open Source NGINX Ingress Controller version 3.0+
+- NGINX Plus version of NGINX Ingress Controller
+
+{{< /note >}}
 
 ## Objectives
 
-Follow this tutorial to deploy the NGINX Plus Ingress Controller with egress enabled, and securely route egress traffic from a meshed service
+Follow this tutorial to deploy the NGINX Ingress Controller with egress enabled, and securely route egress traffic from a meshed service
 to a non-meshed service.
 
 ## Before You Begin
@@ -28,7 +35,7 @@ to a non-meshed service.
 ## Install NGINX Service Mesh
 
 {{< note >}}
-If you want to view metrics for NGINX Plus Ingress Controller, ensure that you have deployed Prometheus and Grafana and then configure NGINX Service Mesh to integrate with them when installing. Refer to the [Monitoring and Tracing]( {{< ref "/guides/monitoring-and-tracing.md" >}} ) guide for instructions.
+If you want to view metrics for NGINX Ingress Controller, ensure that you have deployed Prometheus and Grafana and then configure NGINX Service Mesh to integrate with them when installing. Refer to the [Monitoring and Tracing]( {{< ref "/guides/monitoring-and-tracing.md" >}} ) guide for instructions.
 {{< /note >}}
 
 1. Follow the installation [instructions]( {{< ref "/get-started/install.md" >}} ) to install NGINX Service Mesh on your Kubernetes cluster.
@@ -132,14 +139,14 @@ The `target` application is a basic NGINX server listening on port 80. It return
 
 The `egress-driver` application is unable to reach the `target` Service because it is not injected with the sidecar proxy. We are running with `--mtls-mode=strict` which restricts the `egress-driver` to communicating using mTLS with other injected pods. As a result we cannot build traffic statistics for these requests.
 
-Now, let's use NGINX Plus Ingress Controller to create a secure internal route from the `egress-driver` application to the `target` Service.
+Now, let's use NGINX Ingress Controller to create a secure internal route from the `egress-driver` application to the `target` Service.
 
-### Install NGINX Plus Ingress Controller
+### Install NGINX Ingress Controller
 
-1. [Install the NGINX Plus Ingress Controller]( {{< ref "/tutorials/kic/deploy-with-kic.md#install-nginx-plus-ingress-controller-with-mtls-enabled">}} ). This tutorial will demonstrate installation as a Deployment.
+1. [Install the NGINX Ingress Controller]( {{< ref "/tutorials/kic/deploy-with-kic.md#install-nginx-ingress-controller-with-mtls-enabled">}} ). This tutorial will demonstrate installation as a Deployment.
     - Follow the instructions to [enable egress]( {{< ref "/tutorials/kic/deploy-with-kic.md#enable-egress" >}} )
 
-1. Verify the NGINX Plus Ingress Controller is running:
+1. Verify the NGINX Ingress Controller is running:
 
     ```bash
     kubectl -n nginx-ingress get pods,svc -o wide
@@ -148,12 +155,12 @@ Now, let's use NGINX Plus Ingress Controller to create a secure internal route f
     pod/nginx-ingress-c6f9fb95f-fqklz   1/1     Running   0          5s     10.2.2.2     node-name     <none>           <none>
     ```
 
-Notice that we do not have a Service fronting NGINX Plus Ingress Controller. This is because we are using NGINX Plus Ingress Controller for egress only, which means we don't need an external IP address.  
-The sidecar proxy will route egress traffic to the NGINX Plus Ingress Controller's Pod IP.
+Notice that we do not have a Service fronting NGINX Ingress Controller. This is because we are using NGINX Ingress Controller for egress only, which means we don't need an external IP address.  
+The sidecar proxy will route egress traffic to the NGINX Ingress Controller's Pod IP.
 
 ### Create an internal route to the legacy target service
 
-To create an internal route from the NGINX Plus Ingress Controller to the legacy `target` Service, we need to create
+To create an internal route from the NGINX Ingress Controller to the legacy `target` Service, we need to create
 an Ingress resource with the annotation `nsm.nginx.com/internal-route: "true"`.
 
 {{< tip >}}
@@ -218,9 +225,9 @@ Events:
   Warning  Translate       <invalid> (x11 over <invalid>)  loadbalancer-controller   error while evaluating the ingress spec: service "legacy/target-v1-0" is type "ClusterIP", expected "NodePort" or "LoadBalancer"
 ```
 
-### Allow the egress-driver application to route egress traffic to NGINX Plus Ingress Controller
+### Allow the egress-driver application to route egress traffic to NGINX Ingress Controller
 
-To enable the `egress-driver` application to send egress requests to NGINX Plus Ingress Controller, edit the `egress-driver` Pod and add the following annotation:
+To enable the `egress-driver` application to send egress requests to NGINX Ingress Controller, edit the `egress-driver` Pod and add the following annotation:
  `config.nsm.nginx.com/default-egress-allowed: "true"`
 
 To verify that the default egress route is configured look at the logs of the proxy container:
@@ -231,7 +238,7 @@ To verify that the default egress route is configured look at the logs of the pr
 
 ### Test the internal route
 
-The `egress-driver` should have been continually sending traffic, which will now be routed through NGINX Plus Ingress Controller.
+The `egress-driver` should have been continually sending traffic, which will now be routed through NGINX Ingress Controller.
 
 ```bash
 kubectl logs -f -c egress-driver <EGRESS_DRIVER_POD>
@@ -274,7 +281,7 @@ egress-driver
                To         nginx-ingress  100.00%       3ms  3ms  2ms  15
 ```
 
-This request from the `egress-driver` application to `target-v1-0.legacy` was securely routed through the NGINX Plus Ingress Controller, and we now have visibility into the outgoing traffic from the `egress-driver` application!
+This request from the `egress-driver` application to `target-v1-0.legacy` was securely routed through the NGINX Ingress Controller, and we now have visibility into the outgoing traffic from the `egress-driver` application!
 
 ### Cleaning up
 
@@ -285,6 +292,6 @@ This request from the `egress-driver` application to `target-v1-0.legacy` was se
     kubectl delete deploy egress-driver
     ```
 
-1. Follow instructions to [uninstall NGINX Plus Ingress Controller](https://docs.nginx.com/nginx-ingress-controller/installation/installation-with-manifests/#uninstall-the-ingress-controller).
+1. Follow instructions to [uninstall NGINX Ingress Controller](https://docs.nginx.com/nginx-ingress-controller/installation/installation-with-manifests/#uninstall-the-ingress-controller).
 
 1. Follow instructions to [uninstall NGINX Service Mesh]( {{< ref "/guides/uninstall.md" >}} ).
