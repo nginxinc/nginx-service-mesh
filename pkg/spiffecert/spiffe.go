@@ -37,7 +37,7 @@ func (w *watcher) OnX509ContextUpdate(svidResp *workloadapi.X509Context) {
 	w.certFetcher.CertCh <- svidResp
 }
 
-// OnX509WatchError is called when there is an error watching the X.509 Context's from the SPIFFE Workload API. .
+// OnX509WatchError is called when there is an error watching the X.509 Context's from the SPIFFE Workload API.
 func (w *watcher) OnX509ContextWatchError(err error) {
 	msg := "For more information check the logs of the Spire agents and server."
 	switch status.Code(err) { //nolint:exhaustive // uses a default

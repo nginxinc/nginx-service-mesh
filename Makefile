@@ -43,7 +43,6 @@ build-cli: output-dir ## Build the nginx-meshctl binary
 .PHONY: test
 test: output-dir ## Run unit tests for the Go code
 	go test ./... -race -coverprofile=$(OUTPUT_DIR)/coverage.out \
-		-v -ginkgo.v -ginkgo.progress \
 		-test.parallel 4
 	go tool cover -func=$(OUTPUT_DIR)/coverage.out
 	go tool cover -html=$(OUTPUT_DIR)/coverage.out -o $(OUTPUT_DIR)/coverage.html

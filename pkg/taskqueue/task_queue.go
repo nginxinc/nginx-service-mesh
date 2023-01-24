@@ -1,5 +1,5 @@
-// Package spiffecert contains code related to spiffe identity management
-package spiffecert
+// Package taskqueue contains task queue
+package taskqueue
 
 import (
 	"log"

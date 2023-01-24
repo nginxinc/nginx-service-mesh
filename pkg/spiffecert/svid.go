@@ -20,6 +20,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/nginxinc/nginx-service-mesh/pkg/taskqueue"
+
 	"github.com/spiffe/go-spiffe/v2/workloadapi"
 )
 
@@ -33,7 +35,7 @@ var ErrNoCertificates = errors.New("no certificates in svid response")
 
 /* CABundleManager manages SPIRE events and CA Bundles. */
 type CABundleManager struct {
-	TaskQueue          *TaskQueue
+	TaskQueue          *taskqueue.TaskQueue
 	CABundleFilepath   string
 	latestCABundleHash []byte
 	currentCert        []byte
