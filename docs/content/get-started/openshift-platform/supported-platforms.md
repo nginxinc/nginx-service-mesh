@@ -11,4 +11,4 @@ Before deploying NGINX Service Mesh in OpenShift, see the [Considerations]({{< r
 
 ## Supported Platforms
 
-Any self-managed RedHat OpenShift environment running with the versions listed in the [Technical Specifications]({{< ref "/about/tech-specs.md#supported-versions" >}}) can be used with NGINX Service Mesh. Externally managed environments such as Azure Red Hat OpenShift and Red Hat OpenShift Service on AWS may work, though they are not validated.
+Any self-managed RedHat OpenShift environment running with the versions listed in the [Technical Specifications]({{< ref "/about/tech-specs.md#supported-versions" >}}) can be used with NGINX Service Mesh. Externally managed environments such as Azure Red Hat OpenShift and Red Hat OpenShift Service on AWS may work, although they have not been validated.
