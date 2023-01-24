@@ -127,7 +127,7 @@ func (d *fakeCachedDiscoveryClient) ServerGroupsAndResources() ([]*metav1.APIGro
 }
 
 func (d *fakeCachedDiscoveryClient) ServerVersion() (*version.Info, error) {
-	return &version.Info{GitVersion: "1.20", Major: "", Minor: ""}, nil
+	return &version.Info{GitVersion: "1.26", Major: "", Minor: ""}, nil
 }
 
 // HelmAction returns a helm action with a fake release.

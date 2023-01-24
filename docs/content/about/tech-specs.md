@@ -16,62 +16,27 @@ The following tables list the software versions NGINX Service Mesh supports and 
 ### Supported Versions
 
 {{% table %}}
-| NGINX Service Mesh | Kubernetes  | NGINX Plus Ingress Controller (ingress) | NGINX Plus Ingress Controller (egress) | OpenShift  | Helm     | Rancher  |
-|--------------------|-------------|-----------------------------------------|----------------------------------------|------------|----------|----------|
-| v1.7.0             | 1.22 - 1.24 | 1.12, 2.2, 2.3                          | 2.2, 2.3                               | 4.9 - 4.10 | 3.2+     | 2.6, 2.7 |
-| v1.6.0             | 1.22 - 1.24 | 1.12, 2.2, 2.3                          | 2.2, 2.3                               | 4.9 - 4.10 | 3.2+     | 2.5, 2.6 |
-| v1.5.0             | 1.22 - 1.24 | 1.12, 2.1, 2.2                          | 2.2                                    | 4.9 - 4.10 | 3.2+     | 2.5, 2.6 |
-| v1.4.1             | 1.18 - 1.22 | 1.12, 2.1, 2.2                          | 2.2                                    | 4.8        | 3.2+     | 2.5, 2.6 |
-| v1.4.0             | 1.18 - 1.22 | 1.12, 2.0, 2.1                          | 1.12, 2.0, 2.1                         | 4.8        | 3.2+     | 2.5, 2.6 |  
-| v1.3.1             | 1.18 - 1.22 | 1.12, 2.0                               | 1.12, 2.0                              | 4.8        | 3.2+     | 2.5, 2.6 |     
-| v1.3.0             | 1.18 - 1.22 | 1.12, 2.0                               | 1.12, 2.0                              | 4.8        | 3.2+     | 2.5, 2.6 |     
-| v1.2.1             | 1.16 - 1.21 | 1.12.0                                  | 1.12.0                                 | 4.8        | 3.5, 3.6 | 2.6      |
-| v1.2.0             | 1.16 - 1.21 | 1.12.0                                  | 1.12.0                                 | 4.8        | 3.5, 3.6 | 2.6      |
-| v1.1.0             | 1.16 - 1.20 | 1.11                                    | 1.11                                   | --         | --       | --       |
-| v1.0.1             | 1.16 - 1.20 | 1.11                                    | 1.11                                   | --         | --       | --       |
-| v1.0.0             | 1.16 - 1.20 | 1.11                                    | 1.11                                   | --         | --       | --       |
-
+| NGINX Service Mesh | Kubernetes | OpenShift | NGINX Ingress Controller | Helm     | Rancher  |
+|--------------------|------------|-----------|--------------------------|----------|----------|
+| v1.7.0+            | 1.22+      | 4.9+      | 2.2+                     | 3.2+     | 2.5+     |
+| v1.6.0             | 1.22+      | 4.9+      | 2.2+ (NGINX Plus only)   | 3.2+     | 2.5+     |
 {{% /table %}}
 
 {{% table %}}
 | NGINX Service Mesh | SMI Traffic Access | SMI Traffic Metrics | SMI Traffic Specs | SMI Traffic Split | NSM RateLimit      | NSM CircuitBreaker |
 |--------------------|--------------------|---------------------|-------------------|-------------------|--------------------|--------------------|
-| v1.7.0             | v1alpha2           | v1alpha1\*          | v1alpha3          | v1alpha3          | v1alpha1, v1alpha2 | v1alpha1           |
-| v1.6.0             | v1alpha2           | v1alpha1\*          | v1alpha3          | v1alpha3          | v1alpha1, v1alpha2 | v1alpha1           |
-| v1.5.0             | v1alpha2           | v1alpha1\*          | v1alpha3          | v1alpha3          | v1alpha1, v1alpha2 | v1alpha1           |
-| v1.4.1             | v1alpha2           | v1alpha1\*          | v1alpha3          | v1alpha3          | v1alpha1, v1alpha2 | v1alpha1           |   
-| v1.4.0             | v1alpha2           | v1alpha1\*          | v1alpha3          | v1alpha3          | v1alpha1, v1alpha2 | v1alpha1           |    
-| v1.3.1             | v1alpha2           | v1alpha1\*          | v1alpha3          | v1alpha3          | v1alpha1, v1alpha2 | v1alpha1           |      
-| v1.3.0             | v1alpha2           | v1alpha1\*          | v1alpha3          | v1alpha3          | v1alpha1, v1alpha2 | v1alpha1           |      
-| v1.2.1             | v1alpha2           | v1alpha1\*          | v1alpha3          | v1alpha3          | v1alpha1, v1alpha2 | v1alpha1           |
-| v1.2.0             | v1alpha2           | v1alpha1\*          | v1alpha3          | v1alpha3          | v1alpha1, v1alpha2 | v1alpha1           |
-| v1.1.0             | v1alpha2           | v1alpha1\*          | v1alpha3          | v1alpha3          | v1alpha1           | v1alpha1           |
-| v1.0.1             | v1alpha2           | v1alpha1\*          | v1alpha3          | v1alpha3          | v1alpha1           | v1alpha1           |
-| v1.0.0             | v1alpha2           | v1alpha1\*          | v1alpha3          | v1alpha3          | v1alpha1           | v1alpha1           |
-
+| v1.2.0+            | v1alpha2           | v1alpha1\*          | v1alpha3          | v1alpha3          | v1alpha1, v1alpha2 | v1alpha1           |
 {{% /table %}}
 
 \* - in progress, supported resources: StatefulSets, Namespaces, Deployments, Pods, DaemonSets
 
 ### Components
 {{% table %}}
-| NGINX Service Mesh | NGINX Plus (sidecar) | SPIRE   | NATS                  | Prometheus \*           | Grafana \*            | Jaeger           \*             | Zipkin \*                 |
-|--------------------|----------------------|---------|-----------------------|-------------------------|-----------------------|---------------------------------|---------------------------|
-| v1.7.0             | R28                  | 1.5.4   | nats:2.9-alpine       | ---                     | ---                   | ---                             | ---                       |
-| v1.6.0             | R27                  | 1.4.4   | nats:2.9.3-alpine3.16 | ---                     | ---                   | ---                             | ---                       |
-| v1.5.0             | R27                  | 1.3.2   | nats:2.8.4-alpine3.15 | ---                     | ---                   | ---                             | ---                       |
-| v1.4.1             | R25                  | 1.2.0   | nats:2.7.2-alpine3.15 | prom/prometheus:v2.33.1 | grafana/grafana:8.3.4 | jaegertracing/all-in-one:1.31.0 | openzipkin/zipkin:2.23.16 |
-| v1.4.0             | R25                  | 1.2.0   | nats:2.7.2-alpine3.15 | prom/prometheus:v2.33.1 | grafana/grafana:8.3.4 | jaegertracing/all-in-one:1.31.0 | openzipkin/zipkin:2.23.16 |
-| v1.3.1             | R25                  | 1.1.0   | nats:2.4.0-alpine3.14 | prom/prometheus:v2.20.1 | grafana/grafana:8.1.7 | jaegertracing/all-in-one:1.26.0 | openzipkin/zipkin:2.21    |
-| v1.3.0             | R25                  | 1.1.0   | nats:2.4.0-alpine3.14 | prom/prometheus:v2.20.1 | grafana/grafana:8.1.7 | jaegertracing/all-in-one:1.26.0 | openzipkin/zipkin:2.21    |
-| v1.2.1             | R24 P1               | 1.0.2   | nats:2.4.0-alpine3.14 | prom/prometheus:v2.20.1 | grafana/grafana:8.1.7 | jaegertracing/all-in-one:1.26.0 | openzipkin/zipkin:2.21    |
-| v1.2.0             | R24 P1               | 1.0.2   | nats:2.4.0-alpine3.14 | prom/prometheus:v2.20.1 | grafana/grafana:8.1.3 | jaegertracing/all-in-one:1.26.0 | openzipkin/zipkin:2.21    |
-| v1.1.0             | R24 P1               | 0.12.3  | nats:2.1.8-alpine3.11 | prom/prometheus:v2.20.1 | grafana/grafana:7.5.3 | jaegertracing/all-in-one:1.19.2 | openzipkin/zipkin:2.21    |
-| v1.0.1             | R23 P1               | 0.12.1  | nats:2.1.8-alpine3.11 | prom/prometheus:v2.20.1 | grafana/grafana:7.5.3 | jaegertracing/all-in-one:1.19.2 | openzipkin/zipkin:2.21    |
-| v1.0.0             | R23                  | 0.12.1  | nats:2.1.8-alpine3.11 | prom/prometheus:v2.20.1 | grafana/grafana:7.5.3 | jaegertracing/all-in-one:1.19.2 | openzipkin/zipkin:2.21    |
+| NGINX Service Mesh | NGINX Plus (sidecar) | SPIRE   | NATS                  |
+|--------------------|----------------------|---------|-----------------------|
+| v1.7.0             | R28                  | 1.5.4   | nats:2.9-alpine       |
+| v1.6.0             | R27                  | 1.4.4   | nats:2.9.3-alpine3.16 |
 {{% /table %}}
-
-\* - These components are no longer shipped with NGINX Service Mesh as of release 1.5.0.
 
 ### Images
 #### Distributed Images
@@ -105,17 +70,6 @@ NGINX Service Mesh also pulls the following publicly-accessible third-party cont
 |--------------------|-------------------|-------------------|-----------------|-------------------------|------------------------------|--------------------------------|
 | v1.7.0             | 1.8.1             | 0.25.0            | 1.5.1           | 0.5.2                  | 0.9.0                         | 1.2.0                          |
 | v1.6.0             | 1.4.1             | 0.25.0            | 1.5.1           | 0.5.2                  | 0.9.0                         | 1.2.0                          |
-| v1.5.0             | 1.4.1             | 0.25.0            | 1.5.1           | 0.5.2                  | 0.9.0                         | 1.2.0                          |
-| v1.4.1             | 1.1.1             | 0.10.0            | 1.5.1           | 0.5.2                  | 0.4.2                         | 1.2.0                          |
-| v1.4.0             | 1.1.1             | 0.10.0            | 1.5.1           | 0.5.2                  | 0.4.2                         | 1.2.0                          |
-| v1.3.1             | ---               | 0.10.0            | 1.5.1           | 0.5.2                  | 0.4.2                         | 1.2.0                          |
-| v1.3.0             | ---               | 0.10.0            | 1.5.1           | 0.5.2                  | 0.4.2                         | 1.2.0                          |
-| v1.2.1             | ---               | 0.10.0            | 1.5.1           | 0.5.2                  | 0.4.2                         | 1.2.0                          |
-| v1.2.0             | ---               | 0.10.0            | 1.5.1           | 0.5.2                  | 0.4.2                         | 1.2.0                          |
-| v1.1.0             | ---               | 0.10.0            | 1.5.1           | 0.5.2                  | 0.4.2                         | 1.2.0                          |
-| v1.0.1             | ---               | 0.10.0            | 1.5.1           | 0.5.2                  | 0.4.2                         | 1.2.0                          |
-| v1.0.0             | ---               | 0.10.0            | 1.5.1           | 0.5.2                  | 0.4.2                         | 1.2.0                          |
-
 {{% /table %}}
 
 ### UDP
