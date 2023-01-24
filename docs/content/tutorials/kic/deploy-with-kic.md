@@ -13,7 +13,7 @@ docs: "DOCS-721"
 You can deploy NGINX Ingress Controller for Kubernetes with NGINX Service Mesh to control both ingress and [egress](#enable-egress) traffic.
 
 {{< important >}}
-There are two versions of NGINX Ingress Controller for Kubernetes: NGINX Open Source and NGINX Plus.
+NGINX Ingress Controller can be used free with NGINX Open Source and paying customers have access to NGINX Ingress Controller with NGINX Plus.
 To deploy NGINX Ingress Controller with NGINX Service Mesh, you must use either:
 
 - Open Source NGINX Ingress Controller version 3.0+
@@ -60,9 +60,9 @@ To configure NGINX Ingress Controller to communicate with mesh workloads over mT
     ```
 
    These labels tell NGINX Service Mesh to mutate the Ingress Controller Pod with the proper configuration in order to properly integrate with the mesh.
-   {{<note>}}
-   To learn more about how NGINX Service Mesh mutates NGINX Ingress Controller instances, refer to the [Integrating NGINX Ingress Controller with NGINX Service Mesh](#integrating-nginx-ingress-controller-with-nginx-service-mesh) section.
-   {{</note>}}
+   {{<see-also>}}
+   For more information, see [How NGINX Ingress Controller Integrates with NGINX Service Mesh](#how-nginx-ingress-controller-integrates-with-nginx-service-mesh).
+   {{</see-also>}}
 
    {{<note>}}
    In NGINX Service Mesh versions prior to v1.7.0, the `nsm.nginx.com/enable-ingress: "true"` annotation was used instead of a label.
@@ -377,7 +377,7 @@ To enable metrics collection for the NGINX Ingress Controller, take the followin
    [Command Line Arguments](https://docs.nginx.com/nginx-ingress-controller/configuration/global-configuration/command-line-arguments/) section of the NGINX Ingress Controller docs for more information on available command line arguments.
 
 {{< note >}}
-If using the NGINX Plus Ingress Controller, add this additional flag to enable latency metrics. `-enable-latency-metrics`
+If using the NGINX Plus Ingress Controller, add this additional flag to enable latency metrics: `-enable-latency-metrics`
 {{< /note >}}
 
 1. Add the following Prometheus annotations NGINX Ingress Controller Pod spec:
@@ -444,7 +444,7 @@ Here is a view of the provided "NGINX Mesh Top" dashboard:
 
 {{< img src="/img/grafana.png" >}}
 
-## Integrating NGINX Ingress Controller with NGINX Service Mesh
+## How NGINX Ingress Controller Integrates with NGINX Service Mesh
 
 ### Mutating Webhook
 NGINX Service Mesh version v1.7+ provides a mutating webhook that detects and configures instances of NGINX Ingress Controller.
