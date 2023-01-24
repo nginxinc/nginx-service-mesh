@@ -11,7 +11,7 @@ docs: "DOCS-722"
 
 Learn how to create internal routes in NGINX Ingress Controller to securely route egress traffic to non-meshed services. 
 {{< note >}}
-There are two versions of NGINX Ingress Controller for Kubernetes: NGINX Open Source and NGINX Plus.
+NGINX Ingress Controller can be used free with NGINX Open Source and paying customers have access to NGINX Ingress Controller with NGINX Plus.
 To complete this tutorial, you must use either:
 
 - Open Source NGINX Ingress Controller version 3.0+
