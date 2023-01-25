@@ -1,4 +1,4 @@
-package spiffecert_test
+package spiffe_test
 
 import (
 	"context"
@@ -10,16 +10,16 @@ import (
 	"strings"
 	"time"
 
-	sc "github.com/nginxinc/nginx-service-mesh/pkg/spiffecert"
-	"github.com/nginxinc/nginx-service-mesh/pkg/spiffecert/spiffecertfakes"
-	"github.com/nginxinc/nginx-service-mesh/pkg/taskqueue"
-
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/spiffe/go-spiffe/v2/bundle/x509bundle"
 	"github.com/spiffe/go-spiffe/v2/spiffeid"
 	"github.com/spiffe/go-spiffe/v2/svid/x509svid"
 	"github.com/spiffe/go-spiffe/v2/workloadapi"
+
+	sc "github.com/nginxinc/nginx-service-mesh/pkg/spiffe"
+	"github.com/nginxinc/nginx-service-mesh/pkg/spiffe/spiffefakes"
+	"github.com/nginxinc/nginx-service-mesh/pkg/taskqueue"
 )
 
 var _ = Describe("SpiffeCert", func() {
@@ -28,17 +28,17 @@ var _ = Describe("SpiffeCert", func() {
 			certWaitTimeout = 3 * time.Minute
 		)
 		var (
-			reloader    *spiffecertfakes.FakeReloader
-			writer      *spiffecertfakes.FakeSVIDWriter
-			certFetcher *spiffecertfakes.FakeCertFetcher
+			reloader    *spiffefakes.FakeReloader
+			writer      *spiffefakes.FakeSVIDWriter
+			certFetcher *spiffefakes.FakeCertFetcher
 			certManager *sc.CertManager
 			certCh      chan *workloadapi.X509Context
 			errCh       chan error
 		)
 		BeforeEach(func() {
-			reloader = &spiffecertfakes.FakeReloader{}
-			writer = &spiffecertfakes.FakeSVIDWriter{}
-			certFetcher = &spiffecertfakes.FakeCertFetcher{}
+			reloader = &spiffefakes.FakeReloader{}
+			writer = &spiffefakes.FakeSVIDWriter{}
+			certFetcher = &spiffefakes.FakeCertFetcher{}
 			// create channels for certFetcher
 			certCh = make(chan *workloadapi.X509Context, 10)
 			errCh = make(chan error)
@@ -213,7 +213,7 @@ var _ = Describe("SpiffeCert", func() {
 	Describe("CertFetcher", func() {
 		It("creates a watcher that writes to cert channel on update", func() {
 			ctx, cancel := context.WithCancel(context.Background())
-			client := &spiffecertfakes.FakeClient{}
+			client := &spiffefakes.FakeClient{}
 			client.WatchX509ContextStub = stubContextUpdateCall
 			cf := sc.NewX509CertFetcher("spire-addr", client)
 			certCh, errCh, err := cf.Start(ctx)
@@ -226,7 +226,7 @@ var _ = Describe("SpiffeCert", func() {
 		It("writes to error channel on fatal error", func() {
 			ctx, cancel := context.WithCancel(context.Background())
 			defer cancel()
-			client := &spiffecertfakes.FakeClient{}
+			client := &spiffefakes.FakeClient{}
 			client.WatchX509ContextReturns(errFakeWatchFail)
 			cf := sc.NewX509CertFetcher("spire-addr", client)
 			_, errCh, err := cf.Start(ctx)

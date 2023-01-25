@@ -1,14 +1,5 @@
-/*
-Package spiffecert ...
-
-	When moving away from on-disk certificate configurations
-	and towards in memory certificate configurations some logic
-	in the disksvidwriter package was desired with much change
-	to its interface. Since that package only intends to provide
-	a means of writing certs to disk this package was made to use
-	in its place.
-*/
-package spiffecert
+// Package spiffe contains code pertaining to spiffe and cert reloading
+package spiffe
 
 import (
 	"bytes"
@@ -50,16 +41,16 @@ Write Implements svidWriter interface.
 	been written yet. Otherwise enqueues
 	a spire event in the taskqueue.
 */
-func (h *CABundleManager) Write(svidResponse *workloadapi.X509Context) error {
+func (manager *CABundleManager) Write(svidResponse *workloadapi.X509Context) error {
 	// handle initial bundle download
-	if h.latestCABundleHash == nil {
-		caBytes, _, err := h.CABundleBytesFromSVIDResponse(svidResponse)
+	if manager.latestCABundleHash == nil {
+		caBytes, _, err := manager.CABundleBytesFromSVIDResponse(svidResponse)
 		if err != nil {
 			return fmt.Errorf("couldnt marshal CA bundle: %w", err)
 		}
 
 		if err = os.WriteFile(
-			h.CABundleFilepath,
+			manager.CABundleFilepath,
 			caBytes,
 			CABundleFileMode,
 		); err != nil {
@@ -67,14 +58,14 @@ func (h *CABundleManager) Write(svidResponse *workloadapi.X509Context) error {
 		}
 
 		// we need copies of cert and key for NATS' sake
-		_, _, err = h.CertKeyBytesFromSVIDResponse(svidResponse)
+		_, _, err = manager.CertKeyBytesFromSVIDResponse(svidResponse)
 		if err != nil {
 			return err
 		}
 	}
 	// queue this anyways because certs and keys
 	// still need to go into the correct KV stores
-	h.TaskQueue.Enqueue("SPIRE", svidResponse)
+	manager.TaskQueue.Enqueue("SPIRE", svidResponse)
 
 	return nil
 }
@@ -86,23 +77,23 @@ TestAndUpdateCABundle Takes CA Bundle bytes
 	CA Bundle. Updates internal hash if so.
 	Returns if the bundle has changed.
 */
-func (h *CABundleManager) TestAndUpdateCABundle(caBundle []byte) bool {
+func (manager *CABundleManager) TestAndUpdateCABundle(caBundle []byte) bool {
 	caSha := sha256.New()
 	caSha.Write(caBundle)
 	caBundleHash := caSha.Sum(nil)
-	isNew := !bytes.Equal(caBundleHash, h.latestCABundleHash)
+	isNew := !bytes.Equal(caBundleHash, manager.latestCABundleHash)
 	if isNew {
-		h.latestCABundleHash = caBundleHash
+		manager.latestCABundleHash = caBundleHash
 	}
 
 	return isNew
 }
 
 // WaitForCABundle Waits given seconds for CABundle to be written.
-func (h *CABundleManager) WaitForCABundle(maxSeconds int) error {
+func (manager *CABundleManager) WaitForCABundle(maxSeconds int) error {
 	for i := 1; i < maxSeconds; i++ {
 		time.Sleep(time.Second)
-		if _, err := os.Stat(h.CABundleFilepath); err == nil {
+		if _, err := os.Stat(manager.CABundleFilepath); err == nil {
 			return nil
 		}
 	}
@@ -119,7 +110,7 @@ CABundleBytesFromSVIDResponse Extracts
 	Bytes,whether or not the CA Bundle has
 	changed, and possibly a marshal error.
 */
-func (h *CABundleManager) CABundleBytesFromSVIDResponse(svidResponse *workloadapi.X509Context) ([]byte, bool, error) {
+func (manager *CABundleManager) CABundleBytesFromSVIDResponse(svidResponse *workloadapi.X509Context) ([]byte, bool, error) {
 	trustDomain := svidResponse.DefaultSVID().ID.TrustDomain()
 	bundle, err := svidResponse.Bundles.GetX509BundleForTrustDomain(trustDomain)
 	if err != nil {
@@ -127,7 +118,7 @@ func (h *CABundleManager) CABundleBytesFromSVIDResponse(svidResponse *workloadap
 	}
 	b, e := bundle.Marshal()
 
-	return b, h.TestAndUpdateCABundle(b), e
+	return b, manager.TestAndUpdateCABundle(b), e
 }
 
 /*
@@ -136,7 +127,7 @@ SerialNumberFromSVIDResponse Extracts
 	the default SVID certificate's serial
 	number from a given SVID Response
 */
-func (h *CABundleManager) SerialNumberFromSVIDResponse(svidResponse *workloadapi.X509Context) ([]byte, error) {
+func (manager *CABundleManager) SerialNumberFromSVIDResponse(svidResponse *workloadapi.X509Context) ([]byte, error) {
 	svid := svidResponse.DefaultSVID()
 	if len(svid.Certificates) < 1 {
 		return nil, ErrNoCertificates
@@ -152,16 +143,16 @@ CertKeyBytesFromSVIDResponse Extracts
 	cert and key from svidResponse. Also
 	updates internal copy of cert and key.
 */
-func (h *CABundleManager) CertKeyBytesFromSVIDResponse(svidResponse *workloadapi.X509Context) ([]byte, []byte, error) {
+func (manager *CABundleManager) CertKeyBytesFromSVIDResponse(svidResponse *workloadapi.X509Context) ([]byte, []byte, error) {
 	cert, key, err := svidResponse.DefaultSVID().Marshal()
 	if err != nil {
 		return nil, nil, err
 	}
 
-	h.certLock.Lock()
-	defer h.certLock.Unlock()
-	h.currentCert = cert
-	h.currentKey = key
+	manager.certLock.Lock()
+	defer manager.certLock.Unlock()
+	manager.currentCert = cert
+	manager.currentKey = key
 
 	// ADD NO ADDITIONAL CALLS HERE
 
@@ -173,11 +164,11 @@ NewCertificateGetter returns a TLS Config GetCertificate function that
 
 	fetches certificates from the CABundleManager.
 */
-func (h *CABundleManager) NewCertificateGetter() func(*tls.CertificateRequestInfo) (*tls.Certificate, error) {
+func (manager *CABundleManager) NewCertificateGetter() func(*tls.CertificateRequestInfo) (*tls.Certificate, error) {
 	return func(_ *tls.CertificateRequestInfo) (*tls.Certificate, error) {
-		h.certLock.RLock()
-		defer h.certLock.RUnlock()
-		cert, err := tls.X509KeyPair(h.currentCert, h.currentKey)
+		manager.certLock.RLock()
+		defer manager.certLock.RUnlock()
+		cert, err := tls.X509KeyPair(manager.currentCert, manager.currentKey)
 
 		// ADD NO ADDITIONAL CALLS HERE
 

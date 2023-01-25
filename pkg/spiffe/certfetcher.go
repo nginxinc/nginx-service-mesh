@@ -1,5 +1,5 @@
-// Package spiffecert contains code related to spiffe identity management
-package spiffecert
+// Package spiffe contains code related to spiffe identity management
+package spiffe
 
 import (
 	"context"

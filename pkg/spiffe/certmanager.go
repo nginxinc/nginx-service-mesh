@@ -1,5 +1,5 @@
-// Package spiffecert contains code related to spiffe identity management
-package spiffecert
+// Package spiffe contains code related to spiffe identity management
+package spiffe
 
 import (
 	"context"
@@ -111,4 +111,8 @@ func (c *CertManager) Run(ctx context.Context) error {
 	}()
 
 	return nil
+}
+
+func (c *CertManager) Stop() error {
+	return c.certFetcher.Stop()
 }

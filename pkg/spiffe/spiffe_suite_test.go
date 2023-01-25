@@ -1,4 +1,4 @@
-package spiffecert_test
+package spiffe_test
 
 import (
 	"context"
