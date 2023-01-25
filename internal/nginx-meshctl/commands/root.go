@@ -177,6 +177,9 @@ Will contact Mesh API Server for version and timeout if unable to connect.`,
 	}
 
 	cmd.Run = func(c *cobra.Command, args []string) {
+		if !strings.HasPrefix(version, "v") {
+			version = "v" + version
+		}
 		// print CLI version
 		fmt.Printf("%s - %s", cmdName, version)
 		if debug {
