@@ -113,6 +113,7 @@ func (c *CertManager) Run(ctx context.Context) error {
 	return nil
 }
 
+// Stop stops the internal certFetcher.
 func (c *CertManager) Stop() error {
 	return c.certFetcher.Stop()
 }
