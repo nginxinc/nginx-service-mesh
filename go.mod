@@ -9,6 +9,8 @@ require (
 	github.com/getkin/kin-openapi v0.113.0
 	github.com/labstack/echo/v4 v4.10.0
 	github.com/maxbrunsfeld/counterfeiter/v6 v6.5.0
+	github.com/nats-io/nats-server/v2 v2.1.2
+	github.com/nats-io/nats.go v1.18.0
 	github.com/onsi/ginkgo/v2 v2.8.0
 	github.com/onsi/gomega v1.26.0
 	github.com/servicemeshinterface/smi-controller-sdk v0.0.0-20220429210008-4cbed06a6789
@@ -114,6 +116,9 @@ require (
 	github.com/monochromegane/go-gitignore v0.0.0-20200626010858-205db1a8cc00 // indirect
 	github.com/morikuni/aec v1.0.0 // indirect
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
+	github.com/nats-io/jwt v0.3.2 // indirect
+	github.com/nats-io/nkeys v0.3.0 // indirect
+	github.com/nats-io/nuid v1.0.1 // indirect
 	github.com/opencontainers/go-digest v1.0.0 // indirect
 	github.com/opencontainers/image-spec v1.1.0-rc2 // indirect
 	github.com/perimeterx/marshmallow v1.1.4 // indirect
@@ -137,6 +142,8 @@ require (
 	github.com/xlab/treeprint v1.1.0 // indirect
 	github.com/zeebo/errs v1.3.0 // indirect
 	go.starlark.net v0.0.0-20221028183056-acb66ad56dd2 // indirect
+	go.uber.org/atomic v1.9.0 // indirect
+	go.uber.org/multierr v1.8.0 // indirect
 	golang.org/x/crypto v0.5.0 // indirect
 	golang.org/x/mod v0.7.0 // indirect
 	golang.org/x/net v0.5.0 // indirect

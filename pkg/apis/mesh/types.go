@@ -18,6 +18,19 @@ var IgnoredNamespaces = map[string]bool{
 	"kube-system": true,
 }
 
+// DeployLabel is the label key for deployment type of the resource.
+const DeployLabel = "nsm.nginx.com/"
+
+// NATS channel names.
+const (
+	// NatsAgentConfigChannel sends the mesh config from mesh-api to agent.
+	NatsAgentConfigChannel = "nginx.nsm.agent.config"
+	// NatsAgentSubChannel sends a subscription and version notice from agent to mesh-api.
+	NatsAgentSubChannel = "nginx.nsm.agent.subscription"
+	// NatsAPIPingChannel sends a ping from mesh-api to agent on restart.
+	NatsAPIPingChannel = "nginx.nsm.api.ping"
+)
+
 // k8s static resource names.
 const (
 	// MeshConfigMap is the name of the config map that holds the mesh config.
@@ -59,6 +72,11 @@ const (
 // ProxiedResources is a map of namespace -> k8s resource type -> resource names;
 // used by the CLI to print out proxied resources when removing the mesh.
 type ProxiedResources map[string]map[string][]string
+
+// MetricsConfig holds the data that may be dynamically updated at runtime for the nginx-mesh-metrics component.
+type MetricsConfig struct {
+	PromAddr *string `json:"PrometheusAddress,omitempty"`
+}
 
 // MtlsModes are the supported mtls modes.
 var MtlsModes = map[string]struct{}{
