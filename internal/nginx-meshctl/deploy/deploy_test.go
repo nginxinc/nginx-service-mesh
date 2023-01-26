@@ -3,7 +3,7 @@ package deploy_test
 import (
 	"os"
 
-	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"gopkg.in/yaml.v2"
 	"helm.sh/helm/v3/pkg/chart/loader"

@@ -3,7 +3,7 @@ package helm_test
 import (
 	"encoding/json"
 
-	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
 	"github.com/nginxinc/nginx-service-mesh/pkg/helm"
