@@ -11,6 +11,8 @@ import (
 	"google.golang.org/grpc/status"
 )
 
+var errNoClient = fmt.Errorf("failed to start cert fetcher: nil client")
+
 //go:generate counterfeiter -generate
 
 // Client wraps the workloadapi.Client
@@ -74,23 +76,22 @@ type X509CertFetcher struct {
 }
 
 // NewX509CertFetcher creates a new instance of CertFetcher.
-func NewX509CertFetcher(spireAddr string, client Client) *X509CertFetcher {
+func NewX509CertFetcher(spireAddr string, client Client) (*X509CertFetcher, error) {
+	if client == nil {
+		var err error
+		ctx := context.Background()
+		client, err = workloadapi.New(ctx, workloadapi.WithAddr("unix://"+spireAddr))
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	return &X509CertFetcher{
 		WatchErrCh: make(chan error),
 		CertCh:     make(chan *workloadapi.X509Context),
 		spireAddr:  spireAddr,
 		client:     client,
-	}
-}
-
-// NewX509CertFetcherFromAddress
-func NewX509CertFetcherFromAddress(spireAddr string, ctx context.Context) (*X509CertFetcher, error) {
-	client, err := workloadapi.New(ctx, workloadapi.WithAddr("unix://"+spireAddr))
-	if err != nil {
-		return nil, err
-	}
-
-	return NewX509CertFetcher(spireAddr, client), nil
+	}, nil
 }
 
 // Start creates a SPIFFE Workload API Client. If the client cannot be created an error is returned.
@@ -100,11 +101,7 @@ func NewX509CertFetcherFromAddress(spireAddr string, ctx context.Context) (*X509
 //nolint:gocritic
 func (c *X509CertFetcher) Start(ctx context.Context) (<-chan *workloadapi.X509Context, <-chan error, error) {
 	if c.client == nil {
-		var err error
-		c.client, err = workloadapi.New(ctx, workloadapi.WithAddr("unix://"+c.spireAddr))
-		if err != nil {
-			return nil, nil, fmt.Errorf("could not create SPIFFE Workload API Client: %w", err)
-		}
+		return nil, nil, errNoClient
 	}
 
 	watcher := newWatcher(*c)

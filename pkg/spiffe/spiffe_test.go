@@ -10,7 +10,7 @@ import (
 	"strings"
 	"time"
 
-	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"github.com/spiffe/go-spiffe/v2/bundle/x509bundle"
 	"github.com/spiffe/go-spiffe/v2/spiffeid"
@@ -215,7 +215,8 @@ var _ = Describe("SpiffeCert", func() {
 			ctx, cancel := context.WithCancel(context.Background())
 			client := &spiffefakes.FakeClient{}
 			client.WatchX509ContextStub = stubContextUpdateCall
-			cf := sc.NewX509CertFetcher("spire-addr", client)
+			cf, err := sc.NewX509CertFetcher("spire-addr", client)
+			Expect(err).ToNot(HaveOccurred())
 			certCh, errCh, err := cf.Start(ctx)
 			Expect(err).ToNot(HaveOccurred())
 			Eventually(certCh).Should(Receive())
@@ -228,7 +229,8 @@ var _ = Describe("SpiffeCert", func() {
 			defer cancel()
 			client := &spiffefakes.FakeClient{}
 			client.WatchX509ContextReturns(errFakeWatchFail)
-			cf := sc.NewX509CertFetcher("spire-addr", client)
+			cf, err := sc.NewX509CertFetcher("spire-addr", client)
+			Expect(err).ToNot(HaveOccurred())
 			_, errCh, err := cf.Start(ctx)
 			Expect(err).ToNot(HaveOccurred())
 			Eventually(errCh).Should(Receive())

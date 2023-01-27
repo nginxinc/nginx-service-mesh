@@ -1,4 +1,4 @@
-// Package spiffe contains code pertaining to spiffe and cert reloading
+// Package spiffe contains code related to spiffe identity management
 package spiffe
 
 import (
