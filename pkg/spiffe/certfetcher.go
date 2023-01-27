@@ -83,6 +83,16 @@ func NewX509CertFetcher(spireAddr string, client Client) *X509CertFetcher {
 	}
 }
 
+// NewX509CertFetcherFromAddress
+func NewX509CertFetcherFromAddress(spireAddr string, ctx context.Context) (*X509CertFetcher, error) {
+	client, err := workloadapi.New(ctx, workloadapi.WithAddr("unix://"+spireAddr))
+	if err != nil {
+		return nil, err
+	}
+
+	return NewX509CertFetcher(spireAddr, client), nil
+}
+
 // Start creates a SPIFFE Workload API Client. If the client cannot be created an error is returned.
 // Otherwise, a goroutine is kicked off that watches for new X.509 Contexts over the Workload API.
 // If a fatal error occurs while watching for X.509 Contexts it is written to the WatchErrCh channel.
