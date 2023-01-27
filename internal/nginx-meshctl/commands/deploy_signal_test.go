@@ -8,7 +8,7 @@ import (
 	"syscall"
 	"time"
 
-	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"github.com/onsi/gomega/gbytes"
 
@@ -30,7 +30,7 @@ var _ = Describe("Signal Handler", func() {
 		fakeK8s := &fake.FakeClient{}
 		buf = gbytes.NewBuffer()
 		sig = os.Interrupt
-		sendSig = syscall.SIGUSR1
+		sendSig = syscall.SIGUSR2
 		msg = "called in handler"
 
 		handle = func(client k8s.Client, s os.Signal, w io.Writer, _ string) {

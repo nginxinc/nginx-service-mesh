@@ -6,7 +6,7 @@ import (
 	"os"
 	"text/tabwriter"
 
-	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	tm "github.com/servicemeshinterface/smi-sdk-go/pkg/apis/metrics/v1alpha1"
 	v1 "k8s.io/api/core/v1"
