@@ -6,7 +6,7 @@ import (
 
 	"github.com/nginxinc/nginx-service-mesh/pkg/taskqueue"
 
-	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
 
