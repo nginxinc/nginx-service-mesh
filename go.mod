@@ -9,7 +9,7 @@ require (
 	github.com/getkin/kin-openapi v0.113.0
 	github.com/labstack/echo/v4 v4.10.0
 	github.com/maxbrunsfeld/counterfeiter/v6 v6.5.0
-	github.com/onsi/ginkgo/v2 v2.7.0
+	github.com/onsi/ginkgo/v2 v2.7.1
 	github.com/onsi/gomega v1.26.0
 	github.com/servicemeshinterface/smi-controller-sdk v0.0.0-20220429210008-4cbed06a6789
 	github.com/servicemeshinterface/smi-sdk-go v0.5.0
@@ -142,7 +142,7 @@ require (
 	golang.org/x/sys v0.4.0 // indirect
 	golang.org/x/term v0.4.0 // indirect
 	golang.org/x/time v0.3.0 // indirect
-	golang.org/x/tools v0.4.0 // indirect
+	golang.org/x/tools v0.5.0 // indirect
 	gomodules.xyz/jsonpatch/v2 v2.2.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/genproto v0.0.0-20221118155620-16455021b5e6 // indirect
