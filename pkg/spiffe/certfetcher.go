@@ -3,7 +3,7 @@ package spiffe
 
 import (
 	"context"
-	"fmt"
+	"errors"
 	"log"
 
 	"github.com/spiffe/go-spiffe/v2/workloadapi"
@@ -11,7 +11,7 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-var errNoClient = fmt.Errorf("failed to start cert fetcher: nil client")
+var errNoClient = errors.New("failed to start cert fetcher: nil client")
 
 //go:generate counterfeiter -generate
 
