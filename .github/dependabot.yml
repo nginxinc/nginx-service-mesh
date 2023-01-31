@@ -3,12 +3,12 @@ updates:
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
-      interval: daily
+      interval: weekly
     reviewers:
       - "nginxinc/service-mesh"
   - package-ecosystem: "gomod"
     directory: "/"
     schedule:
-      interval: daily
+      interval: weekly
     reviewers:
       - "nginxinc/service-mesh"
