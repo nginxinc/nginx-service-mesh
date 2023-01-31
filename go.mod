@@ -9,8 +9,8 @@ require (
 	github.com/getkin/kin-openapi v0.113.0
 	github.com/labstack/echo/v4 v4.10.0
 	github.com/maxbrunsfeld/counterfeiter/v6 v6.5.0
-	github.com/nats-io/nats-server/v2 v2.1.2
-	github.com/nats-io/nats.go v1.18.0
+	github.com/nats-io/nats-server/v2 v2.9.11
+	github.com/nats-io/nats.go v1.23.0
 	github.com/onsi/ginkgo/v2 v2.8.0
 	github.com/onsi/gomega v1.26.0
 	github.com/servicemeshinterface/smi-controller-sdk v0.0.0-20220429210008-4cbed06a6789
@@ -30,7 +30,7 @@ require (
 	k8s.io/kube-aggregator v0.26.1
 	k8s.io/kubectl v0.26.1
 	k8s.io/metrics v0.26.1
-	k8s.io/utils v0.0.0-20221128185143-99ec85e7a448
+	k8s.io/utils v0.0.0-20230115233650-391b47cb4029
 	sigs.k8s.io/controller-runtime v0.14.2
 	sigs.k8s.io/controller-tools v0.11.2
 	sigs.k8s.io/yaml v1.3.0
@@ -104,6 +104,7 @@ require (
 	github.com/mattn/go-isatty v0.0.16 // indirect
 	github.com/mattn/go-runewidth v0.0.14 // indirect
 	github.com/matttproud/golang_protobuf_extensions v1.0.4 // indirect
+	github.com/minio/highwayhash v1.0.2 // indirect
 	github.com/mitchellh/copystructure v1.2.0 // indirect
 	github.com/mitchellh/go-wordwrap v1.0.1 // indirect
 	github.com/mitchellh/reflectwalk v1.0.2 // indirect
@@ -116,7 +117,7 @@ require (
 	github.com/monochromegane/go-gitignore v0.0.0-20200626010858-205db1a8cc00 // indirect
 	github.com/morikuni/aec v1.0.0 // indirect
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
-	github.com/nats-io/jwt v0.3.2 // indirect
+	github.com/nats-io/jwt/v2 v2.3.0 // indirect
 	github.com/nats-io/nkeys v0.3.0 // indirect
 	github.com/nats-io/nuid v1.0.1 // indirect
 	github.com/opencontainers/go-digest v1.0.0 // indirect
