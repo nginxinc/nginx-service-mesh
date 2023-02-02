@@ -96,7 +96,9 @@ spec:
         image: {{ include "hook.image-server" . }}/kubectl
         imagePullPolicy: {{ .Values.registry.imagePullPolicy }}
         securityContext:
-          runAsUser: 0
+          allowPrivilegeEscalation: false
+          privileged: false
+          runAsUser: 101 #nginx
         command:
         - /bin/sh
         - -c
@@ -130,7 +132,9 @@ spec:
         image: {{ include "hook.image-server" . }}/kubectl
         imagePullPolicy: {{ .Values.registry.imagePullPolicy }}
         securityContext:
-          runAsUser: 0
+          allowPrivilegeEscalation: false
+          privileged: false
+          runAsUser: 101 #nginx
         command:
         - /bin/sh
         - -c
@@ -305,7 +309,9 @@ spec:
         image: {{ include "hook.image-server" . }}/kubectl
         imagePullPolicy: {{ .Values.registry.imagePullPolicy }}
         securityContext:
-          runAsUser: 0
+          allowPrivilegeEscalation: false
+          privileged: false
+          runAsUser: 101 #nginx
         command:
         - /bin/sh
         - -c
