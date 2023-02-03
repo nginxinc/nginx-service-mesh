@@ -122,7 +122,7 @@ When deploying NGINX Service Mesh using `nginx-meshctl`, set the `--registry-ser
 
 If your environment does not have access to public image repositories, then you will need to manually pull the images from this [list]( {{< ref "/about/tech-specs.md#images" >}} ), and push them to your [private registry]( {{< ref "/guides/private-registry.md" >}} ). The image names and tags must remain the same. For example:
 
- `gcr.io/spiffe-io/spire-agent:1.5.4` would become `your-registry/spire-agent:1.5.4`
+ `ghcr.io/spiffe/spire-agent:1.5.4` would become `your-registry/spire-agent:1.5.4`
  
  `nats:2.9-alpine` would become `your-registry/nats:2.9-alpine`
 

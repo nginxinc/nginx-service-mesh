@@ -3,10 +3,6 @@
 {{- end }}
 
 {{- define "spire.image-server" -}}
-{{- if not .Values.registry.disablePublicImages }}gcr.io/spiffe-io{{ else }}{{ .Values.registry.server }}{{ end }}
-{{- end }}
-
-{{- define "spiffe-csi.image-server" -}}
 {{- if not .Values.registry.disablePublicImages }}ghcr.io/spiffe{{ else }}{{ .Values.registry.server }}{{ end }}
 {{- end }}
 
