@@ -24,10 +24,6 @@ func (config *MeshConfig) CheckForInvalidConfig(k8sClient client.Client) error {
 		return errors.New("invalid configuration: enabled namespaces should not be set " +
 			"when auto injection is enabled")
 	}
-	if !*config.IsAutoInjectEnabled && len(*config.Injection.DisabledNamespaces) > 0 {
-		return errors.New("invalid configuration: disabled namespaces should not be set " +
-			"when auto injection is disabled")
-	}
 
 	if k8sClient != nil && strings.Contains(string(config.LoadBalancingMethod), string(MeshConfigLoadBalancingMethodRandom)) {
 		cbs := &specs.CircuitBreakerList{}
