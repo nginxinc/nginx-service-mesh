@@ -47,7 +47,7 @@ If you want to view metrics for NGINX Ingress Controller, ensure that you have d
       nginx-meshctl deploy ... --mtls-mode=strict --disabled-namespaces=legacy
       ```
 
-1. Get the config of the mesh and verify that `mtls.mode` is `strict` and `disabledNamespaces` contains the `legacy` namespace:
+1. Get the config of the mesh and verify that `mtls.mode` is `strict` and `enabledNamespaces` does not contain the `legacy` namespace:
 
     ```bash
     nginx-meshctl config 
