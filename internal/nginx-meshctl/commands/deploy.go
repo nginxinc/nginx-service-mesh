@@ -219,19 +219,6 @@ func Deploy() *cobra.Command {
 		`disable automatic sidecar injection upon resource creation
 		Use the --enabled-namespaces flag to enable automatic injection in select namespaces`)
 	cmd.Flags().StringSliceVar(
-		&values.AutoInjection.DisabledNamespaces,
-		"disabled-namespaces",
-		defaultValues.AutoInjection.DisabledNamespaces,
-		`disable automatic sidecar injection for specific namespaces
-		Cannot be used with --disable-auto-inject`,
-	)
-	err = cmd.Flags().MarkDeprecated("disabled-namespaces",
-		"and will be removed in a future release. Allow listing patterns are recommended (enabled-namespaces or namespace labeling) "+
-			"is the preferred way to configure injection.")
-	if err != nil {
-		fmt.Println("error marking flag as deprecated: ", err)
-	}
-	cmd.Flags().StringSliceVar(
 		&values.EnabledNamespaces,
 		"enabled-namespaces",
 		defaultValues.EnabledNamespaces,
@@ -627,10 +614,6 @@ func validateInput(values *helm.Values, registryKeyFile string) error {
 
 	if !values.DisableAutoInjection && len(values.EnabledNamespaces) > 0 {
 		return fmt.Errorf("%w: enabled namespaces should not be set when auto injection is enabled", errInvalidConfig)
-	}
-
-	if values.DisableAutoInjection && len(values.AutoInjection.DisabledNamespaces) > 0 {
-		return fmt.Errorf("%w: disabled namespaces should not be set when auto injection is disabled", errInvalidConfig)
 	}
 
 	return nil
