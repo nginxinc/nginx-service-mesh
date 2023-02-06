@@ -408,65 +408,6 @@
         "type": "string"
       }
     },
-    "autoInjection": {
-      "description": "NGINX Service Mesh auto-injection settings",
-      "type": "object",
-      "properties": {
-        "disable": {
-          "description": "Disable automatic sidecar injection upon resource creation",
-          "type": "boolean"
-        },
-        "disabledNamespaces": {
-          "description": "Disable automatic sidecar injection for specific namespace",
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        },
-        "enabledNamespaces": {
-          "description": "Enable automatic sidecar injection for specific namespaces",
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        }
-      },
-      "allOf": [
-        {
-          "if": {
-            "properties": {
-              "disable": {
-                "const": true
-              }
-            }
-          },
-          "then":{
-            "properties": {
-              "disabledNamespaces": {
-                "$ref": "#/definitions/emptyArray"
-              }
-            }
-          }
-        },
-        {
-          "if": {
-            "properties": {
-              "disable": {
-                "const": false
-              }
-            }
-          },
-          "then":{
-            "properties": {
-              "enabledNamespaces": {
-                "$ref": "#/definitions/emptyArray"
-              }
-            }
-          }
-        }
-      ],
-      "required": ["disable"]
-    },
     "tracing": {
       "description": "NGINX Service Mesh tracing settings",
       "type": "object",
@@ -575,26 +516,6 @@
       "properties": {
         "enabledNamespaces": {
           "$ref": "#/definitions/emptyArray"
-        }
-      }
-    }
-  },
-  {
-    "if": {
-      "properties": {
-        "disableAutoInjection": {
-          "const": true
-        }
-      }
-    },
-    "then":{
-      "properties": {
-        "autoInjection": {
-          "properties": {
-            "disabledNamespaces": {
-              "$ref": "#/definitions/emptyArray"
-            }
-          }
         }
       }
     }
