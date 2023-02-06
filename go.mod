@@ -8,7 +8,7 @@ require (
 	github.com/deepmap/oapi-codegen v1.12.4
 	github.com/getkin/kin-openapi v0.114.0
 	github.com/labstack/echo/v4 v4.10.0
-	github.com/maxbrunsfeld/counterfeiter/v6 v6.5.0
+	github.com/maxbrunsfeld/counterfeiter/v6 v6.6.1
 	github.com/nats-io/nats-server/v2 v2.9.12
 	github.com/nats-io/nats.go v1.23.0
 	github.com/onsi/ginkgo/v2 v2.8.0
