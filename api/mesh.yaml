@@ -153,7 +153,7 @@ paths:
                       "prod",
                       "staging"
                 ],
-                  "isAutoInjectEnabled": false
+                  "isAutoInjectEnabled": false,
                   "loadBalancingMethod": "round_robin",
                   "mtls": {
                     "caKeyType": "ec-p256",
@@ -478,8 +478,6 @@ components:
           example: ""
         mtls:
           $ref: '#/components/schemas/MtlsConfig'
-        injection:
-          $ref: '#/components/schemas/InjectConfig'
         tracing:
           $ref: '#/components/schemas/TraceConfig'
         telemetry:
@@ -871,8 +869,6 @@ components:
               pattern: "^\\d+[kKmMgG]?$"
             mtls:
               $ref: '#/components/schemas/MtlsConfig'
-            injection:
-              $ref: '#/components/schemas/InjectConfig'
             tracing:
               $ref: '#/components/schemas/TraceConfig'
             telemetry:
