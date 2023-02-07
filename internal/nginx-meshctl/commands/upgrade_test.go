@@ -60,6 +60,8 @@ func createMeshConfigMap(client kubernetes.Interface, namespace string, telemetr
 		"name": "should-not-change",
 		"image": "nginx-mesh-init:old"
 	},
+	"isAutoInjectEnabled": true,
+	"enabledNamespaces": [],
 	"loadBalancingMethod": "round_robin",
 	"accessControlMode": "deny",
 	"nginxErrorLogLevel": "warn",
