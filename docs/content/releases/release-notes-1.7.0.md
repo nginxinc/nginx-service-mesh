@@ -31,8 +31,9 @@ NGINX Service Mesh 1.7.0 includes the following updates:
 - `nginx-meshctl` command-line tool can now be downloaded from [Github](https://github.com/nginxinc/nginx-service-mesh/releases/latest).
 - NGINX Service Mesh can now integrate with the open source version of [NGINX Ingress Controller](https://github.com/nginxinc/kubernetes-ingress).
 - For easier integration with NGINX Ingress Controller, users can now [simply add a label]({{< ref "/tutorials/kic/deploy-with-kic.md" >}}) to their Ingress Controller PodSpec, and NGINX Service Mesh will automatically update the controller to integrate.
-- Sidecar and init containers are now built with ARM support.
+- Sidecar and init containers now support ARM processors. Full ARM support is coming.
 - OpenShift CSI Driver volume plugin has been renamed from `wlapi-mounter.spire.nginx.com` to `csi.spiffe.io`.
+- For OpenShift deployments, NGINX Service Mesh now uses the open source [SPIFFE CSI Driver](https://github.com/spiffe/spiffe-csi).
 
 {{< important >}}
 OpenShift users see the [upgrade guide]({{< ref "/guides/upgrade.md#upgrade-to-170-in-openshift" >}}) for instructions on how to upgrade to this release version.
