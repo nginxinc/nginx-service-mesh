@@ -45,7 +45,7 @@ var _ = Describe("Deploy", func() {
 		values.Telemetry = nil
 		values.Tracing = nil
 		_, err := deployer.Deploy()
-		Expect(err).To(Succeed())
+		Expect(err).ToNot(HaveOccurred())
 	})
 
 	It("deploys air-gapped mesh", func() {
@@ -59,7 +59,7 @@ var _ = Describe("Deploy", func() {
 		deployer.Values = &values
 
 		// default deploy values are not valid
-		// we need to set either tracing/telemetry to nil
+		// we need to set tracing and telemetry to nil
 		values.Telemetry = nil
 		values.Tracing = nil
 
@@ -67,7 +67,7 @@ var _ = Describe("Deploy", func() {
 		values.Registry.Server = "test-registry"
 		values.Registry.DisablePublicImages = true
 		manifest, err := deployer.Deploy()
-		Expect(err).To(Succeed())
+		Expect(err).ToNot(HaveOccurred())
 
 		valid := isImageSourceValid(manifest, values.Registry.Server)
 		Expect(valid).To(BeTrue())
@@ -75,7 +75,7 @@ var _ = Describe("Deploy", func() {
 		// Set up a non air-gapped deployment.
 		values.Registry.DisablePublicImages = false
 		manifest, err = deployer.Deploy()
-		Expect(err).To(Succeed())
+		Expect(err).ToNot(HaveOccurred())
 
 		valid = isImageSourceValid(manifest, values.Registry.Server)
 		Expect(valid).To(BeFalse())
