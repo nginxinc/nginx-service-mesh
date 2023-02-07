@@ -561,7 +561,6 @@
     "nginxErrorLogLevel",
     "nginxLogFormat",
     "nginxLBMethod",
-    "autoInjection",
     "disableAutoInjection"
   ]
 }

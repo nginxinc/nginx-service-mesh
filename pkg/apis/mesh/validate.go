@@ -13,7 +13,6 @@ import (
 
 // CheckForInvalidConfig returns an error if config is not valid
 // Invalid configs:
-//   - AutoInjection is disabled but there are disabled namespaces
 //   - AutoInjection is enabled but there are enabled namespaces
 //   - LoadBalancingMethod is "random" when CircuitBreakers exist
 //   - both tracing and telemetry are enabled
