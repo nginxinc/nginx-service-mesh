@@ -399,14 +399,16 @@
     },
     "disableAutoInjection": {
       "description": "Disable automatic sidecar injection upon resource creation",
-      "type": "boolean"
+      "type": "boolean",
+      "default": false
     },
     "enabledNamespaces": {
       "description": "Enable automatic sidecar injection for specific namespaces",
       "type": "array",
       "items": {
         "type": "string"
-      }
+      },
+      "default": {}
     },
     "tracing": {
       "description": "NGINX Service Mesh tracing settings",
