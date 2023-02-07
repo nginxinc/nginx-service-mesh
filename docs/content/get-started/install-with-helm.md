@@ -203,7 +203,6 @@ The following table lists the configurable parameters of the NGINX Service Mesh 
 | `disableAutoInjection` | Globally disable automatic sidecar injection upon resource creation. Use either "enabledNamespaces" or a namespace label to enable automatic injection. | false |
 | `enabledNamespaces` | Enable automatic sidecar injection for specific namespaces. Must be used with `disable`. | [] |
 | `prometheusAddress` | The address of a Prometheus server deployed in your Kubernetes cluster. Address should be in the format `<service-name>.<namespace>:<service-port>`. | "" |
-| `autoInjection.disable` (deprecated) | Disable automatic sidecar injection upon resource creation. Use the "enabledNamespaces" flag to enable automatic injection in select namespaces. | false |
 | `telemetry.samplerRatio` | The percentage of traces that are processed and exported to the telemetry backend. Float between 0 and 1. | 0.01 |
 | `telemetry.exporters` | The configuration of exporters to send telemetry data to. | |
 | `telemetry.exporters.otlp` | The configuration for an OTLP gRPC exporter. | |

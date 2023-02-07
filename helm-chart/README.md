@@ -8,4 +8,4 @@ For information on the configuration options and installation process when using
 
 We recommend deploying the mesh with auto-injection disabled globally, using the `--set disableAutoInjection=true` flag. This ensures that Pods are not automatically injected without your consent, especially in system namespaces.
 
-To opt-in a namespace you can label it with `injector.nsm.nginx.com/auto-inject=enabled` or use the flag `--set autoInjection.enabledNamespaces={namespace-1, namespace-2}`.
+To opt-in a namespace you can label it with `injector.nsm.nginx.com/auto-inject=enabled` or use the flag `--set enabledNamespaces={namespace-1, namespace-2}`.

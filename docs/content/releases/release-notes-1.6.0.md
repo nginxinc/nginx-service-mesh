@@ -34,9 +34,6 @@ NGINX Service Mesh 1.6.0 includes the following updates:
 - To avoid crashing due to frequent rotations, SPIRE's `caTTL` field has a minimum value of `24h`.
 
 #### **Deprecation**
-
-- `disabledNamespaces` configuration field has been deprecated and will be removed in a future release.
-- Other `autoInjection` configuration fields have been deprecated in favor of using top-level fields.
 - `injector.nsm.nginx.com/auto-inject` Pod annotation has been deprecated in favor of using a label.
 
 <span id="160-resolved"></a>
