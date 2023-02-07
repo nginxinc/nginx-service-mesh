@@ -238,34 +238,16 @@ The payload shown below disables automatic injection of the sidecar proxy for al
     {
         "op": "replace",
         "field": {
-            "injection": {
-                "isAutoInjectEnabled": false
-            }
+            "isAutoInjectEnabled": false
         }
     },
     {
         "op": "add",
         "field": {
-            "injection": {
-                "enabledNamespaces": ["prod", "staging"]
-            }
+            "enabledNamespaces": ["prod", "staging"]
         }
     }
 ]
-```
-
-or
-
-```json
-{
-    "op": "replace",
-    "field": {
-        "injection": {
-            "isAutoInjectEnabled": false,
-            "enabledNamespaces": ["default", "my-namespace"]
-        }
-    }
-}
 ```
 
 To `remove` all values from a list of strings, define the value as an empty list (using `replace` with an empty list will have the same effect). For example:
@@ -274,9 +256,7 @@ To `remove` all values from a list of strings, define the value as an empty list
 {
     "op": "remove",
     "field": {
-        "injection": {
-            "enabledNamespaces": []
-        }
+        "enabledNamespaces": []
     }
 }
 ```
