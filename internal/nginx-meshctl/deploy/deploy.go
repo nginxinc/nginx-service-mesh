@@ -36,30 +36,30 @@ func NewDeployer(
 }
 
 // Deploy the mesh using Helm.
-func (d *Deployer) Deploy() error {
+func (d *Deployer) Deploy() (string, error) {
 	valuesMap, err := d.Values.ConvertToMap()
 	if err != nil {
-		return err
+		return "", err
 	}
 	chart, err := loader.LoadFiles(d.files)
 	if err != nil {
-		return fmt.Errorf("error loading helm files: %w", err)
+		return "", fmt.Errorf("error loading helm files: %w", err)
 	}
 
 	// check if mesh exists
 	exists, existsErr := d.k8sClient.MeshExists()
 	if existsErr != nil {
 		if exists {
-			return fmt.Errorf("%w. To remove the existing mesh, run \"nginx-meshctl remove\"", existsErr)
+			return "", fmt.Errorf("%w. To remove the existing mesh, run \"nginx-meshctl remove\"", existsErr)
 		}
 
-		return fmt.Errorf("%v: %w", meshErrors.ErrCheckingExistence, existsErr)
+		return "", fmt.Errorf("%v: %w", meshErrors.ErrCheckingExistence, existsErr)
 	}
 	fmt.Println("Deploying NGINX Service Mesh...")
 
 	actionConfig, err := d.k8sClient.HelmAction(d.k8sClient.Namespace())
 	if err != nil {
-		return fmt.Errorf("error initializing helm action: %w", err)
+		return "", fmt.Errorf("error initializing helm action: %w", err)
 	}
 
 	installer := action.NewInstall(actionConfig)
@@ -70,14 +70,14 @@ func (d *Deployer) Deploy() error {
 
 	rel, err := installer.Run(chart, valuesMap)
 	if err != nil {
-		return fmt.Errorf("error installing NGINX Service Mesh: %w", err)
+		return "", fmt.Errorf("error installing NGINX Service Mesh: %w", err)
 	}
 
 	if d.DryRun {
 		fmt.Println(rel.Manifest)
 
-		return nil
+		return rel.Manifest, nil
 	}
 
-	return nil
+	return rel.Manifest, nil
 }
