@@ -650,7 +650,7 @@ func startDeploy(k8sClient k8s.Client, deployer *deploy.Deployer, cleanupOnError
 		}
 	}()
 
-	err := deployer.Deploy()
+	_, err := deployer.Deploy()
 	if err != nil {
 		var alreadyExists meshErrors.AlreadyExistsError
 		if errors.Is(err, meshErrors.ErrInput) ||

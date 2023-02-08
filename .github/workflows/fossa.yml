@@ -9,6 +9,7 @@ on:
       - 'docs/**'
       - 'examples/**'
       - '**.md'
+  workflow_dispatch:
 
 concurrency:
   group: ${{ github.ref_name }}-fossa

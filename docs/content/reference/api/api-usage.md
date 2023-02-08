@@ -203,14 +203,14 @@ You can use the REST API, `nginx-meshctl` command line tool, or `kubectl` to vie
 
 - View the configuration of the mesh:
 
-  - REST API endpoint: `/apis/nginx.nsm.com/v1alpha1/config`
-  - kubectl command: `kubectl get --raw /apis/nginx.nsm.com/v1alpha1/config`
+  - REST API endpoint: `/apis/nsm.nginx.com/v1alpha1/config`
+  - kubectl command: `kubectl get --raw /apis/nsm.nginx.com/v1alpha1/config`
   - CLI command: `nginx-meshctl config`
 
 - View the services participating in the mesh:
 
   - REST API endpoint: `/apis/nsm.nginx.com/v1alpha1/services`
-  - kubectl command: `kubectl get --raw /apis/nginx.nsm.com/v1alpha1/services`
+  - kubectl command: `kubectl get --raw /apis/nsm.nginx.com/v1alpha1/services`
   - CLI command: `nginx-meshctl services`
 
 ### Modify the Mesh State by using the REST API
@@ -219,7 +219,7 @@ NGINX Service Mesh API is under active development, but provides an endpoint and
 
 You can PATCH the configuration of NGINX Service Mesh by sending a request to the REST API endpoint:
 
-- REST API endpoint: `/apis/nginx.nsm.com/v1alpha1/config`
+- REST API endpoint: `/apis/nsm.nginx.com/v1alpha1/config`
 
 The supported patch operations are:
 

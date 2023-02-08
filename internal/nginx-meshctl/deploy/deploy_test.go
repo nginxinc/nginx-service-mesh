@@ -2,6 +2,7 @@ package deploy_test
 
 import (
 	"os"
+	"strings"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -43,7 +44,41 @@ var _ = Describe("Deploy", func() {
 		// we need to set either tracing/telemetry to nil
 		values.Telemetry = nil
 		values.Tracing = nil
-		Expect(deployer.Deploy()).To(Succeed())
+		_, err := deployer.Deploy()
+		Expect(err).ToNot(HaveOccurred())
+	})
+
+	It("deploys air-gapped mesh", func() {
+		// mute stdout for this test since it will print the entire manifest
+		stdout := os.Stdout
+		defer func() { os.Stdout = stdout }()
+		os.Stdout = os.NewFile(0, os.DevNull)
+
+		var values helm.Values
+		Expect(yaml.Unmarshal(valuesYaml, &values)).To(Succeed())
+		deployer.Values = &values
+
+		// default deploy values are not valid
+		// we need to set tracing and telemetry to nil
+		values.Telemetry = nil
+		values.Tracing = nil
+
+		// Set up an air-gapped deployment.
+		values.Registry.Server = "test-registry"
+		values.Registry.DisablePublicImages = true
+		manifest, err := deployer.Deploy()
+		Expect(err).ToNot(HaveOccurred())
+
+		valid := isImageSourceValid(manifest, values.Registry.Server)
+		Expect(valid).To(BeTrue())
+
+		// Set up a non air-gapped deployment.
+		values.Registry.DisablePublicImages = false
+		manifest, err = deployer.Deploy()
+		Expect(err).ToNot(HaveOccurred())
+
+		valid = isImageSourceValid(manifest, values.Registry.Server)
+		Expect(valid).To(BeFalse())
 	})
 
 	Context("input validation", func() {
@@ -60,7 +95,7 @@ var _ = Describe("Deploy", func() {
 					},
 				}
 				deployer.Values = values
-				err := deployer.Deploy()
+				_, err := deployer.Deploy()
 				Expect(err).To(HaveOccurred())
 				Expect(err.Error()).To(ContainSubstring("mtls.mode must be one of the following"))
 				Expect(err.Error()).To(ContainSubstring("mtls.caTTL: Does not match pattern"))
@@ -77,7 +112,7 @@ var _ = Describe("Deploy", func() {
 				NGINXLBMethod:      "invalid",
 			}
 			deployer.Values = values
-			err := deployer.Deploy()
+			_, err := deployer.Deploy()
 			Expect(err).To(HaveOccurred())
 			Expect(err.Error()).To(ContainSubstring("nginxErrorLogLevel must be one of the following"))
 			Expect(err.Error()).To(ContainSubstring("nginxLogFormat must be one of the following"))
@@ -89,7 +124,7 @@ var _ = Describe("Deploy", func() {
 				Environment: "invalid",
 			}
 			deployer.Values = values
-			err := deployer.Deploy()
+			_, err := deployer.Deploy()
 			Expect(err).To(HaveOccurred())
 			Expect(err.Error()).To(ContainSubstring("environment must be one of the following"))
 		})
@@ -99,7 +134,7 @@ var _ = Describe("Deploy", func() {
 				AccessControlMode: "invalid",
 			}
 			deployer.Values = values
-			err := deployer.Deploy()
+			_, err := deployer.Deploy()
 			Expect(err).To(HaveOccurred())
 			Expect(err.Error()).To(ContainSubstring("accessControlMode must be one of the following"))
 		})
@@ -113,7 +148,7 @@ var _ = Describe("Deploy", func() {
 				Telemetry: nil,
 			}
 			deployer.Values = values
-			err := deployer.Deploy()
+			_, err := deployer.Deploy()
 			Expect(err).To(HaveOccurred())
 			Expect(err.Error()).To(ContainSubstring("tracing.backend must be one of the following"))
 			Expect(err.Error()).To(ContainSubstring("tracing.sampleRate: Must be less than or equal to 1"))
@@ -129,7 +164,7 @@ var _ = Describe("Deploy", func() {
 			values.DisableAutoInjection = true
 			values.EnabledNamespaces = []string{"nginx-mesh"}
 			deployer.Values = values
-			err := deployer.Deploy()
+			_, err := deployer.Deploy()
 			Expect(err).To(HaveOccurred())
 			Expect(err.Error()).To(ContainSubstring("telemetry.samplerRatio: Must be less than or equal to 1"))
 		})
@@ -151,9 +186,23 @@ var _ = Describe("Deploy", func() {
 				},
 			}
 			deployer.Values = values
-			err := deployer.Deploy()
+			_, err := deployer.Deploy()
 			Expect(err).To(HaveOccurred())
 			Expect(err.Error()).To(ContainSubstring("(root): Must validate at least one schema (anyOf)"))
 		})
 	})
 })
+
+func isImageSourceValid(manifest, registry string) bool {
+	for _, line := range strings.Split(manifest, "\n") {
+		line = strings.TrimSpace(line)
+		if strings.HasPrefix(line, "image:") {
+			imageTarget := strings.Split(line, ": ")[1]
+			if !strings.Contains(imageTarget, registry) {
+				return false
+			}
+		}
+	}
+
+	return true
+}
