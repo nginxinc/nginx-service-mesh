@@ -219,8 +219,3 @@ The following table lists the configurable parameters of the NGINX Service Mesh 
 | `mtls.caKeyType` | The key type used for the SPIRE Server CA. Valid values: "ec-p256", "ec-p384", "rsa-2048", "rsa-4096". | ec-p256 |
 | `mtls.upstreamAuthority` | Upstream authority settings. If left empty, SPIRE is used as the upstream authority. See [values.yaml](https://github.com/nginxinc/nginx-service-mesh/blob/main/helm-chart/values.yaml) for how to configure. | {} |
 {{% /table %}}
-
-
-{{<important>}}
-Top level configuration items `enabledNamespaces` and `disableAutoInjection` have been added. The `autoInjection.enabledNamespaces` and `autoInjection.disable` configurables have been removed.
-{{</important>}}

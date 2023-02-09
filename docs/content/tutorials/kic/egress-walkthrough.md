@@ -40,11 +40,11 @@ If you want to view metrics for NGINX Ingress Controller, ensure that you have d
 
 1. Follow the installation [instructions]( {{< ref "/get-started/install.md" >}} ) to install NGINX Service Mesh on your Kubernetes cluster.
     
-    - When deploying the mesh set the [mTLS mode]( {{< ref "/guides/secure-traffic-mtls.md" >}} ) to `strict`  and add the `legacy` namespace as a [disabled namespace]( {{< ref "/guides/inject-sidecar-proxy.md#enable-or-disable-automatic-proxy-injection-by-namespace">}} ).
+    - When deploying the mesh set the [mTLS mode]( {{< ref "/guides/secure-traffic-mtls.md" >}} ) to `strict`  and [disable global auto-injection]( {{< ref "/guides/inject-sidecar-proxy.md#enable-or-disable-automatic-proxy-injection-by-namespace">}} ). Make sure not to add the `legacy` namespace as an enabled namespace.
     - Your deploy command should contain the following flags:
     
       ```bash
-      nginx-meshctl deploy ... --mtls-mode=strict --disabled-namespaces=legacy
+      nginx-meshctl deploy ... --mtls-mode=strict --disable-auto-inject --enabled-namespaces "default"
       ```
 
 1. Get the config of the mesh and verify that `mtls.mode` is `strict` and `enabledNamespaces` does not contain the `legacy` namespace:

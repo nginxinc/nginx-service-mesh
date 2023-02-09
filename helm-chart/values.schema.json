@@ -408,7 +408,7 @@
       "items": {
         "type": "string"
       },
-      "default": {}
+      "default": []
     },
     "tracing": {
       "description": "NGINX Service Mesh tracing settings",
