@@ -31,7 +31,7 @@ func NewHelmInvoker(kubeconfig, namespace string, deferredClientConfig clientcmd
 
 // HelmAction builds an action configuration for helm requests.
 func (hi *HelmInvoker) HelmAction(namespace string) (*action.Configuration, error) {
-	configFlags := genericclioptions.NewConfigFlags(true)
+	configFlags := genericclioptions.NewConfigFlags(false)
 	configFlags.Namespace = &namespace
 	configFlags.KubeConfig = &hi.kubeconfig
 

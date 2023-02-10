@@ -306,7 +306,7 @@
           "default": "docker-registry.nginx.com/nsm"
         },
         "imageTag": {
-          "description": "Tag used for pulling images from registry. ",
+          "description": "Tag used for pulling images from registry",
           "type": "string",
           "default": "2.0.0"
         },
