@@ -337,6 +337,88 @@ spec:
     port: 443
   version: v1alpha1
   versionPriority: 100
+---
+apiVersion: nsm.nginx.com/v1alpha2
+kind: MeshConfigClass
+metadata:
+  name: {{ .Release.Namespace }}-meshconfig-class
+  labels:
+    app.kubernetes.io/part-of: nginx-service-mesh
+spec:
+  controllerName: nsm.nginx.com/nginx-mesh-controller
+---
+apiVersion: nsm.nginx.com/v1alpha2
+kind: MeshConfig
+metadata:
+  name: nginx-mesh-config
+  labels:
+    app.kubernetes.io/part-of: nginx-service-mesh
+spec:
+  meshConfigClassName: {{ .Release.Namespace }}-meshconfig-class
+  accessControlMode: {{ .Values.accessControlMode }}
+  clientMaxBodySize: {{ .Values.clientMaxBodySize }}
+  disableAutoInjection: {{.Values.disableAutoInjection }}
+  enableUDP: {{ .Values.enableUDP }}
+  environment: {{ .Values.environment }}
+  enabledNamespaces: [{{ range $idx, $elem := .Values.enabledNamespaces }}{{if $idx}},{{end}}{{quote .}}{{ end }}]
+  mtls:
+    caKeyType: {{ .Values.mtls.caKeyType }}
+    caTTL: {{ .Values.mtls.caTTL }}
+    mode: {{ .Values.mtls.mode }}
+    svidTTL: {{ .Values.mtls.svidTTL }}
+    trustDomain: {{ .Values.mtls.trustDomain }}
+  namespace: {{ .Release.Namespace }}
+  nginxErrorLogLevel: {{ .Values.nginxErrorLogLevel }}
+  nginxLBMethod: {{ .Values.nginxLBMethod }}
+  nginxLogFormat: {{ .Values.nginxLogFormat }}
+  prometheusAddress: {{ .Values.prometheusAddress }}
+  registry:
+    disablePublicImages: {{ .Values.registry.disablePublicImages }}
+    imageTag: {{ .Values.registry.imageTag }}
+    imagePullPolicy: {{ .Values.registry.imagePullPolicy }}
+    registryKeyName: {{ if (include "docker-config-json" .) }}{{ include "registry-key-name" . }}{{ end }}
+    server: {{ .Values.registry.server}}
+    sidecarImage: {{ printf "%s/nginx-mesh-sidecar:%s" .Values.registry.server .Values.registry.imageTag }}
+    sidecarInitImage: {{ printf "%s/nginx-mesh-init:%s" .Values.registry.server .Values.registry.imageTag }}
+  {{ if .Values.telemetry }}
+  telemetry:
+    exporters:
+      otlp:
+        host: {{ .Values.telemetry.exporters.otlp.host }}
+        port: {{ .Values.telemetry.exporters.otlp.port }}
+    samplerRatio: {{ .Values.telemetry.samplerRatio }}
+  {{- end }}
+  transparent: false
+---
+apiVersion: nsm.nginx.com/v1alpha2
+kind: MeshDynamicConfig
+metadata:
+  name: nginx-mesh-dynamic-config
+  labels:
+    app.kubernetes.io/part-of: nginx-service-mesh
+spec:
+  meshConfigClassName: {{ .Release.Namespace }}-meshconfig-class
+  accessControlMode: {{ .Values.accessControlMode }}
+  clientMaxBodySize: {{ .Values.clientMaxBodySize }}
+  disableAutoInjection: {{.Values.disableAutoInjection }}
+  enabledNamespaces: [{{ range $idx, $elem := .Values.enabledNamespaces }}{{if $idx}},{{end}}{{quote .}}{{ end }}]
+  mtls:
+    caKeyType: {{ .Values.mtls.caKeyType }}
+    caTTL: {{ .Values.mtls.caTTL }}
+    mode: {{ .Values.mtls.mode }}
+    svidTTL: {{ .Values.mtls.svidTTL }}
+  nginxErrorLogLevel: {{ .Values.nginxErrorLogLevel }}
+  nginxLBMethod: {{ .Values.nginxLBMethod }}
+  nginxLogFormat: {{ .Values.nginxLogFormat }}
+  prometheusAddress: {{ .Values.prometheusAddress }}
+  {{ if .Values.telemetry }}
+  telemetry:
+    exporters:
+      otlp:
+        host: {{ .Values.telemetry.exporters.otlp.host }}
+        port: {{ .Values.telemetry.exporters.otlp.port }}
+    samplerRatio: {{ .Values.telemetry.samplerRatio }}
+  {{- end }}
 {{- if eq .Values.environment "openshift" }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
