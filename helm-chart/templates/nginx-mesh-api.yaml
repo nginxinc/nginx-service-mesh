@@ -139,6 +139,16 @@ binaryData:
   mesh-config.json: {{ tpl (.Files.Get "configs/mesh-config.conf") . | b64enc | quote }}
 ---
 apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: meshconfig
+  labels:
+    app.kubernetes.io/part-of: nginx-service-mesh
+data:
+  transparent: "false"
+  meshconfig.yaml: {{ tpl (.Files.Get "configs/meshconfig.yaml") . | quote }}
+---
+apiVersion: v1
 kind: Service
 metadata:
   name: nginx-mesh-api
@@ -418,6 +428,45 @@ spec:
     port: 443
   version: v1alpha1
   versionPriority: 100
+---
+apiVersion: nsm.nginx.com/v1alpha2
+kind: MeshConfigClass
+metadata:
+  name: {{ .Release.Namespace }}-meshconfig-class
+  labels:
+    app.kubernetes.io/part-of: nginx-service-mesh
+spec:
+  controllerName: nsm.nginx.com/nginx-mesh-controller
+---
+apiVersion: nsm.nginx.com/v1alpha2
+kind: MeshConfig
+metadata:
+  name: nginx-mesh-config
+  labels:
+    app.kubernetes.io/part-of: nginx-service-mesh
+spec:
+  meshConfigClassName: {{ .Release.Namespace }}-meshconfig-class
+  accessControlMode: {{ .Values.accessControlMode }}
+  clientMaxBodySize: {{ .Values.clientMaxBodySize }}
+  disableAutoInjection: {{.Values.disableAutoInjection }}
+  enabledNamespaces: [{{ range $idx, $elem := .Values.enabledNamespaces }}{{if $idx}},{{end}}{{quote .}}{{ end }}]
+  mtls:
+    caKeyType: {{ .Values.mtls.caKeyType }}
+    caTTL: {{ .Values.mtls.caTTL }}
+    mode: {{ .Values.mtls.mode }}
+    svidTTL: {{ .Values.mtls.svidTTL }}
+  nginxErrorLogLevel: {{ .Values.nginxErrorLogLevel }}
+  nginxLBMethod: {{ .Values.nginxLBMethod }}
+  nginxLogFormat: {{ .Values.nginxLogFormat }}
+  prometheusAddress: {{ .Values.prometheusAddress }}
+  {{ if .Values.telemetry }}
+  telemetry:
+    exporters:
+      otlp:
+        host: {{ .Values.telemetry.exporters.otlp.host }}
+        port: {{ .Values.telemetry.exporters.otlp.port }}
+    samplerRatio: {{ .Values.telemetry.samplerRatio }}
+  {{- end }}
 {{- if eq .Values.environment "openshift" }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1

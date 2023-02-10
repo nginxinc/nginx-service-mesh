@@ -169,6 +169,8 @@ var meshCRDs = map[string]struct{}{
 	"tcproutes.specs.smi-spec.io":         {},
 	"ratelimits.specs.smi.nginx.com":      {},
 	"circuitbreakers.specs.smi.nginx.com": {},
+	"meshconfigclasses.nsm.nginx.com":     {},
+	"meshconfigs.nsm.nginx.com":           {},
 }
 
 var errCRDAlreadyExists = errors.New("CRD already exists")
