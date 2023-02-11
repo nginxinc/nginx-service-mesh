@@ -410,14 +410,6 @@
       },
       "default": []
     },
-    "tracing": {
-      "description": "NGINX Service Mesh tracing settings",
-      "type": "object",
-      "oneOf": [
-        {"$ref": "#/definitions/tracingConfig"},
-        {"$ref": "#/definitions/emptyObject"}
-      ]
-    },
     "telemetry":{
       "description": "NGINX Service Mesh telemetry settings",
       "type": "object",
@@ -483,28 +475,6 @@
       },
       "required": ["samplerRatio", "exporters"]
     },
-    "tracingConfig": {
-      "properties": {
-        "sampleRate": {
-          "description": "The sample rate to use for tracing. Float between 0 and 1",
-          "type": "number",
-          "minimum": 0.0,
-          "maximum": 1.0
-        },
-        "backend": {
-          "description": "The tracing backend that you want to use",
-          "type": "string",
-          "enum": ["zipkin", "datadog", "jaeger"]
-        },
-        "address": {
-          "description": "The address of a tracing server deployed in your Kubernetes cluster",
-          "type": "string",
-          "minLength": 1
-        }
-      },
-      "required": ["address", "backend", "sampleRate"]
-    }
-  },
   "allOf": [
   {
     "if": {
@@ -528,18 +498,12 @@
       "properties": {
         "telemetry": {
           "$ref": "#/definitions/emptyObject"
-        },
-        "tracing": {
-          "$ref": "#/definitions/tracingConfig"
         }
       }
     },
     {
       "properties": {
         "telemetry": {
-          "$ref": "#/definitions/emptyObject"
-        },
-        "tracing": {
           "$ref": "#/definitions/emptyObject"
         }
       }
@@ -548,9 +512,6 @@
       "properties": {
         "telemetry": {
           "$ref": "#/definitions/telemetryConfig"
-        },
-        "tracing": {
-          "$ref": "#/definitions/emptyObject"
         }
       }
     }

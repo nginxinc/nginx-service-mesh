@@ -82,7 +82,6 @@ paths:
                     "image": "docker-registry.nginx.com/nsm/nginx-mesh-init:1.5.0",
                     "name": "nginx-mesh-init"
                   },
-                  "tracing": {},
                   "telemetry": {
                     "exporters": {
                       "otlp": {
@@ -200,7 +199,6 @@ paths:
                     "image": "docker-registry.nginx.com/nsm/nginx-mesh-init:1.5.0",
                     "name": "nginx-mesh-init"
                   },
-                  "tracing": {},
                   "telemetry": {
                     "exporters": {
                       "otlp": {
@@ -400,8 +398,6 @@ components:
           example: ""
         mtls:
           $ref: '#/components/schemas/MtlsConfig'
-        tracing:
-          $ref: '#/components/schemas/TraceConfig'
         telemetry:
           $ref: '#/components/schemas/TelemetryConfig'
         loadBalancingMethod:
@@ -459,7 +455,6 @@ components:
         - registryKeyName
         - mtls
         - injection
-        - tracing
         - telemetry
         - loadBalancingMethod
         - nginxErrorLogLevel
@@ -623,31 +618,6 @@ components:
       required:
         - name
         - image
-    TraceConfig:
-      deprecated: true
-      type: object
-      description: The configuration for tracing.
-      properties:
-        sampleRate:
-          deprecated: true
-          type: number
-          description: The percentage of traces that are processed and exported to the tracing backend.
-          format: float
-          minimum: 0
-          maximum: 1
-        backend:
-          deprecated: true
-          type: string
-          description: The name of the tracing backend.
-          enum:
-          - "zipkin"
-          - "jaeger"
-          - "datadog"
-        backendAddress:
-          deprecated: true
-          type: string
-          description: The address of the tracing backend. Must be reachable from the Kubernetes cluster that NGINX Service Mesh is installed in.
-          example: "jaeger.nginx-mesh.svc.cluster.local:6831"
       additionalProperties: false
     TelemetryConfig:
       type: object
@@ -791,8 +761,6 @@ components:
               pattern: "^\\d+[kKmMgG]?$"
             mtls:
               $ref: '#/components/schemas/MtlsConfig'
-            tracing:
-              $ref: '#/components/schemas/TraceConfig'
             telemetry:
               $ref: '#/components/schemas/TelemetryConfig'
           additionalProperties: false

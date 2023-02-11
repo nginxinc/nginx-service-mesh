@@ -68,10 +68,6 @@ This command installs the following resources into your Kubernetes cluster by de
       
       nginx-meshctl deploy ... --telemetry-exporters "type=otlp,host=otel-collector.my-namespace.svc.cluster.local,port=4317"
 
-  - Deploy the Service Mesh with a tracing server in your Kubernetes cluster (deprecated):
-
-      nginx-meshctl deploy ... --tracing-backend="jaeger" --tracing-address="my-jaeger-server.my-namespace.svc.cluster.local:6831"
-
   - Deploy the Service Mesh with upstream certificates and keys for mTLS:
 
       nginx-meshctl deploy ... --mtls-upstream-ca-conf="disk.yaml"
@@ -104,7 +100,6 @@ func Deploy() *cobra.Command {
 		imageMeshCertReloader string
 		imageSidecar          string
 		imageSidecarInit      string
-		tracing               helm.Tracing
 		telemetry             telemetryConfig
 	)
 
@@ -123,7 +118,7 @@ func Deploy() *cobra.Command {
 
 	cmd.PersistentPreRunE = defaultPreRunFunc()
 	cmd.RunE = func(cmd *cobra.Command, args []string) error {
-		if err = setTracingAndTelemetryValues(telemetry, tracing, values); err != nil {
+		if err = setTelemetryValues(telemetry, values); err != nil {
 			return err
 		}
 		// custom input validation for complex fields
@@ -221,47 +216,6 @@ func Deploy() *cobra.Command {
 		`enable automatic sidecar injection for specific namespaces
 		Must be used with --disable-auto-inject`,
 	)
-	cmd.Flags().Float32Var(
-		&tracing.SampleRate,
-		"sample-rate",
-		defaultValues.Tracing.SampleRate,
-		`the sample rate to use for tracing
-		Float between 0 and 1`,
-	)
-	err = cmd.Flags().MarkDeprecated("sample-rate",
-		"and will be removed in a future release. OpenTelemetry (--sampler-ratio and --telemetry-exporters) "+
-			"is the preferred way to configure tracing.")
-	if err != nil {
-		fmt.Println("error marking flag as deprecated: ", err)
-	}
-
-	cmd.Flags().StringVar(
-		&tracing.Backend,
-		"tracing-backend",
-		defaultValues.Tracing.Backend,
-		`the tracing backend that you want to use
-		Valid values: `+formatValues(mesh.TracingBackends),
-	)
-	err = cmd.Flags().MarkDeprecated("tracing-backend",
-		"and will be removed in a future release. OpenTelemetry (--telemetry-exporters) "+
-			"is the preferred way to configure tracing.")
-	if err != nil {
-		fmt.Println("error marking flag as deprecated: ", err)
-	}
-
-	cmd.Flags().StringVar(
-		&tracing.Address,
-		"tracing-address",
-		defaultValues.Tracing.Address,
-		`the address of a tracing server deployed in your Kubernetes cluster
-		Address should be in the format <service-name>.<namespace>:<service_port>. Cannot be used with --telemetry-exporters.`,
-	)
-	err = cmd.Flags().MarkDeprecated("tracing-address",
-		"and will be removed in a future release. OpenTelemetry (--telemetry-exporters) "+
-			"is the preferred way to configure tracing.")
-	if err != nil {
-		fmt.Println("error marking flag as deprecated: ", err)
-	}
 	cmd.Flags().StringVar(
 		&values.PrometheusAddress,
 		"prometheus-address",
@@ -457,7 +411,7 @@ func Deploy() *cobra.Command {
 		nil,
 		`list of telemetry exporter key-value configurations
 		Format: "type=<exporter_type>,host=<exporter_host>,port=<exporter_port>".
-		Type, host, and port are required. Only type "otlp" exporter is supported. Cannot be used with --tracing-address.`,
+		Type, host, and port are required. Only type "otlp" exporter is supported.`,
 	)
 	cmd.Flags().Float32Var(
 		&telemetry.samplerRatio,
@@ -471,15 +425,11 @@ func Deploy() *cobra.Command {
 }
 
 var (
-	errTracingBackend = errors.New("unknown tracing server")
-	errInvalidConfig  = errors.New("invalid configuration")
+	errInvalidConfig = errors.New("invalid configuration")
 )
 
-func setTracingAndTelemetryValues(telemetry telemetryConfig, tracing helm.Tracing, values *helm.Values) error {
+func setTelemetryValues(telemetry telemetryConfig, values *helm.Values) error {
 	if len(telemetry.exporters) > 0 {
-		if tracing.Address != "" {
-			return fmt.Errorf("%w: cannot set both --tracing-address and --telemetry-exporters", errInvalidConfig)
-		}
 		if len(telemetry.exporters) != 1 {
 			return fmt.Errorf("%w: only one telemetry exporter may be configured", errInvalidConfig)
 		}
@@ -494,28 +444,6 @@ func setTracingAndTelemetryValues(telemetry telemetryConfig, tracing helm.Tracin
 
 		if err := convertTelemetryOpsToHelmValues(exporterMap, telemetry.samplerRatio, values); err != nil {
 			return err
-		}
-	} else {
-		// set validate tracing backend and set values
-		invalidTracingMessage := "both --tracing-address and --tracing-backend must be set"
-		if tracing.Address != "" {
-			if tracing.Backend == "" {
-				return fmt.Errorf("%w: %s", errInvalidConfig, invalidTracingMessage)
-			}
-		} else if tracing.Backend != "" {
-			return fmt.Errorf("%w: %s", errInvalidConfig, invalidTracingMessage)
-		}
-
-		if tracing.Address != "" && tracing.Backend != "" {
-			if _, ok := mesh.TracingBackends[tracing.Backend]; !ok {
-				return fmt.Errorf("%w \"%s\". Valid values: %v", errTracingBackend, tracing.Backend, formatValues(mesh.TracingBackends))
-			}
-
-			values.Tracing = &helm.Tracing{
-				Address:    tracing.Address,
-				Backend:    tracing.Backend,
-				SampleRate: tracing.SampleRate,
-			}
 		}
 	}
 

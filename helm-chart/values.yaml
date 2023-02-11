@@ -70,8 +70,7 @@ enabledNamespaces: []
 prometheusAddress: ""
 
 # NGINX Service Mesh telemetry settings.
-# Cannot be set when tracing is set.
-# To enable telemetry, uncomment the following object and set the tracing object to {}.
+# To enable telemetry, uncomment the following object
 telemetry: {}
 #   # The percentage of traces that are processed and exported to the telemetry backend. Float between 0 and 1.
 #   samplerRatio: 0.01
@@ -84,21 +83,6 @@ telemetry: {}
 #       # The port of the OpenTelemetry gRPC exporter to connect to.
 #       port: 4317
   
-# NGINX Service Mesh tracing settings. Deprecated in favor of telemetry.
-# Cannot be set when telemetry is set.
-# If deploying with tracing, uncomment the following object and set the telemetry object to {}.
-tracing: {}
-  # The address of a tracing server deployed in your Kubernetes cluster.
-  # Address should be in the format <service-name>.<namespace>:<service_port>.
-  # address: ""
-
-  # The tracing backend that you want to use.
-  # Valid values: datadog, jaeger, zipkin
-  # backend: ""
-
-  # The sample rate to use for tracing. Float between 0 and 1.
-  # sampleRate: 0.01
-
 # Mutual TLS settings. See https://docs.nginx.com/nginx-service-mesh/guides/secure-traffic-mtls for more info.
 mtls:
   # mTLS mode for pod-to-pod communication.
