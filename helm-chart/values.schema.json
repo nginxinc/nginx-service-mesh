@@ -474,7 +474,8 @@
         }
       },
       "required": ["samplerRatio", "exporters"]
-    },
+    }
+  },
   "allOf": [
   {
     "if": {

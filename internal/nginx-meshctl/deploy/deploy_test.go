@@ -139,20 +139,6 @@ var _ = Describe("Deploy", func() {
 			Expect(err.Error()).To(ContainSubstring("accessControlMode must be one of the following"))
 		})
 
-		It("validates tracing fields", func() {
-			values := &helm.Values{
-				Tracing: &helm.Tracing{
-					Backend:    "invalid",
-					SampleRate: 5.0,
-				},
-				Telemetry: nil,
-			}
-			deployer.Values = values
-			_, err := deployer.Deploy()
-			Expect(err).To(HaveOccurred())
-			Expect(err.Error()).To(ContainSubstring("tracing.backend must be one of the following"))
-			Expect(err.Error()).To(ContainSubstring("tracing.sampleRate: Must be less than or equal to 1"))
-		})
 		It("validates telemetry fields", func() {
 			values := &helm.Values{
 				DisableAutoInjection: true,
@@ -167,28 +153,6 @@ var _ = Describe("Deploy", func() {
 			_, err := deployer.Deploy()
 			Expect(err).To(HaveOccurred())
 			Expect(err.Error()).To(ContainSubstring("telemetry.samplerRatio: Must be less than or equal to 1"))
-		})
-		It("validates that telemetry and tracing are not both set", func() {
-			values := &helm.Values{
-				Telemetry: &helm.Telemetry{
-					SamplerRatio: 1,
-					Exporters: &helm.Exporter{
-						OTLP: &helm.OTLP{
-							Host: "otel-collector",
-							Port: 4317,
-						},
-					},
-				},
-				Tracing: &helm.Tracing{
-					Backend:    "jaeger",
-					SampleRate: 0.5,
-					Address:    "",
-				},
-			}
-			deployer.Values = values
-			_, err := deployer.Deploy()
-			Expect(err).To(HaveOccurred())
-			Expect(err.Error()).To(ContainSubstring("(root): Must validate at least one schema (anyOf)"))
 		})
 	})
 })

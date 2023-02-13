@@ -39,20 +39,5 @@ func (config *MeshConfig) CheckForInvalidConfig(k8sClient client.Client) error {
 		}
 	}
 
-	if config.Tracing.BackendAddress != nil && *config.Tracing.BackendAddress != "" {
-		if config.Tracing.Backend == nil || *config.Tracing.Backend == "" {
-			return errors.New("invalid configuration: if tracing.backendAddress is specified " +
-				"tracing.backend must also be specified")
-		}
-		if config.Telemetry.Exporters != nil {
-			return errors.New("invalid configuration: tracing and telemetry cannot both be enabled. " +
-				"Either set 'tracing.isEnabled' to 'false', set 'tracing' to an empty object, or set 'telemetry' " +
-				"to an empty object")
-		}
-	} else if config.Tracing.Backend != nil && *config.Tracing.Backend != "" {
-		return errors.New("invalid configuration: if tracing.backend is specified " +
-			"tracing.backendAddress must also be specified")
-	}
-
 	return nil
 }
