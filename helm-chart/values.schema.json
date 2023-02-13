@@ -399,73 +399,16 @@
     },
     "disableAutoInjection": {
       "description": "Disable automatic sidecar injection upon resource creation",
-      "type": "boolean"
+      "type": "boolean",
+      "default": false
     },
     "enabledNamespaces": {
       "description": "Enable automatic sidecar injection for specific namespaces",
       "type": "array",
       "items": {
         "type": "string"
-      }
-    },
-    "autoInjection": {
-      "description": "NGINX Service Mesh auto-injection settings",
-      "type": "object",
-      "properties": {
-        "disable": {
-          "description": "Disable automatic sidecar injection upon resource creation",
-          "type": "boolean"
-        },
-        "disabledNamespaces": {
-          "description": "Disable automatic sidecar injection for specific namespace",
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        },
-        "enabledNamespaces": {
-          "description": "Enable automatic sidecar injection for specific namespaces",
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        }
       },
-      "allOf": [
-        {
-          "if": {
-            "properties": {
-              "disable": {
-                "const": true
-              }
-            }
-          },
-          "then":{
-            "properties": {
-              "disabledNamespaces": {
-                "$ref": "#/definitions/emptyArray"
-              }
-            }
-          }
-        },
-        {
-          "if": {
-            "properties": {
-              "disable": {
-                "const": false
-              }
-            }
-          },
-          "then":{
-            "properties": {
-              "enabledNamespaces": {
-                "$ref": "#/definitions/emptyArray"
-              }
-            }
-          }
-        }
-      ],
-      "required": ["disable"]
+      "default": []
     },
     "tracing": {
       "description": "NGINX Service Mesh tracing settings",
@@ -578,26 +521,6 @@
         }
       }
     }
-  },
-  {
-    "if": {
-      "properties": {
-        "disableAutoInjection": {
-          "const": true
-        }
-      }
-    },
-    "then":{
-      "properties": {
-        "autoInjection": {
-          "properties": {
-            "disabledNamespaces": {
-              "$ref": "#/definitions/emptyArray"
-            }
-          }
-        }
-      }
-    }
   }
 ],
   "anyOf": [
@@ -640,7 +563,6 @@
     "nginxErrorLogLevel",
     "nginxLogFormat",
     "nginxLBMethod",
-    "autoInjection",
     "disableAutoInjection"
   ]
 }

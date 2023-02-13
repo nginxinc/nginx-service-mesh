@@ -306,15 +306,9 @@ var _ = Describe("Deploy", func() {
 			values.EnabledNamespaces = []string{"ns"}
 			runTest(values, "", "invalid configuration: enabled namespaces should not be set")
 		})
-		It("makes sure disabled namespaces aren't provided when injection is disabled", func() {
-			values.AutoInjection.DisabledNamespaces = []string{"ns"}
-			values.DisableAutoInjection = true
-			runTest(values, "", "invalid configuration: disabled namespaces should not be set")
-		})
 		It("passes if everything is valid", func() {
 			values.Registry.Username = user
 			values.Registry.Password = password
-			values.AutoInjection.DisabledNamespaces = []string{"ns"}
 			runTest(values, "", "")
 		})
 	})
