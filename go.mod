@@ -9,7 +9,7 @@ require (
 	github.com/getkin/kin-openapi v0.114.0
 	github.com/labstack/echo/v4 v4.10.0
 	github.com/maxbrunsfeld/counterfeiter/v6 v6.6.1
-	github.com/nats-io/nats-server/v2 v2.9.12
+	github.com/nats-io/nats-server/v2 v2.9.14
 	github.com/nats-io/nats.go v1.23.0
 	github.com/onsi/ginkgo/v2 v2.8.0
 	github.com/onsi/gomega v1.26.0
