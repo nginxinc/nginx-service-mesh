@@ -334,9 +334,8 @@ func (u *upgrader) savePreviousConfig(meshConfig mesh.MeshConfig) {
 	u.values.MTLS.CATTL = *meshConfig.Mtls.CaTTL
 	u.values.MTLS.SVIDTTL = *meshConfig.Mtls.SvidTTL
 	u.values.MTLS.Mode = string(*meshConfig.Mtls.Mode)
-	u.values.DisableAutoInjection = !*meshConfig.Injection.IsAutoInjectEnabled
-	u.values.EnabledNamespaces = *meshConfig.Injection.EnabledNamespaces
-	u.values.AutoInjection.DisabledNamespaces = *meshConfig.Injection.DisabledNamespaces
+	u.values.DisableAutoInjection = !*meshConfig.IsAutoInjectEnabled
+	u.values.EnabledNamespaces = *meshConfig.EnabledNamespaces
 	u.values.ClientMaxBodySize = meshConfig.ClientMaxBodySize
 
 	if meshConfig.Tracing != (mesh.TraceConfig{}) {

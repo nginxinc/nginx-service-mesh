@@ -69,22 +69,6 @@ enabledNamespaces: []
 # Address should be in the format <service-name>.<namespace>:<service-port>.
 prometheusAddress: ""
 
-# This block has been deprecated and will be removed in a future release of NGINX Service Mesh. Please use top level values disableAutoInjection and enabledNamespaces.
-# NGINX Service Mesh auto-injection settings.
-autoInjection:
-  # Deprecated and will be removed in a future release of NGINX Service Mesh.
-  # Disable automatic sidecar injection upon resource creation.
-  # Use the "enabledNamespaces" flag to enable automatic injection in select namespaces.
-  disable: false
-
-  # Disable automatic sidecar injection for specific namespaces.
-  # Cannot be used with "disable".
-  disabledNamespaces: []
-
-  # Enable automatic sidecar injection for specific namespaces.
-  # Must be used with "disable".
-  enabledNamespaces: []
-
 # NGINX Service Mesh telemetry settings.
 # Cannot be set when tracing is set.
 # To enable telemetry, uncomment the following object and set the tracing object to {}.

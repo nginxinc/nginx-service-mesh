@@ -72,19 +72,6 @@ For example, to disable automatic injection in all namespaces and enable it only
 nginx-meshctl deploy ... --disable-auto-inject --enabled-namespaces="prod,staging"
 ```
 
-{{<important>}}
-In an upcoming version, NGINX Service Mesh will be removing the `--disabled-namespaces` flag.
-{{</important>}}
-
-Similarly, you can deploy NGINX Service Mesh with automatic injection enabled and specify a list of the namespaces that you want to exclude.
-To do so, use the `--disabled-namespaces` flag when you deploy.
-
-The following deploy command enables automatic injection in all namespaces *except* "test":
-
-```bash
-nginx-meshctl deploy ... --disabled-namespaces="test"
-```
-
 {{< note >}}
 If you need to [modify the auto injection settings]( {{< ref "api-usage.md#modify-the-mesh-state-by-using-the-rest-api" >}} ) after you've deployed NGINX Service Mesh, you can do so by using the REST API.
 {{< /note >}}

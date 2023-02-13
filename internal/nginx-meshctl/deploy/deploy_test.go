@@ -105,19 +105,6 @@ var _ = Describe("Deploy", func() {
 			}
 		})
 
-		It("validates autoInjection input", func() {
-			values := &helm.Values{
-				DisableAutoInjection: true,
-				AutoInjection:        helm.AutoInjection{DisabledNamespaces: []string{"test-ns"}},
-			}
-			deployer.Values = values
-			values.DisableAutoInjection = true
-			values.AutoInjection.DisabledNamespaces = []string{"some-ns"}
-			_, err := deployer.Deploy()
-			Expect(err).To(HaveOccurred())
-			Expect(err.Error()).To(ContainSubstring("autoInjection.disabledNamespaces: Array must have at most 0 items"))
-		})
-
 		It("validates nginx fields", func() {
 			values := &helm.Values{
 				NGINXErrorLogLevel: "invalid",
@@ -174,7 +161,8 @@ var _ = Describe("Deploy", func() {
 				},
 				Tracing: nil,
 			}
-			values.AutoInjection.DisabledNamespaces = []string{"some-ns"}
+			values.DisableAutoInjection = true
+			values.EnabledNamespaces = []string{"default"}
 			deployer.Values = values
 			_, err := deployer.Deploy()
 			Expect(err).To(HaveOccurred())

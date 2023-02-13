@@ -161,8 +161,6 @@ OpenTracing is deprecated in favor of OpenTelemetry. As a result, the following 
                                           		Address should be in the format <service-name>.<namespace>:<service_port>. Cannot be used with --telemetry-exporters.
       --tracing-backend string            the tracing backend that you want to use
                                           		Valid values: datadog, jaeger, zipkin
-      --disabled-namespaces strings       disable automatic sidecar injection for specific namespaces
-                                          		Cannot be used with --disable-auto-inject
 
 ### Deploy Examples
 
@@ -183,10 +181,6 @@ Most of the examples below show shortened commands for convenience. The '...' in
 - Deploy the Service Mesh and only allow automatic injection in namespace "my-namespace":
 
     `nginx-meshctl deploy ... --disable-auto-inject --enabled-namespaces="my-namespace"`
-
-- Deploy the Service Mesh and disallow automatic injection in namespaces "my-namespace-1" and "my-namespace-2 (deprecated)"
-
-    `nginx-meshctl deploy ... --disabled-namespaces="my-namespace-1,my-namespace-2"`
 
 - Deploy the Service Mesh and enable telemetry traces to be exported to your OTLP gRPC collector running in your Kubernetes cluster:
      
