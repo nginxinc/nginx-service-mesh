@@ -36,11 +36,6 @@ paths:
                   "autoInjectorPort": 9443,
                   "clientMaxBodySize": "1m",
                   "environment": "kubernetes",
-                  "injection": {
-                    "disabledNamespaces": [],
-                    "enabledNamespaces": [],
-                    "isAutoInjectEnabled": true
-                  },
                   "loadBalancingMethod": "round_robin",
                   "mtls": {
                     "caKeyType": "ec-p256",
@@ -126,17 +121,13 @@ paths:
                 {
                   "op": "replace",
                   "field": {
-                    "injection": {
-                      "isAutoInjectEnabled": false
-                    }
+                    "isAutoInjectEnabled": false
                   }
                 },
                 {
                   "op": "add",
                   "field": {
-                    "injection": {
-                      "enabledNamespaces": [ "prod", "staging" ]
-                    }
+                    "enabledNamespaces": [ "prod", "staging" ]
                   }
                 }
               ]
@@ -158,14 +149,11 @@ paths:
                   "autoInjectorPort": 9443,
                   "clientMaxBodySize": "1m",
                   "environment": "kubernetes",
-                  "injection": {
-                    "disabledNamespaces": [],
-                    "enabledNamespaces": [
+                  "enabledNamespaces": [
                       "prod",
                       "staging"
-                    ],
-                    "isAutoInjectEnabled": false
-                  },
+                ],
+                  "isAutoInjectEnabled": false,
                   "loadBalancingMethod": "round_robin",
                   "mtls": {
                     "caKeyType": "ec-p256",
@@ -490,8 +478,6 @@ components:
           example: ""
         mtls:
           $ref: '#/components/schemas/MtlsConfig'
-        injection:
-          $ref: '#/components/schemas/InjectConfig'
         tracing:
           $ref: '#/components/schemas/TraceConfig'
         telemetry:
@@ -715,29 +701,6 @@ components:
       required:
         - name
         - image
-    InjectConfig:
-      type: object
-      description: The configuration for injection of the NGINX Service Mesh sidecar.
-      deprecated: true
-      properties:
-        isAutoInjectEnabled:
-          type: boolean
-          description: Whether or not automatic injection of the NGINX Service Mesh sidecar is enabled. This value can be overridden on a per-Pod basis with a Pod annotation.
-          example: true
-        enabledNamespaces:
-          type: array
-          description: A list of namespaces where automatic injection is enabled. To set this field, the isAutoInjectEnabled field must be false.
-          example: [ ]
-          items:
-            type: string
-        disabledNamespaces:
-          type: array
-          deprecated: true
-          description: A list of namespaces where automatic injection is disabled. To set this field, the isAutoInjectEnabled field must be true.
-          example: []
-          items:
-            type: string
-      additionalProperties: false
     TraceConfig:
       deprecated: true
       type: object
@@ -906,8 +869,6 @@ components:
               pattern: "^\\d+[kKmMgG]?$"
             mtls:
               $ref: '#/components/schemas/MtlsConfig'
-            injection:
-              $ref: '#/components/schemas/InjectConfig'
             tracing:
               $ref: '#/components/schemas/TraceConfig'
             telemetry:

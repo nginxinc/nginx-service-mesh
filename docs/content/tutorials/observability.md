@@ -36,7 +36,7 @@ Install NGINX Service Mesh and configure it to integrate with the observability 
 Using the CLI:
 
 ```bash
-nginx-meshctl deploy --prometheus-address "prometheus.nsm-monitoring.svc:9090" --telemetry-exporters "type=otlp,host=otel-collector.nsm-monitoring.svc,port=4317" --telemetry-sampler-ratio 1 --disabled-namespaces "nsm-monitoring"
+nginx-meshctl deploy --prometheus-address "prometheus.nsm-monitoring.svc:9090" --telemetry-exporters "type=otlp,host=otel-collector.nsm-monitoring.svc,port=4317" --telemetry-sampler-ratio 1 --disable-auto-inject --enabled-namespaces "default"
 ```
 
 Using Helm:
@@ -45,7 +45,7 @@ Using Helm:
 helm repo add nginx-stable https://helm.nginx.com/stable
 helm repo update
 
-helm install nsm nginx-stable/nginx-service-mesh --namespace nginx-mesh --create-namespace --wait --set prometheusAddress=prometheus.nsm-monitoring.svc:9090 --set telemetry.exporters.otlp.host=otel-collector.nsm-monitoring.svc --set telemetry.exporters.otlp.port=4317 --set telemetry.samplerRatio=1 --set tracing=null --set autoInjection.disabledNamespaces={"nsm-monitoring"}
+helm install nsm nginx-stable/nginx-service-mesh --namespace nginx-mesh --create-namespace --wait --set prometheusAddress=prometheus.nsm-monitoring.svc:9090 --set telemetry.exporters.otlp.host=otel-collector.nsm-monitoring.svc --set telemetry.exporters.otlp.port=4317 --set telemetry.samplerRatio=1 --set tracing=null --set disableAutoInjection=true --set enabledNamespaces={"default"}
 ```
 
 {{< note >}}

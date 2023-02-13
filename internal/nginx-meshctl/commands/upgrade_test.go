@@ -51,11 +51,6 @@ func createMeshConfigMap(client kubernetes.Interface, namespace string, telemetr
 		"mode": "permissive",
 		"svidTTL": "1h"
 	},
-	"injection": {
-		"disabledNamespaces": [],
-		"enabledNamespaces": [],
-		"isAutoInjectEnabled": true
-	},
 	%s,
 	"sidecarImage": {
 		"name": "should-not-change",
@@ -65,6 +60,8 @@ func createMeshConfigMap(client kubernetes.Interface, namespace string, telemetr
 		"name": "should-not-change",
 		"image": "nginx-mesh-init:old"
 	},
+	"isAutoInjectEnabled": true,
+	"enabledNamespaces": [],
 	"loadBalancingMethod": "round_robin",
 	"accessControlMode": "deny",
 	"nginxErrorLogLevel": "warn",
