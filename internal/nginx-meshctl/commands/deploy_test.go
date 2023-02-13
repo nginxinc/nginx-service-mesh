@@ -200,26 +200,13 @@ var _ = Describe("Deploy", func() {
 		Expect(err).To(HaveOccurred())
 	})
 	Context("set tracing and telemetry values", func() {
-		It("sets tracing fields correctly when telemetry is not provided", func() {
-			tracing := helm.Tracing{
-				Address:    "tracing-address",
-				Backend:    "zipkin",
-				SampleRate: 0.4,
-			}
-			values := &helm.Values{}
-			Expect(setTracingAndTelemetryValues(telemetryConfig{}, tracing, values)).To(Succeed())
-			Expect(values.Telemetry).To(BeNil())
-			Expect(values.Tracing).ToNot(BeNil())
-			Expect(*values.Tracing).To(Equal(tracing))
-		})
-		It("sets telemetry fields correctly when tracing addr is not provided", func() {
+		It("sets telemetry fields correctly", func() {
 			tel := telemetryConfig{
 				exporters:    []string{"type=otlp,host=host,port=4000"},
 				samplerRatio: 0.1,
 			}
 			values := &helm.Values{}
-			Expect(setTracingAndTelemetryValues(tel, helm.Tracing{}, values)).To(Succeed())
-			Expect(values.Tracing).To(BeNil())
+			Expect(setTelemetryValues(tel, values)).To(Succeed())
 			Expect(values.Telemetry).ToNot(BeNil())
 			Expect(values.Telemetry.SamplerRatio).To(Equal(tel.samplerRatio))
 			Expect(values.Telemetry.Exporters).ToNot(BeNil())
@@ -227,46 +214,14 @@ var _ = Describe("Deploy", func() {
 			Expect(values.Telemetry.Exporters.OTLP.Host).To(Equal("host"))
 			Expect(values.Telemetry.Exporters.OTLP.Port).To(Equal(4000))
 		})
-		It("returns an error if telemetry exporters and tracing addr are both provided", func() {
-			tel := telemetryConfig{
-				exporters:    []string{"type=otlp,host=host,port=4000"},
-				samplerRatio: 0.1,
-			}
-			tracing := helm.Tracing{
-				Address:    "tracing-address",
-				Backend:    "zipkin",
-				SampleRate: 0.4,
-			}
-			err := setTracingAndTelemetryValues(tel, tracing, &helm.Values{})
-			Expect(err).To(HaveOccurred())
-			Expect(err.Error()).To(ContainSubstring("invalid configuration: cannot set both --tracing-address and --telemetry-exporters"))
-		})
 		It("returns an error if telemetry exporters list is greater than 1", func() {
 			tel := telemetryConfig{
 				exporters:    []string{"type=otlp,host=host,port=4000", "some-other-config"},
 				samplerRatio: 0.1,
 			}
-			err := setTracingAndTelemetryValues(tel, helm.Tracing{}, &helm.Values{})
+			err := setTelemetryValues(tel, &helm.Values{})
 			Expect(err).To(HaveOccurred())
 			Expect(err.Error()).To(ContainSubstring("only one telemetry exporter may be configured"))
-		})
-		It("validates tracing backend", func() {
-			// invalid backend
-			tracing := helm.Tracing{
-				Backend: "invalid",
-				Address: "testaddr",
-			}
-			err := setTracingAndTelemetryValues(telemetryConfig{}, tracing, &helm.Values{})
-			Expect(err).To(HaveOccurred())
-			Expect(err.Error()).To(ContainSubstring("unknown tracing server"))
-
-			// no address for datadog backend
-			tracing = helm.Tracing{
-				Backend: string(mesh.Datadog),
-			}
-			err = setTracingAndTelemetryValues(telemetryConfig{}, tracing, &helm.Values{})
-			Expect(err).To(HaveOccurred())
-			Expect(err.Error()).To(ContainSubstring("both --tracing-address and --tracing-backend must be set"))
 		})
 	})
 	Context("can validate input", func() {

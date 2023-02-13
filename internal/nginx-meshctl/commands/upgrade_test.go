@@ -3,7 +3,6 @@ package commands
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"os"
 	"time"
 
@@ -20,38 +19,26 @@ import (
 	"github.com/nginxinc/nginx-service-mesh/pkg/k8s/fake"
 )
 
-func createMeshConfigMap(client kubernetes.Interface, namespace string, telemetry bool) {
-	traceConf := `
-	"tracing": {
-		"backend": "jaeger",
-		"backendAddress": "jaeger.nginx-mesh.svc.cluster.local:6831",
-		"isEnabled": true,
-		"sampleRate": 0.5
-	}`
-	if telemetry {
-		traceConf = `
-			"telemetry": {
-				"samplerRatio": 0.1,
-				"exporters": {
-					"otlp": {
-						"host": "host",
-						"port": 4317
-					}
-				}
-			}`
-	}
-
+func createMeshConfigMap(client kubernetes.Interface, namespace string) {
 	cfgMap := &v1.ConfigMap{
 		ObjectMeta: metav1.ObjectMeta{Namespace: namespace, Name: mesh.MeshConfigMap},
 		BinaryData: map[string][]byte{
-			mesh.MeshConfigFileName: []byte(fmt.Sprintf(`{
+			mesh.MeshConfigFileName: []byte(`{
 	"mtls": {
 		"caKeyType": "ec-p256",
 		"caTTL": "720h",
 		"mode": "permissive",
 		"svidTTL": "1h"
 	},
-	%s,
+	"telemetry": {
+		"samplerRatio": 0.1,
+		"exporters": {
+			"otlp": {
+				"host": "host",
+				"port": 4317
+			}
+		}
+	},
 	"sidecarImage": {
 		"name": "should-not-change",
 		"image": "nginx-mesh-sidecar:old"
@@ -67,7 +54,7 @@ func createMeshConfigMap(client kubernetes.Interface, namespace string, telemetr
 	"nginxErrorLogLevel": "warn",
 	"nginxLogFormat": "default",
 	"clientMaxBodySize": "1m"
-}`, traceConf)),
+}`),
 		},
 	}
 	_, err := client.CoreV1().ConfigMaps(namespace).Create(context.TODO(), cfgMap, metav1.CreateOptions{})
@@ -87,21 +74,8 @@ var _ = Describe("Upgrade", func() {
 	})
 
 	Context("upgrades the mesh", func() {
-		It("upgrades the mesh using tracing config", func() {
-			telemetry := false
-			createMeshConfigMap(fakeK8s.ClientSet(), fakeK8s.Namespace(), telemetry)
-
-			Expect(upg.upgrade("x.x.x")).To(Succeed())
-			// check some values
-			Expect(upg.values.Registry.ImageTag).To(Equal("x.x.x"))
-			Expect(upg.values.AccessControlMode).To(Equal("deny"))
-			Expect(upg.values.Tracing.SampleRate).To(Equal(float32(0.5)))
-			Expect(upg.values.Tracing.Backend).To(Equal("jaeger"))
-		})
-
 		It("upgrades the mesh using telemetry config", func() {
-			telemetry := true
-			createMeshConfigMap(fakeK8s.ClientSet(), fakeK8s.Namespace(), telemetry)
+			createMeshConfigMap(fakeK8s.ClientSet(), fakeK8s.Namespace())
 
 			Expect(upg.upgrade("x.x.x")).To(Succeed())
 			// check some values
