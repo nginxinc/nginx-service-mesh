@@ -4,6 +4,8 @@ go 1.19
 
 replace github.com/servicemeshinterface/smi-controller-sdk => github.com/sjberman/smi-controller-sdk v0.0.0-20221228160702-f642bac3bdf9
 
+replace github.com/chzyer/logex v1.1.10 => github.com/chzyer/logex v1.2.0
+
 require (
 	github.com/deepmap/oapi-codegen v1.12.4
 	github.com/getkin/kin-openapi v0.114.0
