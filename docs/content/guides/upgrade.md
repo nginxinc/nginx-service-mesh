@@ -20,10 +20,6 @@ Incompatibilities between previous and current versions may require specific ste
 - [Manual Upgrade](#manual-upgrade)
 - [Upgrade to 1.7.0 in OpenShift](#upgrade-to-170-in-openshift)
 
-{{< important >}}
-When upgrading from v1.4 to v1.5, Prometheus, Grafana, and Jaeger/Zipkin instances that were deployed by NGINX Service Mesh will be removed, and data within these services will be lost. To deploy and integrate your own instances of these services in v1.5, refer to the [Monitoring and Tracing]( {{< ref "/guides/monitoring-and-tracing.md" >}} ) guide.
-{{< /important >}}
-
 ## In-Place Upgrade
 
 {{< important >}}
