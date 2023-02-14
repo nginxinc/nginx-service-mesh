@@ -113,7 +113,7 @@ NGINX Service Mesh distributes a number of images and pulls additional publicly-
 NGINX Service Mesh images are pulled in automatically when deploying the mesh. However, if desired, you can manually download and push them to your own container registry that your cluster can access.
 
 {{< important >}}
-To ensure compatibility, the image versions need to match the version of `nginx-meshctl` that you downloaded. If using Helm, the image versions need to match the chart's `appVersion`.
+To ensure compatibility, the image versions need to match the version of `nginx-meshctl` that you downloaded. If using Helm, the image versions need to match the chart's `version`.
 {{< /important >}}
 
 When deploying NGINX Service Mesh using `nginx-meshctl`, set the `--registry-server` flag to your registry. If using Helm, set the `registry.server` field to your registry.

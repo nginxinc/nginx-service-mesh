@@ -110,7 +110,7 @@ Flags:
                                           		Valid values: kubernetes, openshift (default "kubernetes")
   -h, --help                              help for deploy
       --image-tag string                  tag used for pulling images from registry
-                                          		Affects: nginx-mesh-api, nginx-mesh-cert-reloader, nginx-mesh-init, nginx-mesh-metrics, nginx-mesh-sidecar (default "1.7.0")
+                                          		Affects: nginx-mesh-api, nginx-mesh-cert-reloader, nginx-mesh-init, nginx-mesh-metrics, nginx-mesh-sidecar (default "2.0.0")
       --mtls-ca-key-type string           the key type used for the SPIRE Server CA
                                           		Valid values: ec-p256, ec-p384, rsa-2048, rsa-4096 (default "ec-p256")
       --mtls-ca-ttl string                the CA/signing key TTL in hours(h). Min value 24h. Max value 999999h. (default "720h")

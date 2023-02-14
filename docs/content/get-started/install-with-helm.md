@@ -39,7 +39,7 @@ This step is required if you're installing the chart using its sources. Addition
 ```bash
 git clone https://github.com/nginxinc/nginx-service-mesh
 cd nginx-service-mesh/helm-chart
-git checkout v1.7.0
+git checkout v2.0.0
 ```
 
 ## Adding the Helm Repository
@@ -187,7 +187,7 @@ The following table lists the configurable parameters of the NGINX Service Mesh 
 | Parameter | Description | Default |
 | --- | --- | --- |
 | `registry.server` | Hostname:port (if needed) for registry and path to images. Affects: nginx-mesh-api, nginx-mesh-cert-reloader, nginx-mesh-init, nginx-mesh-metrics, nginx-mesh-sidecar | docker-registry.nginx.com/nsm |
-| `registry.imageTag` | Tag used for pulling images from registry. Affects: nginx-mesh-api, nginx-mesh-cert-reloader, nginx-mesh-init, nginx-mesh-metrics, nginx-mesh-sidecar | 1.7.0 |
+| `registry.imageTag` | Tag used for pulling images from registry. Affects: nginx-mesh-api, nginx-mesh-cert-reloader, nginx-mesh-init, nginx-mesh-metrics, nginx-mesh-sidecar | 2.0.0 |
 | `registry.key` | Contents of your Google Cloud JSON key file. Can be set via `--set-file registry.key=<your-key-file>.json`. Cannot be used with username/password. | "" |
 | `registry.username` | Username for accessing private registry. Cannot be used with key. | "" |
 | `registry.password` | Password for accessing private registry. Cannot be used with key. | "" |
