@@ -73,7 +73,7 @@ jobs:
           version: latest
           args: ${{ startsWith(github.ref, 'refs/tags/') && 'release' || 'build --snapshot' }} --rm-dist
         env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           AZURE_STORAGE_ACCOUNT: ${{ secrets.AZURE_STORAGE_ACCOUNT }}
           AZURE_STORAGE_KEY: ${{ secrets.AZURE_STORAGE_KEY }}
           AZURE_BUCKET_NAME: ${{ secrets.AZURE_BUCKET_NAME }}
