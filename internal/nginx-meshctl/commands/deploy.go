@@ -620,7 +620,7 @@ func startDeploy(k8sClient k8s.Client, deployer *deploy.Deployer, cleanupOnError
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	signalHandler := newDeploySignalHandle(k8sClient, cleanOnSignal, os.Stdout, deployer.Values.Environment)
+	signalHandler := newDeploySignalHandle(k8sClient, cleanOnSignal, os.Stdout)
 	signalHandler.Watch(ctx, syscall.SIGINT, syscall.SIGHUP, syscall.SIGTERM)
 
 	// start checking for ImagePullErrors; return when we find an error or successfully connect

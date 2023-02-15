@@ -1,75 +1,80 @@
-linters:
-  enable-all: true
-  disable:
-    - testpackage
-    - cyclop
-    - exhaustivestruct # [deprecated]
-    - exhaustruct
-    - forbidigo # (forbids use of fmt.Print* in a command line app)
-    - funlen
-    - gci # (errors not fixable by latest gci tool)
-    - gochecknoglobals
-    - gocognit
-    - godox
-    - golint # [deprecated]
-    - gomoddirectives
-    - interfacer # [deprecated]
-    - ireturn
-    - maintidx
-    - maligned # [deprecated]
-    - nestif
-    - scopelint # [deprecated]
-    - tagliatelle
-    - wrapcheck
-    - wsl
-run:
-  timeout: 10m
-  skip-files:
-    - ".*\\.gen\\.go"
-    - "internal/nginx-meshctl/support/printers.go"
 linters-settings:
-  gocyclo:
-    # minimal code complexity to report, 30 by default (but we recommend 10-20)
-    min-complexity: 30
-  gci:
-    # put imports beginning with prefix after 3rd-party packages;
-    # only supports one prefix
-    # if not set, use goimports.local-prefixes
+  goimports:
     local-prefixes: github.com/nginxinc/nginx-service-mesh
+  misspell:
+    locale: US
+  revive:
+    ignore-generated-header: true
+    rules:
+      - name: blank-imports
+      - name: context-as-argument
+      - name: context-keys-type
+      - name: dot-imports
+      - name: early-return
+      - name: empty-block
+      - name: error-naming
+      - name: error-return
+      - name: error-strings
+      - name: errorf
+      - name: exported
+      - name: if-return
+      - name: import-shadowing
+      - name: increment-decrement
+      - name: indent-error-flow
+      - name: package-comments
+      - name: range
+      - name: receiver-naming
+      - name: redefines-builtin-id
+      - name: superfluous-else
+      - name: time-naming
+      - name: unexported-return
+      - name: unreachable-code
+      - name: unused-parameter
+      - name: useless-break
+      - name: var-declaration
+      - name: var-naming
   govet:
     enable:
-      - fieldalignment
+    - fieldalignment
     check-shadowing: true
-  errcheck:
-     ignore: ^Close.*,fmt:.*,github.com/spf13/viper:.*
   lll:
     line-length: 140
-  nakedret:
-    max-func-lines: 0
-  gocritic:
-    enabled-tags:
-      - style
-    disabled-checks:
-      - wrapperFunc
-      - dupImport # https://github.com/go-critic/go-critic/issues/845
+linters:
+    enable:
+    - asciicheck
+    - bodyclose
+    - errcheck
+    - errname
+    - errorlint
+    - gocyclo
+    - godot
+    - gofmt
+    - gofumpt
+    - goheader
+    - goimports
+    - gosec
+    - gosimple
+    - govet
+    - ineffassign
+    - lll
+    - makezero
+    - misspell
+    - nilerr
+    - noctx
+    - predeclared
+    - reassign
+    - revive
+    - staticcheck
+    - typecheck
+    - unconvert
+    - unparam
+    - unused
+    - wastedassign
+    disable-all: true
 issues:
-  exclude-use-default: false
-  exclude-rules:
-    - text: "G104" # gosec G104 is caught by errcheck
-      linters:
-        - gosec
-    - text: "G107" # Potential HTTP request made with variable url.
-      linters:
-        - gosec
-    # allow passing file perms without variables
-    - text: "mnd: Magic number: 0o[0-7][0-7][0-7], in <argument> detected"
-      linters:
-        - gomnd
-    # ignore false positives from os package
-    - text: "O_(APPEND|CREATE|WRONLY) contains underscore. You should use mixedCap or MixedCap."
-      linters:
-        - nosnakecase
-    # directly contradicts other linters
-    - text: "unnamedResult: consider giving a name to these results"
-      linters:
-        - gocritic
+  max-issues-per-linter: 0
+  max-same-issues: 0
+run:
+  timeout: 5m
+  skip-files:
+  - internal/nginx-meshctl/support/printers.go

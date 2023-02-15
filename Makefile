@@ -1,4 +1,4 @@
-GOLANGCI_LINT_VERSION ?= v1.50.1-alpine
+GOLANGCI_LINT_VERSION ?= v1.51-alpine
 
 OUTPUT_DIR = $(shell pwd)/build
 VERSION ?= $(shell git describe --tags)

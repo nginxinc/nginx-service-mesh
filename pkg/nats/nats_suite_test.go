@@ -9,7 +9,6 @@ import (
 	"encoding/pem"
 	"fmt"
 	"math/big"
-	mathRand "math/rand"
 	"os"
 	"path/filepath"
 	"testing"
@@ -54,8 +53,6 @@ var _ = BeforeSuite(func() {
 	testFile, err := os.CreateTemp("", "test.pem")
 	Expect(err).ToNot(HaveOccurred())
 	testFilename = testFile.Name()
-
-	mathRand.Seed(time.Now().UTC().UnixNano())
 
 	natsSession = NewSecureNATSSession(testDataDir)
 	natsSession.Start()
@@ -170,7 +167,10 @@ func createTempFile(pattern string) *os.File {
 
 // picks a random port to use for the nats-server.
 func pickPort() int {
-	return 49152 + mathRand.Intn(65535-49152)
+	min := int64(49152)
+	num, err := rand.Int(rand.Reader, big.NewInt(65535-min))
+	Expect(err).ToNot(HaveOccurred())
+	return int(num.Int64() + min)
 }
 
 var testCert = x509.Certificate{

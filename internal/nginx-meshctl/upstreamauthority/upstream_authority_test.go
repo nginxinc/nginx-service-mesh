@@ -3,9 +3,10 @@ package upstreamauthority
 import (
 	"os"
 
-	"github.com/nginxinc/nginx-service-mesh/pkg/helm"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+
+	"github.com/nginxinc/nginx-service-mesh/pkg/helm"
 )
 
 func createFile(filename, contents string) (string, error) {

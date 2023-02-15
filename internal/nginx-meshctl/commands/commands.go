@@ -45,7 +45,6 @@ func ReadYes(msg string) error {
 	letter, _, _ := reader.ReadRune()
 	switch letter {
 	case 'Y', 'y':
-		break
 	default:
 		fmt.Println()
 
