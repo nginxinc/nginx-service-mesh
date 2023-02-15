@@ -10,9 +10,10 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/nginxinc/nginx-service-mesh/pkg/helm"
 	"github.com/xeipuuv/gojsonschema"
 	convert "sigs.k8s.io/yaml"
+
+	"github.com/nginxinc/nginx-service-mesh/pkg/helm"
 )
 
 const (

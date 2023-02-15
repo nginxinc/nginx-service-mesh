@@ -33,14 +33,14 @@ var _ = Describe("Signal Handler", func() {
 		sendSig = syscall.SIGUSR2
 		msg = "called in handler"
 
-		handle = func(client k8s.Client, s os.Signal, w io.Writer, _ string) {
+		handle = func(client k8s.Client, s os.Signal, w io.Writer) {
 			defer GinkgoRecover()
 			Expect(s).To(Equal(sendSig))
 
 			_, innerErr := w.Write([]byte(msg))
 			Expect(innerErr).ToNot(HaveOccurred())
 		}
-		signalHandler = newDeploySignalHandle(fakeK8s, handle, buf, "test")
+		signalHandler = newDeploySignalHandle(fakeK8s, handle, buf)
 		Expect(signalHandler).ToNot(BeNil())
 	})
 
