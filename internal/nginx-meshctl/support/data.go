@@ -9,7 +9,6 @@ import (
 	"io"
 	"log"
 	"path/filepath"
-	"strings"
 	"text/template"
 
 	access "github.com/servicemeshinterface/smi-controller-sdk/apis/access/v1alpha2"
@@ -31,6 +30,7 @@ import (
 	nsmspecsv1alpha2 "github.com/nginxinc/nginx-service-mesh/pkg/apis/specs/v1alpha2"
 	"github.com/nginxinc/nginx-service-mesh/pkg/helm"
 	"github.com/nginxinc/nginx-service-mesh/pkg/k8s"
+	podHelper "github.com/nginxinc/nginx-service-mesh/pkg/pod"
 )
 
 const (
@@ -602,7 +602,7 @@ func (df *DataFetcher) writeSidecarInformation() {
 
 		for iter, pod := range pods.Items {
 			// only process this pod if it contains the sidecar
-			if !isInjected(&pods.Items[iter]) {
+			if !podHelper.IsInjected(&pods.Items[iter]) {
 				continue
 			}
 
@@ -871,13 +871,6 @@ Directory containing sidecar information.
 	if err := df.writer.Write(filepath.Join(df.directory, "README.md"), buf.String()); err != nil {
 		log.Printf("- could not write README: %v\n", err)
 	}
-}
-
-// isInjected checks if a pod is injected.
-func isInjected(pod *v1.Pod) bool {
-	val, ok := pod.Annotations[mesh.InjectedAnnotation]
-
-	return ok && strings.ToLower(val) == mesh.Injected
 }
 
 // withHeader adds a banner to separate multiple yamls in the same file.

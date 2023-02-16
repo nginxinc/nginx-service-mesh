@@ -784,21 +784,6 @@ control2   0/1              0          <unknown>   <none>   <none>   <none>     
 		Expect(string(blob)).ToNot(ContainSubstring(`- \<user-namespace\>/`))
 	})
 
-	It("determines if a pod is injected", func() {
-		pod := &v1.Pod{
-			ObjectMeta: metav1.ObjectMeta{
-				Annotations: map[string]string{},
-			},
-		}
-		Expect(isInjected(pod)).To(BeFalse())
-
-		pod.ObjectMeta.Annotations[mesh.InjectedAnnotation] = "not-injected"
-		Expect(isInjected(pod)).To(BeFalse())
-
-		pod.ObjectMeta.Annotations[mesh.InjectedAnnotation] = mesh.Injected
-		Expect(isInjected(pod)).To(BeTrue())
-	})
-
 	It("writes traffic policies", func() {
 		trafficSplit := &splitv1alpha3.TrafficSplit{
 			ObjectMeta: metav1.ObjectMeta{

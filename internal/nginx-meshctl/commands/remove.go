@@ -2,22 +2,23 @@ package commands
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
-	"io"
-	"net/http"
 	"strings"
 	"text/tabwriter"
+	"time"
 
 	"github.com/spf13/cobra"
 	"helm.sh/helm/v3/pkg/action"
 	helmRelease "helm.sh/helm/v3/pkg/release"
+	v1 "k8s.io/api/core/v1"
 	k8sErrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/nginxinc/nginx-service-mesh/pkg/apis/mesh"
 	meshErrors "github.com/nginxinc/nginx-service-mesh/pkg/errors"
 	"github.com/nginxinc/nginx-service-mesh/pkg/k8s"
+	"github.com/nginxinc/nginx-service-mesh/pkg/pod"
 )
 
 const longRemove = `Remove the NGINX Service Mesh from your Kubernetes cluster.
@@ -40,6 +41,10 @@ const exampleRemove = `
 `
 
 var yes bool
+
+// proxiedResources is a map of {"namespace": {"resource type": ["resource names"]}},
+// used by the CLI to print out proxied resources when removing the mesh.
+type proxiedResources map[string]map[string][]string
 
 // Remove removes the service mesh control plane.
 func Remove() *cobra.Command {
@@ -106,10 +111,18 @@ func Remove() *cobra.Command {
 			}
 		}
 
-		resources, err := getProxiedResources(initK8sClient)
+		var resources proxiedResources
+		// The package functions that are called expect the controller-runtime client.
+		// Ideally we can update our entire CLI to use this client instead of the current mismatched clients.
+		k8sClient, err := client.New(initK8sClient.Config(), client.Options{})
 		if err != nil {
-			fmt.Println(err.Error())
-			fmt.Println("To ensure minimal traffic disruption, re-roll resources using 'kubectl rollout restart <resource>/<name>'.")
+			fmt.Printf("failed to initialize k8s client: %v\n", err)
+		} else {
+			resources, err = getProxiedResources(k8sClient)
+			if err != nil {
+				fmt.Println(err.Error())
+				fmt.Println("To ensure minimal traffic disruption, re-roll resources using 'kubectl rollout restart <resource>/<name>'.")
+			}
 		}
 
 		fmt.Printf("Removing NGINX Service Mesh from namespace \"%s\"...\n", namespace)
@@ -226,14 +239,14 @@ func postHelmCleanup(k8sClient k8s.Client, deleteNamespace bool) (bool, error) {
 
 // removes all custom CRDs.
 func removeCRDs(ctx context.Context, k8sClient k8s.Client) (bool, error) {
-	client := k8sClient.APIExtensionClientSet().ApiextensionsV1().CustomResourceDefinitions()
-	crds, err := client.List(ctx, metav1.ListOptions{LabelSelector: "app.kubernetes.io/part-of=nginx-service-mesh"})
+	crdClient := k8sClient.APIExtensionClientSet().ApiextensionsV1().CustomResourceDefinitions()
+	crds, err := crdClient.List(ctx, metav1.ListOptions{LabelSelector: "app.kubernetes.io/part-of=nginx-service-mesh"})
 	if err != nil {
 		return false, fmt.Errorf("error listing NGINX Service Mesh CRDs: %w", err)
 	}
 
 	for _, crd := range crds.Items {
-		if err := client.Delete(ctx, crd.Name, metav1.DeleteOptions{}); err != nil {
+		if err := crdClient.Delete(ctx, crd.Name, metav1.DeleteOptions{}); err != nil {
 			return false, fmt.Errorf("error deleting CRD '%s': %w", crd.Name, err)
 		}
 	}
@@ -242,42 +255,43 @@ func removeCRDs(ctx context.Context, k8sClient k8s.Client) (bool, error) {
 }
 
 // getProxiedResources gets a list of resources that are proxied.
-func getProxiedResources(k8sClient k8s.Client) (mesh.ProxiedResources, error) {
-	client, err := mesh.NewMeshClient(k8sClient.Config(), meshTimeout)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get mesh client, cannot list proxied resources: %w", err)
+func getProxiedResources(k8sClient client.Client) (proxiedResources, error) {
+	resources := make(proxiedResources)
+	seen := make(map[string]struct{})
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	pods := &v1.PodList{}
+	if err := k8sClient.List(ctx, pods); err != nil {
+		return nil, fmt.Errorf("error getting list of pods: %w", err)
 	}
 
-	req, err := http.NewRequestWithContext(context.Background(), http.MethodGet, client.Server+"resources", http.NoBody)
-	if err != nil {
-		return nil, fmt.Errorf("error building http request: %w", err)
-	}
+	for _, podObj := range pods.Items {
+		podObj := podObj
+		if !pod.IsInjected(&podObj) {
+			continue
+		}
 
-	res, err := client.Client.Do(req)
-	if err != nil {
-		return nil, fmt.Errorf("error getting list of proxied resources: %w", err)
-	}
-	defer res.Body.Close()
+		ownerType, ownerName, err := pod.GetOwner(ctx, k8sClient, &podObj)
+		if err != nil {
+			fmt.Println("error getting pod owner: %w", err)
 
-	if res.StatusCode != http.StatusOK {
-		return nil, mesh.ParseAPIError(res)
-	}
+			continue
+		}
 
-	bodyBytes, err := io.ReadAll(res.Body)
-	if err != nil {
-		return nil, fmt.Errorf("error parsing response from API server: %w", err)
-	}
-
-	resources := make(mesh.ProxiedResources)
-	err = json.Unmarshal(bodyBytes, &resources)
-	if err != nil {
-		return nil, fmt.Errorf("error unmarshaling API response: %w", err)
+		if _, ok := seen[podObj.Namespace+ownerType+ownerName]; !ok {
+			if resources[podObj.Namespace] == nil {
+				resources[podObj.Namespace] = make(map[string][]string)
+			}
+			resources[podObj.Namespace][ownerType] = append(resources[podObj.Namespace][ownerType], ownerName)
+			seen[podObj.Namespace+ownerType+ownerName] = struct{}{}
+		}
 	}
 
 	return resources, nil
 }
 
-func printResources(writer *tabwriter.Writer, resources mesh.ProxiedResources) error {
+func printResources(writer *tabwriter.Writer, resources proxiedResources) error {
 	if len(resources) > 0 {
 		fmt.Fprintln(writer, "NOTE: The following resources still contain the sidecar proxy:")
 		fmt.Fprintf(writer, "\n\tNAMESPACE\tRESOURCE\n")

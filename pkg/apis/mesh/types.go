@@ -69,10 +69,6 @@ const (
 	FileField = "file"
 )
 
-// ProxiedResources is a map of namespace -> k8s resource type -> resource names;
-// used by the CLI to print out proxied resources when removing the mesh.
-type ProxiedResources map[string]map[string][]string
-
 // MetricsConfig holds the data that may be dynamically updated at runtime for the nginx-mesh-metrics component.
 type MetricsConfig struct {
 	PromAddr *string `json:"PrometheusAddress,omitempty"`
