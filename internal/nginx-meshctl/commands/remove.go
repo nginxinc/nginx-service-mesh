@@ -164,22 +164,8 @@ func csiDriverRunning(k8sClient k8s.Client, namespace string) bool {
 	defer cancel()
 
 	_, err := k8sClient.ClientSet().AppsV1().DaemonSets(namespace).Get(ctx, "spiffe-csi-driver", metav1.GetOptions{})
-	if err == nil {
-		return true
-	}
 
-	// backwards compatible check if removing an older version of mesh
-	// FIXME (sberman NSM-3113): clean this up after the next release
-	agent, err := k8sClient.ClientSet().AppsV1().DaemonSets(namespace).Get(ctx, "spire-agent", metav1.GetOptions{})
-	if err == nil {
-		for _, c := range agent.Spec.Template.Spec.InitContainers {
-			if c.Name == "set-context" {
-				return true
-			}
-		}
-	}
-
-	return false
+	return err == nil
 }
 
 type remover struct {

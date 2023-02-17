@@ -3,7 +3,6 @@ package commands
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"strings"
 	"time"
@@ -228,17 +227,9 @@ func (u *upgrader) upgrade(version string) error {
 // - set new version.
 func (u *upgrader) buildValues(ctx context.Context, version string) (map[string]interface{}, error) {
 	// get the previous deployment configuration
-	oldVals, oldValueBytes, err := helm.GetDeployValues(u.k8sClient, "nginx-service-mesh")
+	_, oldValueBytes, err := helm.GetDeployValues(u.k8sClient, "nginx-service-mesh")
 	if err != nil {
 		return nil, fmt.Errorf("error getting old helm values: %w", err)
-	}
-
-	// FIXME (sberman NSM-3113): only here for the 1.6 -> 1.7 release
-	if oldVals.Environment == string(mesh.Openshift) {
-		//nolint:goerr113 // no reason to make this a package level static error as it won't be reused
-		return nil, errors.New("Upgrade command is not supported for OpenShift for 1.7 release.\n" +
-			"See https://docs.nginx.com/nginx-service-mesh/guides/upgrade/#upgrade-to-170-in-openshift " +
-			"for more information on how to upgrade")
 	}
 
 	// copy previous values on top of the new default values

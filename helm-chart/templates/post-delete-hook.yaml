@@ -264,12 +264,6 @@ data:
               kubectl delete clusterrole system:openshift:scc:nginx-mesh-spiffe-csi-driver-permissions --ignore-not-found
               kubectl delete rolebinding system:openshift:scc:nginx-mesh-spiffe-csi-driver-permissions --ignore-not-found
               kubectl delete scc nginx-mesh-spiffe-csi-driver-permissions --ignore-not-found
-              # FIXME (sberman): leaving the spire-agent cleanup in for one release as a safety measure
-              kubectl delete daemonset spire-agent --ignore-not-found
-              kubectl delete serviceaccount spire-agent --ignore-not-found
-              kubectl delete clusterrole system:openshift:scc:nginx-mesh-spire-agent-permissions --ignore-not-found
-              kubectl delete rolebinding system:openshift:scc:nginx-mesh-spire-agent-permissions --ignore-not-found
-              kubectl delete scc nginx-mesh-spire-agent-permissions --ignore-not-found
               kubectl delete secret {{ include "registry-key-name" . }} --ignore-not-found
               kubectl delete serviceaccount csi-driver-sentinel --ignore-not-found
               kubectl delete clusterrolebinding csi-driver-sentinel.builtin.nsm.nginx --ignore-not-found
@@ -323,17 +317,7 @@ spec:
             kubectl delete clusterrole system:openshift:scc:nginx-mesh-spiffe-csi-driver-permissions --ignore-not-found
             kubectl delete rolebinding system:openshift:scc:nginx-mesh-spiffe-csi-driver-permissions --ignore-not-found
             kubectl delete scc nginx-mesh-spiffe-csi-driver-permissions --ignore-not-found
-            # FIXME (sberman): leaving the spire-agent cleanup in for one release as a safety measure
-            kubectl delete daemonset spire-agent --ignore-not-found
-            kubectl delete serviceaccount spire-agent --ignore-not-found
-            kubectl delete clusterrole system:openshift:scc:nginx-mesh-spire-agent-permissions --ignore-not-found
-            kubectl delete rolebinding system:openshift:scc:nginx-mesh-spire-agent-permissions --ignore-not-found
-            kubectl delete scc nginx-mesh-spire-agent-permissions --ignore-not-found
           else
-            idx=$(kubectl get daemonset spire-agent -o json | jq '.spec.template.spec.containers | map(.name == "spire-agent") | index(true)')
-            kubectl patch daemonset spire-agent --type=json -p="[{'op': 'remove', 'path': '/spec/template/spec/containers/$idx'}]"
-            idx=$(kubectl get daemonset spire-agent -o json | jq '.spec.template.spec.initContainers | map(.name == "init") | index(true)')
-            kubectl patch daemonset spire-agent --type=json -p="[{'op': 'remove', 'path': '/spec/template/spec/initContainers/$idx'}]"
             {{- if (include "docker-config-json" .) }}
             kubectl get secret {{ include "registry-key-name" . }}
             if [ $? != 0 ]; then
