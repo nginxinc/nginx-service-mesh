@@ -1,4 +1,4 @@
-package meshconfig
+package mesh
 
 // FullMeshConfig defines the entire static configuration for NGINX Service Mesh.
 type FullMeshConfig struct { //nolint:govet // fieldalignment not desired
@@ -27,21 +27,13 @@ type FullMeshConfig struct { //nolint:govet // fieldalignment not desired
 	NGINXLogFormat string `yaml:"nginxLogFormat" json:"nginxLogFormat"`
 
 	// PrometheusAddress is the address of a Prometheus server deployed in your Kubernetes cluster.
-	// +optional
-	PrometheusAddress *string `yaml:"prometheusAddress,omitempty" json:"prometheusAddress,omitempty"`
+	PrometheusAddress string `yaml:"prometheusAddress" json:"prometheusAddress"`
 
 	// Registry contains the NGINX Service Mesh image registry settings.
 	Registry Registry `yaml:"registry" json:"registry"`
 
-	// EnabledNamespaces is the list of namespaces where automatic sidecar injection is enabled.
-	EnabledNamespaces []string `yaml:"enabledNamespaces" json:"enabledNamespaces"`
-
 	// Telemetry is the configuration for telemetry.
-	// +optional
 	Telemetry *Telemetry `yaml:"telemetry,omitempty" json:"telemetry,omitempty"`
-
-	// DisableAutoInjection disables automatic sidecar injection globally.
-	DisableAutoInjection bool `yaml:"disableAutoInjection" json:"disableAutoInjection"`
 
 	// EnableUDP traffic proxying (beta).
 	EnableUDP bool `yaml:"enableUDP" json:"enableUDP"`
@@ -71,16 +63,16 @@ type Mtls struct {
 // Telemetry defines the OpenTelemetry configuration.
 type Telemetry struct {
 	// Exporters is the exporters configuration for telemetry.
-	Exporters Exporters `yaml:"exporters" json:"exporters"`
+	Exporters *Exporters `yaml:"exporters,omitempty" json:"exporters,omitempty"`
 
 	// SamplerRatio is the percentage of traces that are processed and exported to the telemetry backend.
-	SamplerRatio float32 `yaml:"samplerRatio" json:"samplerRatio"`
+	SamplerRatio *float32 `yaml:"samplerRatio,omitempty" json:"samplerRatio,omitempty"`
 }
 
 // Exporters defines the telemetry exporters configuration.
 type Exporters struct {
 	// Otlp is the configuration for an OTLP gRPC exporter.
-	Otlp Otlp `yaml:"otlp" json:"otlp"`
+	Otlp Otlp `yaml:"otlp,omitempty" json:"otlp,omitempty"`
 }
 
 // Otlp defines the OTLP exporter configuration.
@@ -110,9 +102,39 @@ type Registry struct { //nolint:govet // fieldalignment not desired
 	SidecarInitImage string `yaml:"sidecarInitImage" json:"sidecarInitImage"`
 
 	// RegistryKeyName is the name of the registry key for pulling images.
-	// +optional
-	RegistryKeyName *string `yaml:"registryKeyName,omitempty" json:"registryKeyName,omitempty"`
+	RegistryKeyName string `yaml:"registryKeyName" json:"registryKeyName"`
 
 	// DisablePublicImages disables the pulling of third party images from public repositories.
 	DisablePublicImages bool `yaml:"disablePublicImages" json:"disablePublicImages"`
+}
+
+// DeepCopyInto performs a deepcopy of the FullMeshConfig.
+func (in *FullMeshConfig) DeepCopyInto(out *FullMeshConfig) {
+	*out = *in
+	if in.Telemetry != nil {
+		in, out := &in.Telemetry, &out.Telemetry
+		*out = new(Telemetry)
+		(*in).DeepCopyInto(*out)
+	}
+}
+
+// DeepCopyInto performs a deepcopy of the Telemetry config.
+func (in *Telemetry) DeepCopyInto(out *Telemetry) {
+	*out = *in
+	if in.Exporters != nil {
+		in, out := &in.Exporters, &out.Exporters
+		*out = new(Exporters)
+		(*in).DeepCopyInto(*out)
+	}
+	if in.SamplerRatio != nil {
+		in, out := &in.SamplerRatio, &out.SamplerRatio
+		*out = new(float32)
+		**out = **in
+	}
+}
+
+// DeepCopyInto performs a deepcopy of the Exporters config.
+func (in *Exporters) DeepCopyInto(out *Exporters) {
+	*out = *in
+	out.Otlp = in.Otlp
 }

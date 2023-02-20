@@ -42,12 +42,12 @@ var _ = Describe("Pod", func() {
 			Expect(val).To(Equal(""))
 		})
 		Specify("if annotation is set to true", func() {
-			annotations := map[string]string{mesh.MTLSModeAnnotation: string(mesh.Permissive)}
-			Expect(pod.GetMTLSModeAnnotation(annotations)).To(Equal(string(mesh.Permissive)))
+			annotations := map[string]string{mesh.MTLSModeAnnotation: mesh.MtlsModePermissive}
+			Expect(pod.GetMTLSModeAnnotation(annotations)).To(Equal(mesh.MtlsModePermissive))
 		})
 		Specify("if annotation is set to false", func() {
-			annotations := map[string]string{mesh.MTLSModeAnnotation: string(mesh.Off)}
-			Expect(pod.GetMTLSModeAnnotation(annotations)).To(Equal(string(mesh.Off)))
+			annotations := map[string]string{mesh.MTLSModeAnnotation: mesh.MtlsModeOff}
+			Expect(pod.GetMTLSModeAnnotation(annotations)).To(Equal(mesh.MtlsModeOff))
 		})
 	})
 

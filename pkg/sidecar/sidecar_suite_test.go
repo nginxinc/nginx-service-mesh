@@ -1,4 +1,4 @@
-package config_test
+package sidecar_test
 
 import (
 	"testing"
@@ -7,8 +7,8 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-func TestType(t *testing.T) {
+func TestSidecar(t *testing.T) {
 	t.Parallel()
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "Config Suite")
+	RunSpecs(t, "Sidecar Suite")
 }

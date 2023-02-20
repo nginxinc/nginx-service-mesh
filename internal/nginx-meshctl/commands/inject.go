@@ -113,11 +113,10 @@ func Inject() *cobra.Command {
 			IgnorePorts: ignPorts,
 		}
 
-		meshClient, err := mesh.NewMeshClient(initK8sClient.Config(), meshTimeout)
-		if err != nil {
-			return fmt.Errorf("failed to get mesh client: %w", err)
-		}
-		meshConfig, err := GetMeshConfig(meshClient)
+		ctx, cancel := context.WithTimeout(context.Background(), meshTimeout)
+		defer cancel()
+
+		meshConfig, err := mesh.GetMeshConfig(ctx, initK8sClient.Client(), initK8sClient.Namespace())
 		if err != nil {
 			return fmt.Errorf("unable to get mesh config: %w", err)
 		}

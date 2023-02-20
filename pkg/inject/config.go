@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"os"
 	"strconv"
 
 	"github.com/golang/glog"
@@ -16,6 +15,7 @@ import (
 
 	"github.com/nginxinc/nginx-service-mesh/pkg/apis/mesh"
 	"github.com/nginxinc/nginx-service-mesh/pkg/pod"
+	"github.com/nginxinc/nginx-service-mesh/pkg/sidecar"
 )
 
 const (
@@ -37,7 +37,7 @@ type (
 
 // CreateInjectionConfig builds the config for injecting the sidecar proxy.
 func CreateInjectionConfig(
-	meshConfig mesh.MeshConfig,
+	meshConfig mesh.FullMeshConfig,
 	ignorePorts IgnorePorts,
 	containers []v1.Container,
 	parentName,
@@ -47,14 +47,12 @@ func CreateInjectionConfig(
 ) (*InjectionConfig, error) {
 	priv := false
 	runAsRoot := int64(0)
-	// FIXME (sberman): This won't work for manual injection until our API is moved to CRD,
-	// then this value can be grabbed from the config
-	pullPolicy := v1.PullPolicy(os.Getenv("PULL_POLICY"))
+	pullPolicy := v1.PullPolicy(meshConfig.Registry.ImagePullPolicy)
 
 	// Build init container spec
 	initContainer := v1.Container{
-		Name:            meshConfig.SidecarInitImage.Name,
-		Image:           meshConfig.SidecarInitImage.Image,
+		Name:            mesh.MeshSidecarInit,
+		Image:           meshConfig.Registry.SidecarInitImage,
 		ImagePullPolicy: pullPolicy,
 		SecurityContext: &v1.SecurityContext{
 			RunAsUser: &runAsRoot,
@@ -69,7 +67,7 @@ func CreateInjectionConfig(
 			Privileged: &priv,
 		},
 	}
-	if meshConfig.IsUDPEnabled {
+	if meshConfig.EnableUDP {
 		initContainer.Args = append(initContainer.Args, "--enable-udp")
 	}
 
@@ -82,8 +80,8 @@ func CreateInjectionConfig(
 	// Build sidecar container spec
 	user := runAsUser
 	proxySidecar := v1.Container{
-		Name:            meshConfig.SidecarImage.Name,
-		Image:           meshConfig.SidecarImage.Image,
+		Name:            mesh.MeshSidecar,
+		Image:           meshConfig.Registry.SidecarImage,
 		ImagePullPolicy: pullPolicy,
 		Ports:           []v1.ContainerPort{{ContainerPort: sidecarContainerPort}},
 		Env: []v1.EnvVar{
@@ -132,18 +130,15 @@ func CreateInjectionConfig(
 	}
 
 	// set port arguments
-	err := setPortArgs(meshConfig, containers, ignorePorts, &initContainer, &proxySidecar)
+	err := setPortArgs(containers, ignorePorts, &initContainer, &proxySidecar)
 	if err != nil {
 		return nil, err
 	}
 
 	proxySidecar.Args = append(proxySidecar.Args, "-n", parentName, "--namespace", meshConfig.Namespace)
-	if meshConfig.TrustDomain != "" {
-		proxySidecar.Args = append(proxySidecar.Args, "-d", meshConfig.TrustDomain)
-	}
 
-	redirectHealthPort := meshConfig.Proxy.Ports.RedirectHealthPort
-	redirectHealthPortHTTPS := meshConfig.Proxy.Ports.RedirectHealthPortHTTPS
+	redirectHealthPort := sidecar.RedirectHealthPort
+	redirectHealthPortHTTPS := sidecar.RedirectHealthHTTPSPort
 	probes := GetProbes(containers, redirectHealthPort, redirectHealthPortHTTPS)
 	// Add original probes to the args for the agent to redirect to
 	origProbes := make(map[string]v1.HTTPGetAction)
@@ -224,14 +219,14 @@ func CreateInjectionConfig(
 	// set imagePullSecrets
 	imagePullSecrets := make([]v1.LocalObjectReference, 0)
 	var registryKey *v1.Secret
-	if meshConfig.RegistryKeyName != "" {
+	if meshConfig.Registry.RegistryKeyName != "" {
 		var err error
 		registryKey, err = createRegistryKey(meshConfig, parentNamespace)
 		if err != nil {
 			return nil, fmt.Errorf("creating registry key for \"%s\" namespace: %w", parentNamespace, err)
 		}
 		imagePullSecrets = append(imagePullSecrets, v1.LocalObjectReference{
-			Name: meshConfig.RegistryKeyName,
+			Name: meshConfig.Registry.RegistryKeyName,
 		})
 	}
 
@@ -310,7 +305,7 @@ func createProbe(
 	return prb
 }
 
-func createRegistryKey(meshConfig mesh.MeshConfig, podNamespace string) (*v1.Secret, error) {
+func createRegistryKey(meshConfig mesh.FullMeshConfig, podNamespace string) (*v1.Secret, error) {
 	// Create K8S clientset from in-cluster config
 	k8sConfig, err := config.GetConfig()
 	if err != nil {
@@ -323,7 +318,7 @@ func createRegistryKey(meshConfig mesh.MeshConfig, podNamespace string) (*v1.Sec
 
 	// Retrieve existing registry key for the NGINX Mesh namespace
 	secret := v1.Secret{}
-	key := client.ObjectKey{Namespace: meshConfig.Namespace, Name: meshConfig.RegistryKeyName}
+	key := client.ObjectKey{Namespace: meshConfig.Namespace, Name: meshConfig.Registry.RegistryKeyName}
 	err = k8sClient.Get(context.TODO(), key, &secret)
 	if err != nil {
 		return nil, fmt.Errorf("error retrieving registry key from \"%s\" namespace: %w", meshConfig.Namespace, err)
@@ -340,7 +335,6 @@ func createRegistryKey(meshConfig mesh.MeshConfig, podNamespace string) (*v1.Sec
 
 // setPortArgs sets the service port and ignore port arguments on the init/sidecar containers.
 func setPortArgs(
-	meshConfig mesh.MeshConfig,
 	containers []v1.Container,
 	ignorePorts IgnorePorts,
 	initContainer,
@@ -354,12 +348,10 @@ func setPortArgs(
 	for port := range ports {
 		proxySidecar.Args = append(proxySidecar.Args, "-s", port)
 	}
-	if meshConfig.Proxy.Ports.Metrics != 0 {
-		initContainer.Args = append(initContainer.Args, "--ignore-incoming-ports", strconv.Itoa(meshConfig.Proxy.Ports.Metrics))
-	}
+	initContainer.Args = append(initContainer.Args, "--ignore-incoming-ports", strconv.Itoa(sidecar.MetricsPort))
 	if ignorePorts.Incoming != nil {
 		for _, port := range ignorePorts.Incoming {
-			if port != meshConfig.Proxy.Ports.Metrics {
+			if port != sidecar.MetricsPort {
 				initContainer.Args = append(initContainer.Args, "--ignore-incoming-ports", strconv.Itoa(port))
 			}
 		}
@@ -369,9 +361,6 @@ func setPortArgs(
 			initContainer.Args = append(initContainer.Args, "--ignore-outgoing-ports", strconv.Itoa(port))
 		}
 	}
-
-	initContainer.Args = append(initContainer.Args, "--outgoing-udp-port", strconv.Itoa(meshConfig.Proxy.Ports.OutgoingUdp))
-	initContainer.Args = append(initContainer.Args, "--incoming-udp-port", strconv.Itoa(meshConfig.Proxy.Ports.IncomingUdp))
 
 	return nil
 }
@@ -400,11 +389,10 @@ func supportedProtocol(protocol v1.Protocol) bool {
 	return protocol == "" || protocol == v1.ProtocolTCP || protocol == v1.ProtocolUDP
 }
 
-func ValidateMTLSAnnotation(podAnnotation string, globalMode *mesh.MtlsConfigMode) error {
+func ValidateMTLSAnnotation(podAnnotation, globalMode string) error {
 	if podAnnotation != "" {
 		// if global mtls is strict but annotation is not, return an error
-		if globalMode != nil && *globalMode == mesh.Strict &&
-			podAnnotation != string(mesh.Strict) {
+		if globalMode == mesh.MtlsModeStrict && podAnnotation != mesh.MtlsModeStrict {
 			return errors.New("global mtls mode is 'strict'")
 		}
 	}

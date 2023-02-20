@@ -20,6 +20,7 @@ import (
 	aggregator "k8s.io/kube-aggregator/pkg/client/clientset_generated/clientset"
 	metrics "k8s.io/metrics/pkg/client/clientset/versioned"
 	utilsPath "k8s.io/utils/path"
+	k8sClient "sigs.k8s.io/controller-runtime/pkg/client"
 
 	meshErrors "github.com/nginxinc/nginx-service-mesh/pkg/errors"
 )
@@ -30,6 +31,7 @@ import (
 type Client interface {
 	Config() *rest.Config
 	Namespace() string
+	Client() k8sClient.Client
 	ClientSet() kubernetes.Interface
 	APIExtensionClientSet() apiextension.Interface
 	APIRegistrationClientSet() aggregator.Interface
@@ -41,6 +43,7 @@ type Client interface {
 
 // ClientImpl contains the configuration and clients for a Kubernetes cluster.
 type ClientImpl struct {
+	client                   k8sClient.Client
 	apiRegistrationClientset aggregator.Interface
 	deferredClientConfig     clientcmd.ClientConfig
 	metricsClientset         metrics.Interface
@@ -123,7 +126,12 @@ func NewK8SClient(kubeconfig, namespace string) (*ClientImpl, error) {
 		return k8s, err
 	}
 
-	return k8s, err
+	k8s.client, err = k8sClient.New(k8s.config, k8sClient.Options{})
+	if err != nil {
+		return k8s, err
+	}
+
+	return k8s, nil
 }
 
 // Config returns a k8s rest.Config object.
@@ -134,6 +142,11 @@ func (k *ClientImpl) Config() *rest.Config {
 // Namespace returns the control plane namespace.
 func (k *ClientImpl) Namespace() string {
 	return k.namespace
+}
+
+// Client returns the controller-runtime client.
+func (k *ClientImpl) Client() k8sClient.Client {
+	return k.client
 }
 
 // ClientSet returns the ClientSet interface.

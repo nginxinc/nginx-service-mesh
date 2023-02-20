@@ -28,6 +28,8 @@ import (
 	fakeAggregator "k8s.io/kube-aggregator/pkg/client/clientset_generated/clientset/fake"
 	metrics "k8s.io/metrics/pkg/client/clientset/versioned"
 	fakeMetrics "k8s.io/metrics/pkg/client/clientset/versioned/fake"
+	k8sClient "sigs.k8s.io/controller-runtime/pkg/client"
+	fakeClient "sigs.k8s.io/controller-runtime/pkg/client/fake"
 	"sigs.k8s.io/yaml"
 
 	nsmspecsv1alpha1 "github.com/nginxinc/nginx-service-mesh/pkg/apis/specs/v1alpha1"
@@ -39,6 +41,7 @@ import (
 type Client struct {
 	metricsClientset         metrics.Interface
 	HelmInvoker              k8s.HelmWrapper
+	client                   k8sClient.Client
 	clientset                kubernetes.Interface
 	apiExtensionClientset    apiextension.Interface
 	apiRegistrationClientset aggregator.Interface
@@ -62,6 +65,7 @@ func NewFakeK8s(namespace string, skipRelease bool, objects ...runtime.Object) *
 	return &Client{
 		config:                   &rest.Config{},
 		namespace:                namespace,
+		client:                   fakeClient.NewClientBuilder().Build(),
 		clientset:                fakeClientSet,
 		apiExtensionClientset:    fakeApiExt.NewSimpleClientset(),
 		apiRegistrationClientset: fakeAggregator.NewSimpleClientset(),
@@ -80,6 +84,11 @@ func (k *Client) Config() *rest.Config {
 // Namespace return the namespace we are using for k8s.
 func (k *Client) Namespace() string {
 	return k.namespace
+}
+
+// Client returns the controller-runtime client.
+func (k *Client) Client() k8sClient.Client {
+	return k.client
 }
 
 // ClientSet return the clientset interface.

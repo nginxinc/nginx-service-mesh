@@ -14,16 +14,15 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 
-	"github.com/nginxinc/nginx-service-mesh/pkg/apis/mesh"
 	"github.com/nginxinc/nginx-service-mesh/pkg/k8s"
 	"github.com/nginxinc/nginx-service-mesh/pkg/k8s/fake"
 )
 
 func createMeshConfigMap(client kubernetes.Interface, namespace string) {
 	cfgMap := &v1.ConfigMap{
-		ObjectMeta: metav1.ObjectMeta{Namespace: namespace, Name: mesh.MeshConfigMap},
+		ObjectMeta: metav1.ObjectMeta{Namespace: namespace, Name: "mesh-config"},
 		BinaryData: map[string][]byte{
-			mesh.MeshConfigFileName: []byte(`{
+			"mesh-config.json": []byte(`{
 	"mtls": {
 		"caKeyType": "ec-p256",
 		"caTTL": "720h",

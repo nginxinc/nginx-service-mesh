@@ -160,7 +160,7 @@ func NewStatusCmd() *cobra.Command {
 	cmd.PersistentPreRunE = defaultPreRunFunc()
 	cmd.RunE = func(c *cobra.Command, args []string) error {
 		fmt.Println("Checking NGINX Service Mesh setup....")
-		err := health.TestMeshAPIConnection(initK8sClient.Config(), 1, meshTimeout)
+		err := health.TestMeshConnection(initK8sClient.Client(), initK8sClient.Namespace(), 1)
 		if err == nil {
 			fmt.Println("Connection to NGINX Service Mesh API was successful.")
 		}

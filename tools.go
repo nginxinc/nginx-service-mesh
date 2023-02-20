@@ -7,7 +7,6 @@
 package tools
 
 import (
-	_ "github.com/deepmap/oapi-codegen/cmd/oapi-codegen"
 	_ "github.com/maxbrunsfeld/counterfeiter/v6"
 	_ "sigs.k8s.io/controller-tools/cmd/controller-gen"
 )

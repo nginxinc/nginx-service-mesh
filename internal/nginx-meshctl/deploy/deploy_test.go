@@ -41,9 +41,8 @@ var _ = Describe("Deploy", func() {
 		Expect(yaml.Unmarshal(valuesYaml, &values)).To(Succeed())
 		deployer.Values = &values
 		// default deploy values are not valid
-		// we need to set either tracing/telemetry to nil
+		// we need to set telemetry to nil
 		values.Telemetry = nil
-		values.Tracing = nil
 		_, err := deployer.Deploy()
 		Expect(err).ToNot(HaveOccurred())
 	})
@@ -59,9 +58,8 @@ var _ = Describe("Deploy", func() {
 		deployer.Values = &values
 
 		// default deploy values are not valid
-		// we need to set tracing and telemetry to nil
+		// we need to set telemetry to nil
 		values.Telemetry = nil
-		values.Tracing = nil
 
 		// Set up an air-gapped deployment.
 		values.Registry.Server = "test-registry"
@@ -144,7 +142,6 @@ var _ = Describe("Deploy", func() {
 				Telemetry: &helm.Telemetry{
 					SamplerRatio: 5.0,
 				},
-				Tracing: nil,
 			}
 			deployer.Values = values
 			_, err := deployer.Deploy()

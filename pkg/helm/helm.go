@@ -17,7 +17,6 @@ import (
 
 // Values is the top level representation of the Helm values.yaml.
 type Values struct {
-	Tracing            *Tracing   `yaml:"tracing" json:"tracing"`
 	Telemetry          *Telemetry `yaml:"telemetry" json:"telemetry"`
 	MTLS               MTLS       `yaml:"mtls" json:"mtls"`
 	ClientMaxBodySize  string     `yaml:"clientMaxBodySize" json:"clientMaxBodySize"`
@@ -40,13 +39,6 @@ type Registry struct {
 	Password            string `yaml:"password" json:"password"`
 	ImagePullPolicy     string `yaml:"imagePullPolicy" json:"imagePullPolicy"`
 	DisablePublicImages bool   `yaml:"disablePublicImages" json:"disablePublicImages"`
-}
-
-// Tracing is the tracing struct within Values.
-type Tracing struct {
-	Address    string  `yaml:"address" json:"address"`
-	Backend    string  `yaml:"backend" json:"backend"`
-	SampleRate float32 `yaml:"sampleRate" json:"sampleRate"`
 }
 
 // Telemetry is the telemetry struct within Values.

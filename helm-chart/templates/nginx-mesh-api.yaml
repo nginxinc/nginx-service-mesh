@@ -56,6 +56,9 @@ rules:
   resources: ["validatingwebhookconfigurations"]
   resourceNames: ["validating-webhook-cfg.internal.builtin.nsm.nginx"]
   verbs: ["get", "update"]
+- apiGroups: ["nsm.nginx.com"]
+  resources: ["meshconfigclasses", "meshconfigs"]
+  verbs: ["get", "list", "watch"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
@@ -83,6 +86,10 @@ rules:
   resources: ["statefulsets", "deployments", "daemonsets"]
   resourceNames: ["spire-server", "spire-agent"]
   verbs: ["get", "patch"]
+- apiGroups: ["nsm.nginx.com"]
+  resources: ["meshconfigs/status"]
+  resourceNames: ["nginx-mesh-config"]
+  verbs: ["update", "patch"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
@@ -132,21 +139,12 @@ subjects:
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: mesh-config
-  labels:
-    app.kubernetes.io/part-of: nginx-service-mesh
-binaryData:
-  mesh-config.json: {{ tpl (.Files.Get "configs/mesh-config.conf") . | b64enc | quote }}
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
   name: meshconfig
   labels:
     app.kubernetes.io/part-of: nginx-service-mesh
 data:
   transparent: "false"
-  meshconfig.yaml: {{ tpl (.Files.Get "configs/meshconfig.yaml") . | quote }}
+  meshconfig.json: {{ tpl (.Files.Get "configs/meshconfig.conf") . | quote }}
 ---
 apiVersion: v1
 kind: Service
@@ -156,12 +154,8 @@ metadata:
     app.kubernetes.io/part-of: nginx-service-mesh
 spec:
   ports:
-  - name: https
-    port: 443
-    targetPort: 8443
-    protocol: TCP
   - name: version
-    port: 8090
+    port: 8082
   selector:
     app.kubernetes.io/name: nginx-mesh-api
     app.kubernetes.io/part-of: nginx-service-mesh
@@ -320,6 +314,10 @@ webhooks:
     apiVersions: ["*"]
     operations: ["CREATE", "UPDATE", "DELETE"]
     resources: ["circuitbreakers", "ratelimits"]
+  - apiGroups: ["nsm.nginx.com"]
+    apiVersions: ["*"]
+    operations: ["CREATE", "UPDATE"]
+    resources: ["meshconfigs"]
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -347,13 +345,13 @@ spec:
         image: {{ .Values.registry.server }}/nginx-mesh-api:{{ .Values.registry.imageTag }}
         imagePullPolicy: {{ .Values.registry.imagePullPolicy }}
         args:
-        - -meshconfig=/etc/config/mesh-config.json
-        - -tlsDir=/tmp/webhooks
+        - --meshconfig=/etc/config/meshconfig.json
+        - --tlsDir=/tmp/webhooks
+        - --mesh-ctlr-name=nsm.nginx.com/nginx-mesh-controller
+        - --meshconfigclass={{ .Release.Namespace }}-meshconfig-class
         - -logtostderr
         - -v=3
         env:
-        - name: PULL_POLICY
-          value: {{ .Values.registry.imagePullPolicy }}
         - name: MY_UID
           valueFrom:
             fieldRef:
@@ -377,7 +375,7 @@ spec:
             - NET_ADMIN
         readinessProbe:
           httpGet:
-            path: /healthz
+            path: /readyz
             port: 8081
           initialDelaySeconds: 5
           periodSeconds: 10
@@ -390,17 +388,17 @@ spec:
           periodSeconds: 10
           failureThreshold: 30
         volumeMounts:
-        - name: config-volume
+        - name: meshconfig
           mountPath: /etc/config
         - name: spire-agent-socket
           mountPath: /run/spire/sockets
       volumes:
-      - name: config-volume
+      - name: meshconfig
         configMap:
-          name: mesh-config
+          name: meshconfig
           items:
-          - key: mesh-config.json
-            path: mesh-config.json
+          - key: meshconfig.json
+            path: meshconfig.json
       - name: spire-agent-socket
         {{ if eq .Values.environment "openshift" -}}
         csi:
@@ -411,23 +409,6 @@ spec:
           path: /run/spire/sockets
           type: DirectoryOrCreate
         {{- end }}
----
-apiVersion: apiregistration.k8s.io/v1
-kind: APIService
-metadata:
-  labels:
-    app.kubernetes.io/part-of: nginx-service-mesh
-    spiffe.io/apiservice: "true"
-  name: v1alpha1.nsm.nginx.com
-spec:
-  group: nsm.nginx.com
-  groupPriorityMinimum: 100
-  service:
-    name: nginx-mesh-api
-    namespace: {{ .Release.Namespace}}
-    port: 443
-  version: v1alpha1
-  versionPriority: 100
 ---
 apiVersion: nsm.nginx.com/v1alpha2
 kind: MeshConfigClass
@@ -448,8 +429,6 @@ spec:
   meshConfigClassName: {{ .Release.Namespace }}-meshconfig-class
   accessControlMode: {{ .Values.accessControlMode }}
   clientMaxBodySize: {{ .Values.clientMaxBodySize }}
-  disableAutoInjection: {{.Values.disableAutoInjection }}
-  enabledNamespaces: [{{ range $idx, $elem := .Values.enabledNamespaces }}{{if $idx}},{{end}}{{quote .}}{{ end }}]
   mtls:
     caKeyType: {{ .Values.mtls.caKeyType }}
     caTTL: {{ .Values.mtls.caTTL }}
@@ -459,14 +438,13 @@ spec:
   nginxLBMethod: {{ .Values.nginxLBMethod }}
   nginxLogFormat: {{ .Values.nginxLogFormat }}
   prometheusAddress: {{ .Values.prometheusAddress }}
-  {{ if .Values.telemetry }}
-  telemetry:
+  telemetry: {{ if .Values.telemetry }}
     exporters:
       otlp:
         host: {{ .Values.telemetry.exporters.otlp.host }}
         port: {{ .Values.telemetry.exporters.otlp.port }}
     samplerRatio: {{ .Values.telemetry.samplerRatio }}
-  {{- end }}
+  {{ else }}{}{{ end }}
 {{- if eq .Values.environment "openshift" }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1

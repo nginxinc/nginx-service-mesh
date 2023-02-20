@@ -3,6 +3,7 @@ package inject
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -19,6 +20,7 @@ import (
 	k8sJson "k8s.io/apimachinery/pkg/runtime/serializer/json"
 	k8sYaml "k8s.io/apimachinery/pkg/util/yaml"
 	"k8s.io/kubectl/pkg/scheme"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/nginxinc/nginx-service-mesh/pkg/apis/mesh"
 )
@@ -76,7 +78,7 @@ type (
 // IntoFile takes a yaml or json resource file and adds the sidecar containers.
 func IntoFile(
 	injectConfig Inject,
-	meshConfig mesh.MeshConfig,
+	meshConfig mesh.FullMeshConfig,
 ) (string, error) {
 	var docs [][]byte
 	serializer := k8sJson.NewSerializerWithOptions(k8sJson.DefaultMetaFactory, nil, nil, k8sJson.SerializerOptions{Pretty: true})
@@ -201,7 +203,7 @@ func IntoFile(
 
 // Injects the sidecar into a PodSpec.
 func updateResource(
-	meshConfig mesh.MeshConfig,
+	meshConfig mesh.FullMeshConfig,
 	ignorePorts IgnorePorts,
 	meta *metav1.ObjectMeta,
 	spec *v1.PodSpec,
@@ -317,4 +319,32 @@ func constructOutput(args injectTemplateArgs) (string, error) {
 	}
 
 	return formatted, nil
+}
+
+// IsNamespaceInjectable determines if namespace is injectable.
+func IsNamespaceInjectable(ctx context.Context, k8sClient client.Client, namespace string) (bool, error) {
+	// Never inject ignored namespaces.
+	for ignoredNS := range mesh.IgnoredNamespaces {
+		if namespace == ignoredNS {
+			return false, nil
+		}
+	}
+
+	eventNamespace := &v1.Namespace{}
+	key := client.ObjectKey{
+		Namespace: "",
+		Name:      namespace,
+	}
+	err := k8sClient.Get(ctx, key, eventNamespace)
+	if err != nil {
+		return false, err
+	}
+
+	namespaceLabels := eventNamespace.GetLabels()
+
+	if val, ok := namespaceLabels[mesh.AutoInjectLabel]; ok && val == mesh.Enabled {
+		return true, nil
+	}
+
+	return false, nil
 }

@@ -260,7 +260,7 @@ func getProxiedResources(k8sClient client.Client) (proxiedResources, error) {
 
 		ownerType, ownerName, err := pod.GetOwner(ctx, k8sClient, &podObj)
 		if err != nil {
-			fmt.Println("error getting pod owner: %w", err)
+			fmt.Printf("error getting pod owner: %v\n", err)
 
 			continue
 		}

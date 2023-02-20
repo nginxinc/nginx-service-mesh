@@ -211,24 +211,10 @@ func (in *MeshConfigSpec) DeepCopyInto(out *MeshConfigSpec) {
 		*out = new(string)
 		**out = **in
 	}
-	if in.EnabledNamespaces != nil {
-		in, out := &in.EnabledNamespaces, &out.EnabledNamespaces
-		*out = new([]string)
-		if **in != nil {
-			in, out := *in, *out
-			*out = make([]string, len(*in))
-			copy(*out, *in)
-		}
-	}
 	if in.Telemetry != nil {
 		in, out := &in.Telemetry, &out.Telemetry
 		*out = new(TelemetrySpec)
 		(*in).DeepCopyInto(*out)
-	}
-	if in.DisableAutoInjection != nil {
-		in, out := &in.DisableAutoInjection, &out.DisableAutoInjection
-		*out = new(bool)
-		**out = **in
 	}
 }
 

@@ -164,11 +164,11 @@ func Deploy() *cobra.Command {
 				value: imageMeshCertReloader,
 			},
 			mesh.MeshSidecar: {
-				file:  "configs/mesh-config.conf",
+				file:  "configs/meshconfig.conf",
 				value: imageSidecar,
 			},
 			mesh.MeshSidecarInit: {
-				file:  "configs/mesh-config.conf",
+				file:  "configs/meshconfig.conf",
 				value: imageSidecarInit,
 			},
 		}
@@ -257,7 +257,7 @@ func Deploy() *cobra.Command {
 		"access-control-mode",
 		defaultValues.AccessControlMode,
 		`default access control mode for service-to-service communication
-		Valid values: `+string(mesh.MeshConfigAccessControlModeAllow)+", "+string(mesh.MeshConfigAccessControlModeDeny),
+		Valid values: `+formatValues(mesh.AccessControlModes),
 	)
 	cmd.Flags().StringVar(
 		&values.MTLS.Mode,
@@ -582,9 +582,9 @@ func startDeploy(k8sClient k8s.Client, deployer *deploy.Deployer, cleanupOnError
 	}
 	signalHandler.Check()
 
-	fmt.Println("All resources created. Testing the connection to the Service Mesh API Server...")
+	fmt.Println("All resources created. Testing the connection to the Service Mesh control plane...")
 	// test connection
-	err = health.TestMeshAPIConnection(k8sClient.Config(), deployMeshAPIRetries, meshTimeout)
+	err = health.TestMeshConnection(k8sClient.Client(), k8sClient.Namespace(), deployMeshAPIRetries)
 	if err != nil {
 		return formatConnectionError(k8sClient, err)
 	}
@@ -714,7 +714,7 @@ func subImages(images customImages, files []*loader.BufferedFile) {
 			for _, file := range files {
 				if file.Name == cfg.file {
 					str := string(file.Data)
-					str = strings.ReplaceAll(str, oldName, cfg.value)
+					str = strings.ReplaceAll(str, oldName, strconv.Quote(cfg.value))
 					file.Data = []byte(str)
 
 					break
@@ -725,14 +725,14 @@ func subImages(images customImages, files []*loader.BufferedFile) {
 }
 
 func formatLogLevels() string {
-	return string(mesh.MeshConfigNginxErrorLogLevelDebug) + ", " +
-		string(mesh.MeshConfigNginxErrorLogLevelInfo) + ", " +
-		string(mesh.MeshConfigNginxErrorLogLevelNotice) + ", " +
-		string(mesh.MeshConfigNginxErrorLogLevelWarn) + ", " +
-		string(mesh.MeshConfigNginxErrorLogLevelError) + ", " +
-		string(mesh.MeshConfigNginxErrorLogLevelCrit) + ", " +
-		string(mesh.MeshConfigNginxErrorLogLevelAlert) + ", " +
-		string(mesh.MeshConfigNginxErrorLogLevelEmerg)
+	return mesh.NginxErrorLogLevelDebug + ", " +
+		mesh.NginxErrorLogLevelInfo + ", " +
+		mesh.NginxErrorLogLevelNotice + ", " +
+		mesh.NginxErrorLogLevelWarn + ", " +
+		mesh.NginxErrorLogLevelError + ", " +
+		mesh.NginxErrorLogLevelCrit + ", " +
+		mesh.NginxErrorLogLevelAlert + ", " +
+		mesh.NginxErrorLogLevelEmerg
 }
 
 func formatValues(values map[string]struct{}) string {

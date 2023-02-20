@@ -1,4 +1,4 @@
-package config_test
+package sidecar_test
 
 import (
 	"reflect"
@@ -8,11 +8,11 @@ import (
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	"github.com/nginxinc/nginx-service-mesh/pkg/config"
+	"github.com/nginxinc/nginx-service-mesh/pkg/sidecar"
 )
 
 var _ = Describe("Pod", func() {
-	pod := config.Pod{
+	pod := sidecar.Pod{
 		ParentName:     "test",
 		ParentType:     "deployment",
 		Name:           "test-84b46c648f-tfzrs",

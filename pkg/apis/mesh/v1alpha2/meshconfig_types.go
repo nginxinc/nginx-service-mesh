@@ -54,17 +54,9 @@ type MeshConfigSpec struct { //nolint:govet // fieldalignment not desired
 	// +optional
 	PrometheusAddress *string `json:"prometheusAddress,omitempty"`
 
-	// EnabledNamespaces is the list of namespaces where automatic sidecar injection is enabled.
-	// +optional
-	EnabledNamespaces *[]string `json:"enabledNamespaces,omitempty"`
-
 	// Telemetry is the configuration for telemetry.
 	// +optional
 	Telemetry *TelemetrySpec `json:"telemetry,omitempty"`
-
-	// DisableAutoInjection disables automatic sidecar injection globally.
-	// +optional
-	DisableAutoInjection *bool `json:"disableAutoInjection,omitempty"`
 }
 
 // MtlsSpec defines the mTLS configuration.

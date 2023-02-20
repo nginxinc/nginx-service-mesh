@@ -7,7 +7,7 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-func TestType(t *testing.T) {
+func TestInject(t *testing.T) {
 	t.Parallel()
 	RegisterFailHandler(Fail)
 	RunSpecs(t, "Inject Suite")
