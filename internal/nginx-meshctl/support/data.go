@@ -498,14 +498,8 @@ func (df *DataFetcher) writeMeshConfig() {
 		return
 	}
 
-	var buf bytes.Buffer
-	if err := json.Indent(&buf, meshCfg.BinaryData[mesh.MeshConfigFileName], "", "\t"); err != nil {
-		log.Printf("- could not format mesh configuration: %v", err)
-
-		return
-	}
-
-	if err := df.writer.Write(filepath.Join(df.directory, mesh.MeshConfigFileName), buf.String()); err != nil {
+	if err := df.writer.Write(
+		filepath.Join(df.directory, mesh.MeshConfigFileName), meshCfg.Data[mesh.MeshConfigFileName]); err != nil {
 		log.Printf("- could not write mesh configuration to file: %v", err)
 	}
 }

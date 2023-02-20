@@ -1,5 +1,5 @@
-// Package config contains the configuration sent to the agent for nginx.
-package config
+// Package sidecar contains the configuration sent to the agent for nginx.
+package sidecar
 
 import (
 	split "github.com/servicemeshinterface/smi-controller-sdk/apis/split/v1alpha3"
@@ -10,9 +10,8 @@ import (
 	specs "github.com/nginxinc/nginx-service-mesh/pkg/apis/specs/v1alpha1"
 )
 
-// CombinedConfig contains all the configs consumed by the sidecar agent.
-// For use by agent when unmarshaling config.
-type CombinedConfig struct {
+// Config contains all the configs consumed by the sidecar agent.
+type Config struct {
 	Pods                map[string]Pod
 	ServiceAddresses    AgentKeyval
 	HTTPPlaceholders    AgentKeyval
@@ -30,8 +29,54 @@ type CombinedConfig struct {
 	CircuitBreakers     AgentBreaker
 	HTTPAccessControl   map[string]AgentKeyval
 	StreamAccessControl map[string]AgentKeyval
-	MeshConfig          mesh.MeshConfig
+	MeshConfig          mesh.FullMeshConfig
 }
+
+// ports that the NGINX sidecar proxy listens on.
+const (
+	// MetricsPort is the Prometheus metrics port.
+	MetricsPort = 8887
+	// IncomingPort is the incoming HTTP port.
+	IncomingPort = 8888
+	// OutgoingPort is the outgoing HTTP port.
+	OutgoingPort = 8889
+	// IncomingPermissivePort is the incoming HTTP port when mTLS mode is permissive.
+	IncomingPermissivePort = 8890
+	// IncomingGrpcPort is the incoming gRPC port.
+	IncomingGrpcPort = 8891
+	// OutgoingGrpcPort is the outgoing gRPC port.
+	OutgoingGrpcPort = 8892
+	// IncomingGrpcPermissivePort is the incoming gRPC port when mTLS mode is permissive.
+	IncomingGrpcPermissivePort = 8893
+	// OutgoingDefaultEgressPort is the outgoing port for egress traffic when NGINX Ingress Controller is deployed as an egress controller.
+	OutgoingDefaultEgressPort = 8894
+	// OutgoingRedirectPort is the port that redirects requests to another port in the proxy based on the request protocol.
+	OutgoingRedirectPort = 8900
+	// IncomingRedirectPort is the port that redirects requests to another port in the proxy based on the request protocol.
+	IncomingRedirectPort = 8901
+	// OutgoingNotInKeyvalPort is the outgoing port for destinations that are not a part of the mesh.
+	OutgoingNotInKeyvalPort = 8902
+	// IncomingNotInKeyvalPort is the incoming port that handles requests from Services not in the mesh.
+	IncomingNotInKeyvalPort = 8903
+	// IncomingTCPPort is the incoming TCP port.
+	IncomingTCPPort = 8904
+	// IncomingTCPDenyPort denies TCP traffic if it is not part of the mesh or if access to the sidecar is not allowed.
+	IncomingTCPDenyPort = 8905
+	// OutgoingTCPPort is the outgoing TCP port.
+	OutgoingTCPPort = 8906
+	// IncomingTCPPermissivePort is the incoming TCP port when mTLS mode is permissive.
+	IncomingTCPPermissivePort = 8907
+	// OutgoingUDPPort is the outgoing UDP port.
+	OutgoingUDPPort = 8908
+	// IncomingUDPPort is the incoming UDP port.
+	IncomingUDPPort = 8909
+	// PlusAPIPort is the NGINX Plus API port. This is not accessible outside of the sidecar proxy.
+	PlusAPIPort = 8886
+	// RedirectHealthPort is the port that redirects HTTP health probes to the application container.
+	RedirectHealthPort = 8895
+	// RedirectHealthHTTPSPort is the port that redirects HTTPS health probes to the application container.
+	RedirectHealthHTTPSPort = 8896
+)
 
 // AgentKeyval holds the data for configuring a single keyval in the agent.
 type AgentKeyval map[string]string
@@ -51,23 +96,23 @@ type UpstreamServer struct {
 
 // LBMethod represents a load balancing method for an nginx block.
 type LBMethod struct {
-	Method mesh.MeshConfigLoadBalancingMethod
+	Method string
 	Block  Block
 }
 
 // String returns the string representation of an LBMethod.
 func (lb LBMethod) String() string {
 	var lbMethod string
-	if lb.Method != mesh.MeshConfigLoadBalancingMethodRoundRobin {
-		lbMethod = string(lb.Method)
+	if lb.Method != mesh.RoundRobin {
+		lbMethod = lb.Method
 		switch lbMethod {
-		case string(mesh.MeshConfigLoadBalancingMethodLeastTime):
+		case string(mesh.LeastTime):
 			if lb.Block == HTTP {
 				lbMethod += " header"
 			} else {
 				lbMethod += " first_byte"
 			}
-		case string(mesh.MeshConfigLoadBalancingMethodRandomTwoLeastTime):
+		case string(mesh.RandomTwoLeastTime):
 			if lb.Block == HTTP {
 				lbMethod += "=header"
 			} else {

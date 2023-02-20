@@ -50,21 +50,11 @@ spec:
                 description: ClientMaxBodySize is NGINX client max body size.
                 pattern: ^\d+[kKmMgG]?$
                 type: string
-              disableAutoInjection:
-                description: DisableAutoInjection disables automatic sidecar injection globally.
-                type: boolean
-              enabledNamespaces:
-                description: EnabledNamespaces is the list of namespaces where automatic
-                  sidecar injection is enabled.
-                items:
-                  type: string
-                type: array
               mtls:
                 description: Mtls is the configuration for mutual TLS.
                 properties:
                   caKeyType:
-                    description: CaKeyType is the key type used for the SPIRE Server
-                      CA.
+                    description: CaKeyType is the key type used for the SPIRE Server CA.
                     enum:
                     - ec-p256
                     - ec-p384

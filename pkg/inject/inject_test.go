@@ -16,25 +16,20 @@ import (
 
 var _ = Describe("Inject", func() {
 	var (
-		meshConfig   mesh.MeshConfig
+		meshConfig   mesh.FullMeshConfig
 		injectConfig inject.Inject
-		permissive   = mesh.Permissive
 
 		// cheap gosec remediation
 		readFile func(string) ([]byte, error)
 	)
 	BeforeEach(func() {
-		meshConfig = mesh.MeshConfig{
-			SidecarImage: mesh.Image{
-				Name:  "nginx-mesh-sidecar",
-				Image: "docker-registry/nginx-mesh-sidecar:latest",
+		meshConfig = mesh.FullMeshConfig{
+			Registry: mesh.Registry{
+				SidecarImage:     "docker-registry/nginx-mesh-sidecar:latest",
+				SidecarInitImage: "docker-registry/nginx-mesh-init:latest",
 			},
-			SidecarInitImage: mesh.Image{
-				Name:  "nginx-mesh-init",
-				Image: "docker-registry/nginx-mesh-init:latest",
-			},
-			Mtls: mesh.MtlsConfig{
-				Mode: &permissive,
+			Mtls: mesh.Mtls{
+				Mode: mesh.MtlsModePermissive,
 			},
 		}
 		injectConfig = inject.Inject{}
@@ -113,8 +108,7 @@ var _ = Describe("Inject", func() {
 		Expect(err).To(HaveOccurred(), "should have gotten error with non-k8s config")
 	})
 	It("errors when mtls annotation conflicts with strict mode", func() {
-		strict := mesh.Strict
-		meshConfig.Mtls.Mode = &strict
+		meshConfig.Mtls.Mode = mesh.MtlsModeStrict
 		invalid := `{"apiVersion": "apps/v1",
 "kind": "Deployment",
 "metadata": {

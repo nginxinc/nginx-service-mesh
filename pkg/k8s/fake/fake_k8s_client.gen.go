@@ -12,6 +12,7 @@ import (
 	"k8s.io/client-go/rest"
 	clientseta "k8s.io/kube-aggregator/pkg/client/clientset_generated/clientset"
 	"k8s.io/metrics/pkg/client/clientset/versioned"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
 type FakeClient struct {
@@ -34,6 +35,16 @@ type FakeClient struct {
 	}
 	aPIRegistrationClientSetReturnsOnCall map[int]struct {
 		result1 clientseta.Interface
+	}
+	ClientStub        func() client.Client
+	clientMutex       sync.RWMutex
+	clientArgsForCall []struct {
+	}
+	clientReturns struct {
+		result1 client.Client
+	}
+	clientReturnsOnCall map[int]struct {
+		result1 client.Client
 	}
 	ClientSetStub        func() kubernetes.Interface
 	clientSetMutex       sync.RWMutex
@@ -217,6 +228,59 @@ func (fake *FakeClient) APIRegistrationClientSetReturnsOnCall(i int, result1 cli
 	}
 	fake.aPIRegistrationClientSetReturnsOnCall[i] = struct {
 		result1 clientseta.Interface
+	}{result1}
+}
+
+func (fake *FakeClient) Client() client.Client {
+	fake.clientMutex.Lock()
+	ret, specificReturn := fake.clientReturnsOnCall[len(fake.clientArgsForCall)]
+	fake.clientArgsForCall = append(fake.clientArgsForCall, struct {
+	}{})
+	stub := fake.ClientStub
+	fakeReturns := fake.clientReturns
+	fake.recordInvocation("Client", []interface{}{})
+	fake.clientMutex.Unlock()
+	if stub != nil {
+		return stub()
+	}
+	if specificReturn {
+		return ret.result1
+	}
+	return fakeReturns.result1
+}
+
+func (fake *FakeClient) ClientCallCount() int {
+	fake.clientMutex.RLock()
+	defer fake.clientMutex.RUnlock()
+	return len(fake.clientArgsForCall)
+}
+
+func (fake *FakeClient) ClientCalls(stub func() client.Client) {
+	fake.clientMutex.Lock()
+	defer fake.clientMutex.Unlock()
+	fake.ClientStub = stub
+}
+
+func (fake *FakeClient) ClientReturns(result1 client.Client) {
+	fake.clientMutex.Lock()
+	defer fake.clientMutex.Unlock()
+	fake.ClientStub = nil
+	fake.clientReturns = struct {
+		result1 client.Client
+	}{result1}
+}
+
+func (fake *FakeClient) ClientReturnsOnCall(i int, result1 client.Client) {
+	fake.clientMutex.Lock()
+	defer fake.clientMutex.Unlock()
+	fake.ClientStub = nil
+	if fake.clientReturnsOnCall == nil {
+		fake.clientReturnsOnCall = make(map[int]struct {
+			result1 client.Client
+		})
+	}
+	fake.clientReturnsOnCall[i] = struct {
+		result1 client.Client
 	}{result1}
 }
 
@@ -612,6 +676,8 @@ func (fake *FakeClient) Invocations() map[string][][]interface{} {
 	defer fake.aPIExtensionClientSetMutex.RUnlock()
 	fake.aPIRegistrationClientSetMutex.RLock()
 	defer fake.aPIRegistrationClientSetMutex.RUnlock()
+	fake.clientMutex.RLock()
+	defer fake.clientMutex.RUnlock()
 	fake.clientSetMutex.RLock()
 	defer fake.clientSetMutex.RUnlock()
 	fake.configMutex.RLock()

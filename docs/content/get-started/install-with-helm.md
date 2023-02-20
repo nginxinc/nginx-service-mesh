@@ -96,6 +96,16 @@ You can upgrade to the latest Helm chart from the version immediately before it 
 OpenShift users: view the [upgrade guide]({{< ref "/guides/upgrade.md#upgrade-to-170-in-openshift" >}}) for instructions on upgrading from v1.6.0 to v1.7.0.
 {{< /important >}}
 
+### Upgrading the CRDs
+
+Helm does not upgrade the CRDs during a release upgrade. Before you upgrade a release, run the following command to upgrade the CRDs:
+
+```bash
+kubectl apply -f crds/
+```
+
+The following warning is expected and can be ignored: `Warning: kubectl apply should be used on resource created by either kubectl create --save-config or kubectl apply.`
+
 ### Upgrading the Release
 
 To upgrade the release `nsm` in the `nginx-mesh` namespace:
@@ -128,18 +138,6 @@ kubectl rollout restart <resource type>/<resource name>
 ```
 
 Otherwise, the application Pods need to be deleted and re-created.
-
-### Upgrading the CRDs
-
-Helm does not upgrade the CRDs during a release upgrade. After you upgrade a release, run the following command to upgrade the CRDs:
-
-```bash
-kubectl apply -f crds/
-```
-
-{{< note >}}
-The following warning is expected and can be ignored: `Warning: kubectl apply should be used on resource created by either kubectl create --save-config or kubectl apply.`
-{{< /note >}}
 
 ## Uninstalling the Chart
 

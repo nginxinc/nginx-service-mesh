@@ -15,7 +15,6 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"sigs.k8s.io/yaml"
 
-	"github.com/nginxinc/nginx-service-mesh/pkg/apis/mesh"
 	"github.com/nginxinc/nginx-service-mesh/pkg/helm"
 	"github.com/nginxinc/nginx-service-mesh/pkg/k8s"
 )
@@ -189,6 +188,10 @@ func (u *upgrader) upgrade(version string) error {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
+	if err := u.upgradeCRDs(ctx); err != nil {
+		return fmt.Errorf("error upgrading CRDs: %w", err)
+	}
+
 	// initialize values and chart for new release
 	vals, err := u.buildValues(ctx, version)
 	if err != nil {
@@ -222,10 +225,6 @@ func (u *upgrader) upgrade(version string) error {
 		return nil
 	}
 
-	if err := u.upgradeCRDs(ctx); err != nil {
-		return fmt.Errorf("error upgrading CRDs: %w", err)
-	}
-
 	return nil
 }
 
@@ -249,13 +248,13 @@ func (u *upgrader) buildValues(ctx context.Context, version string) (map[string]
 
 	// get and save the old runtime mesh config
 	client := u.k8sClient.ClientSet().CoreV1().ConfigMaps(u.k8sClient.Namespace())
-	meshConfigMap, err := client.Get(ctx, mesh.MeshConfigMap, metav1.GetOptions{})
+	meshConfigMap, err := client.Get(ctx, "mesh-config", metav1.GetOptions{})
 	if err != nil {
 		return nil, fmt.Errorf("error getting previous mesh configuration: %w", err)
 	}
 
-	var meshConfig mesh.MeshConfig
-	if jsonErr := json.Unmarshal(meshConfigMap.BinaryData[mesh.MeshConfigFileName], &meshConfig); jsonErr != nil {
+	var meshConfig previousMeshConfig
+	if jsonErr := json.Unmarshal(meshConfigMap.BinaryData["mesh-config.json"], &meshConfig); jsonErr != nil {
 		return nil, fmt.Errorf("error unmarshaling previous mesh configuration: %w", jsonErr)
 	}
 
@@ -324,20 +323,20 @@ func (u *upgrader) upgradeCRDs(ctx context.Context) error {
 
 // Update the new values with the previous runtime mesh configuration.
 // This has to be done manually right now because we can't quite unmarshal types.MeshConfig into Values struct.
-// FIXME: NSM-81 should remedy this.
-func (u *upgrader) savePreviousConfig(meshConfig mesh.MeshConfig) {
-	u.values.AccessControlMode = string(meshConfig.AccessControlMode)
-	u.values.NGINXLBMethod = string(meshConfig.LoadBalancingMethod)
-	u.values.NGINXErrorLogLevel = string(meshConfig.NginxErrorLogLevel)
-	u.values.NGINXLogFormat = string(meshConfig.NginxLogFormat)
+// FIXME: NSM-3616 should remedy this.
+func (u *upgrader) savePreviousConfig(meshConfig previousMeshConfig) {
+	u.values.AccessControlMode = meshConfig.AccessControlMode
+	u.values.NGINXLBMethod = meshConfig.LoadBalancingMethod
+	u.values.NGINXErrorLogLevel = meshConfig.NginxErrorLogLevel
+	u.values.NGINXLogFormat = meshConfig.NginxLogFormat
 	u.values.PrometheusAddress = meshConfig.PrometheusAddress
-	u.values.MTLS.CAKeyType = string(*meshConfig.Mtls.CaKeyType)
+	u.values.MTLS.CAKeyType = *meshConfig.Mtls.CaKeyType
 	u.values.MTLS.CATTL = *meshConfig.Mtls.CaTTL
 	u.values.MTLS.SVIDTTL = *meshConfig.Mtls.SvidTTL
-	u.values.MTLS.Mode = string(*meshConfig.Mtls.Mode)
+	u.values.MTLS.Mode = *meshConfig.Mtls.Mode
 	u.values.ClientMaxBodySize = meshConfig.ClientMaxBodySize
 
-	if meshConfig.Telemetry != (mesh.TelemetryConfig{}) {
+	if meshConfig.Telemetry != (previousTelemetry{}) {
 		if u.values.Telemetry == nil {
 			u.values.Telemetry = &helm.Telemetry{
 				Exporters: &helm.Exporter{
@@ -351,4 +350,37 @@ func (u *upgrader) savePreviousConfig(meshConfig mesh.MeshConfig) {
 		u.values.Telemetry.Exporters.OTLP.Host = meshConfig.Telemetry.Exporters.Otlp.Host
 		u.values.Telemetry.Exporters.OTLP.Port = meshConfig.Telemetry.Exporters.Otlp.Port
 	}
+}
+
+// represents the old mesh config structure from the old configmap.
+type previousMeshConfig struct {
+	Mtls                previousMtls      `json:"mtls"`
+	Telemetry           previousTelemetry `json:"telemetry"`
+	AccessControlMode   string            `json:"accessControlMode"`
+	ClientMaxBodySize   string            `json:"clientMaxBodySize"`
+	LoadBalancingMethod string            `json:"loadBalancingMethod"`
+	NginxErrorLogLevel  string            `json:"nginxErrorLogLevel"`
+	NginxLogFormat      string            `json:"nginxLogFormat"`
+	PrometheusAddress   string            `json:"prometheusAddress"`
+}
+
+type previousMtls struct {
+	CaKeyType *string `json:"caKeyType,omitempty"`
+	CaTTL     *string `json:"caTTL,omitempty"`
+	Mode      *string `json:"mode,omitempty"`
+	SvidTTL   *string `json:"svidTTL,omitempty"`
+}
+
+type previousTelemetry struct {
+	Exporters    *exporters `json:"exporters,omitempty"`
+	SamplerRatio *float32   `json:"samplerRatio,omitempty"`
+}
+
+type exporters struct {
+	Otlp *otlp `json:"otlp,omitempty"`
+}
+
+type otlp struct {
+	Host string `json:"host"`
+	Port int    `json:"port"`
 }

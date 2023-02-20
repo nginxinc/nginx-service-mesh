@@ -7,7 +7,7 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-func TestClient(t *testing.T) {
+func TestMesh(t *testing.T) {
 	t.Parallel()
 	RegisterFailHandler(Fail)
 	RunSpecs(t, "Mesh Suite")

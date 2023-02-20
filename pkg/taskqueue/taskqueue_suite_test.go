@@ -7,7 +7,7 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-func TestSpiffeCert(t *testing.T) {
+func TestTaskqueue(t *testing.T) {
 	t.Parallel()
 	RegisterFailHandler(Fail)
 	RunSpecs(t, "SpiffeCert Test Suite")

@@ -6,13 +6,12 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/spf13/cobra"
 	v1 "k8s.io/api/core/v1"
-	discoveryv1beta1 "k8s.io/api/discovery/v1beta1"
+	discovery "k8s.io/api/discovery/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	"github.com/spf13/cobra"
-
-	"github.com/nginxinc/nginx-service-mesh/pkg/apis/mesh"
+	"github.com/nginxinc/nginx-service-mesh/pkg/inject"
 )
 
 const longServices = `List the Services registered with NGINX Service Mesh.
@@ -38,24 +37,21 @@ func GetServices() *cobra.Command {
 	cmd.PersistentPreRunE = defaultPreRunFunc()
 	cmd.RunE = func(cmd *cobra.Command, args []string) error {
 		var meshServices []serviceDetails
-		k8sClient, err := client.New(initK8sClient.Config(), client.Options{})
-		if err != nil {
-			fmt.Printf("failed to initialize k8s client: %v\n", err)
-			return err
-		}
-		ctx, cancel := context.WithCancel(context.Background())
+
+		ctx, cancel := context.WithTimeout(context.Background(), meshTimeout)
 		defer cancel()
 
 		services := &v1.ServiceList{}
-		if err := k8sClient.List(ctx, services); err != nil {
+		if err := initK8sClient.Client().List(ctx, services); err != nil {
 			fmt.Printf("error getting list of services: %v\n", err)
 			return err
 		}
 
 		for _, serviceObj := range services.Items {
 			// if we consider a service injectable then we consider it registered with our mesh
-			if injectable, err := isNamespaceInjectionEnabled(ctx, k8sClient, serviceObj.Namespace); err == nil && injectable {
-				upstreams, epErr := getEndpoints(ctx, k8sClient, serviceObj)
+			if injectable, err := inject.IsNamespaceInjectable(
+				ctx, initK8sClient.Client(), serviceObj.Namespace); err == nil && injectable {
+				upstreams, epErr := getEndpoints(ctx, initK8sClient.Client(), serviceObj)
 				if err != nil {
 					return epErr
 				}
@@ -105,7 +101,7 @@ func GetServices() *cobra.Command {
 
 // getEndpoints returns a slice of upstream addresses for a service.
 func getEndpoints(ctx context.Context, k8sClient client.Client, svc v1.Service) ([]string, error) {
-	endpointSlices := &discoveryv1beta1.EndpointSliceList{}
+	endpointSlices := &discovery.EndpointSliceList{}
 	var upstreamAdresses []string
 	opt := client.MatchingLabels{"kubernetes.io/service-name": svc.Name}
 	if err := k8sClient.List(ctx, endpointSlices, opt); err != nil {
@@ -123,26 +119,4 @@ func getEndpoints(ctx context.Context, k8sClient client.Client, svc v1.Service) 
 	// in the case that a service has no upstreams yet but is in a namespace where injection would be enabled
 	// return nothing rather than an error since that service is still 'part' of the mesh.
 	return nil, nil
-}
-
-// isNamespaceInjectionEnabled returns whether a given namespace has injection enabled.
-func isNamespaceInjectionEnabled(ctx context.Context, k8sClient client.Client, ns string) (bool, error) {
-	// Never inject ignored namespaces.
-	for ignoredNS := range mesh.IgnoredNamespaces {
-		if ns == ignoredNS {
-			return false, nil
-		}
-	}
-
-	// Check if the namespace has the auto-injection label and it is set to "enabled".
-	nsObj := &v1.Namespace{}
-	if err := k8sClient.Get(ctx, client.ObjectKey{
-		Namespace: "",
-		Name:      ns,
-	}, nsObj); err != nil {
-		fmt.Printf("error getting namespace: %v\n", err)
-		return false, err
-	}
-
-	return nsObj.GetLabels()[mesh.AutoInjectLabel] == mesh.AutoInjectionEnabled, nil
 }
