@@ -56,7 +56,7 @@ func NewSecureMessageBus(secureConfig SecurableConfig) (*SecureMessageBus, error
 		opts: nats.GetDefaultOptions(),
 	}
 	if err := secureConfig.Validate(); err != nil {
-		return nil, fmt.Errorf("%v: %w", ErrInvalidConfig, err)
+		return nil, fmt.Errorf("%w: %w", ErrInvalidConfig, err)
 	}
 	tc, err := secureConfig.CreateTLSConfig()
 	if err != nil {
