@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: target
+spec:
+  selector:
+    matchLabels:
+      app: target
+  template:
+    metadata:
+      labels:
+        app: target
+    spec:
+      containers:
+        - name: target
+          image: "docker-registry/target:latest"
+          ports:
+            - containerPort: 80
+              name: sctp-80
+              protocol: SCTP

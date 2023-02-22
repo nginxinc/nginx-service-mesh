@@ -21,6 +21,25 @@ var IgnoredNamespaces = map[string]bool{
 // DeployLabel is the label key for deployment type of the resource.
 const DeployLabel = "nsm.nginx.com/"
 
+// SpiffeIDLabel is the label to tell SPIRE to issue certs.
+const SpiffeIDLabel = "spiffe.io/spiffeid"
+
+// proxy config annotations.
+const (
+	// IgnoreIncomingPortsAnnotation tells us which ports to ignore for incoming traffic.
+	IgnoreIncomingPortsAnnotation = "config.nsm.nginx.com/ignore-incoming-ports"
+	// IgnoreOutgoingPortsAnnotation tells us which ports to ignore for outgoing traffic.
+	IgnoreOutgoingPortsAnnotation = "config.nsm.nginx.com/ignore-outgoing-ports"
+	// MTLSModeAnnotation tells us the mtls-mode of the pod.
+	MTLSModeAnnotation = "config.nsm.nginx.com/mtls-mode"
+	// LoadBalancingAnnotation tells us the load balancing method for the service.
+	LoadBalancingAnnotation = "config.nsm.nginx.com/lb-method"
+	// DefaultEgressRouteAllowedAnnotation tells us if a pod is allowed to send egress traffic to the egress endpoint.
+	DefaultEgressRouteAllowedAnnotation = "config.nsm.nginx.com/default-egress-allowed"
+	// ClientMaxBodySizeAnnotation tells us the client-max-body-size of the pod.
+	ClientMaxBodySizeAnnotation = "config.nsm.nginx.com/client-max-body-size"
+)
+
 // NATS channel names.
 const (
 	// NatsAgentConfigChannel sends the mesh config from mesh-api to agent.
@@ -57,16 +76,6 @@ const (
 	HTTPRouteGroupKind = "HTTPRouteGroup"
 	// TCPRouteKind is the kind of TcpRoutes.
 	TCPRouteKind = "TCPRoute"
-)
-
-// field names for inject payload.
-const (
-	// IgnoreIncomingPortsField is the field that lists ports to ignore for incoming traffic.
-	IgnoreIncomingPortsField = "ignoreIncomingPorts"
-	// IgnoreOutgoingPortsField is the field that lists ports to ignore for outgoing traffic.
-	IgnoreOutgoingPortsField = "ignoreOutgoingPorts"
-	// FileField is the field that contains the binary data of the file to inject.
-	FileField = "file"
 )
 
 // MetricsConfig holds the data that may be dynamically updated at runtime for the nginx-mesh-metrics component.

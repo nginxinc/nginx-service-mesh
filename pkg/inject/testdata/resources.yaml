@@ -1,0 +1,176 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: target
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: target
+  template:
+    metadata:
+      labels:
+        app: target
+    spec:
+      containers:
+      - name: target
+        image: "docker-registry/target:latest"
+        ports:
+            - containerPort: 80
+              name: http-80
+              protocol: TCP
+            - containerPort: 443
+              name: https-443
+              protocol: TCP
+        readinessProbe:
+          initialDelaySeconds: 10
+          httpGet:
+            path: "/_healthz"
+            port: 8080
+        livenessProbe:
+          initialDelaySeconds: 10
+          httpGet:
+            path: "/_healthz"
+            port: 8080
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: target
+spec:
+  selector:
+    matchLabels:
+      app: target
+  template:
+    metadata:
+      labels:
+        app: target
+    spec:
+      containers:
+      - name: target
+        image: "docker-registry/target:latest"
+        ports:
+            - containerPort: 80
+              name: http-80
+              protocol: TCP
+            - containerPort: 443
+              name: https-443
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: target
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: target
+  template:
+    metadata:
+      labels:
+        app: target
+    spec:
+      containers:
+      - name: target
+        image: "docker-registry/target:latest"
+        ports:
+            - containerPort: 80
+              name: http-80
+              protocol: TCP
+            - containerPort: 443
+              name: https-443
+---
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: target
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: target
+  template:
+    metadata:
+      labels:
+        app: target
+    spec:
+      containers:
+      - name: target
+        image: "docker-registry/target:latest"
+        ports:
+            - containerPort: 80
+              name: http-80
+              protocol: TCP
+            - containerPort: 443
+              name: https-443
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: target
+spec:
+  template:
+    metadata:
+      labels:
+        app: target
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: target
+        image: "docker-registry/target:latest"
+        ports:
+        - containerPort: 80
+          name: http
+        - containerPort: 443
+          name: https
+---
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: target
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: target
+    spec:
+      containers:
+      - name: target
+        image: "docker-registry/target:latest"
+        ports:
+        - containerPort: 80
+          name: http
+        - containerPort: 443
+          name: https
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: target
+spec:
+  containers:
+  - name: target
+    image: "docker-registry/target:latest"
+    ports:
+    - containerPort: 80
+      name: http
+    - containerPort: 443
+      name: https
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: target-svc
+spec:
+  ports:
+  - port: 80
+    targetPort: 80
+    protocol: TCP
+    name: http
+  - port: 8888
+    targetPort: 8888
+    protocol: TCP
+    name: proxy
+  selector:
+    app: target

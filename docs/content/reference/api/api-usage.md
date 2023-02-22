@@ -55,15 +55,6 @@ The following `APIResourceList` describes the resources and actions that are ava
         "list",
         "patch"
       ]
-    },
-    {
-      "name": "inject",
-      "singularName": "",
-      "namespaced": false,
-      "kind": "",
-      "verbs": [
-        "create"
-      ]
     }
   ]
 }
@@ -78,7 +69,7 @@ For more information on API discovery roles and how to check your cluster's conf
 
 ## Authentication and Authorization
 
-In order to access the NGINX Service Mesh API, you must be authenticated with the Kubernetes API server and authorized to perform the action (for example, `list`, `create`, `patch`) on the `nsm.nginx.com` resource (for example, `config`, `services`, `inject`). 
+In order to access the NGINX Service Mesh API, you must be authenticated with the Kubernetes API server and authorized to perform the action (for example, `list`, `create`, `patch`) on the `nsm.nginx.com` resource (for example, `config`, `services`). 
 
 You can find information about authenticating with the Kubernetes API server in the Kubernetes [Authenticating](https://kubernetes.io/docs/reference/access-authn-authz/authentication/) documentation.
 
@@ -103,12 +94,6 @@ rules:
   - config
   verbs:
   - patch
-- apiGroups:
-  - nsm.nginx.com
-  resources:
-  - inject
-  verbs:
-  - create
 ```
 
 You can also create a `ClusterRole` with a subset of these permissions if you do not want to grant a user or Pod full access to the NGINX Service Mesh API. For example, if you would like to allow a user to only list NGINX Service Mesh services, you can define the following `ClusterRole`:
@@ -260,66 +245,6 @@ To `remove` all values from a list of strings, define the value as an empty list
     }
 }
 ```
-
-## Inject the Sidecar Proxy into Kubernetes Resources
-
-You can use the CLI or the REST API to manually inject the sidecar proxy into a Kubernetes resource definition.
-
-- CLI command: `nginx-meshctl inject`
-- API endpoint: `/apis/nsm.nginx.com/v1alpha1/inject`
-
-The NGINX Service Mesh supports injection for the following Kubernetes resources:
-
-- Deployment
-- DaemonSet
-- StatefulSet
-- ReplicaSet
-- ReplicationController
-- Job
-- Pod
-
-Requests to the `/apis/nsm.nginx.com/v1alpha1/inject` endpoint must include the following:
-
-- `Content-Type: multipart/form-data` header
-- a JSON or YAML file sent as a form field with a key name of `file` and the `Content-Type: octet-stream` header.
-  
-  Usage: `-F file=@my-app.json`
-
-The endpoint also supports the following optional form fields:
-
-- `ignoreIncomingPorts`: a string list of ports for the proxy to ignore for incoming traffic; with `Content-Type: text/plain`.
-  
-  Usage: `-F "ignoreIncomingPorts=80;type=text/plain"`
-
-- `ignoreOutgoingPorts`: a string list of ports for the proxy to ignore for outgoing traffic; with `Content-Type: text/plain`.
-
-  Usage: `-F "ignoreOutgoingPorts=90;type=text/plain"`
-
-### Example cURL Requests for Sidecar Proxy Injection
-
-{{< important >}}
-Read the [Direct access to Kubernetes API server](#direct-access-to-kubernetes-api-server) before trying any of the following examples. 
-{{< /important >}}
-
-- Provide a JSON file for injection:
-
-    ```bash
-    curl https://{APISERVER}/apis/nsm.nginx.com/v1alpha1/inject -X POST -H "Authorization: Bearer $TOKEN" --insecure -H "Content-Type:multipart/form-data"  -F file=@my-app.json
-    ```
-
-- Provide a YAML file, ignore incoming requests for port 80, and ignore outgoing traffic on port 90:
-
-    ```bash
-    curl https://{KUBERNETES_APISERVER}/apis/nsm.nginx.com/v1alpha1/inject -X POST -H "Authorization: Bearer $TOKEN" --insecure -H "Content-Type:multipart/form-data"  -F file=@my-app.yaml
-    -F "ignoreIncomingPorts=80;type=text/plain" -F "ignoreOutgoingPorts=90;type=text/plain"
-    ```
-
-- Ignore incoming requests on multiple ports (80, 90):
-
-    ```bash
-    curl https://{APISERVER}/apis/nsm.nginx.com/v1alpha1/inject -X POST -H "Authorization: Bearer $TOKEN" --insecure -H "Content-Type:multipart/form-data"  -F file=@my-app.yaml
-    -F "ignoreIncomingPorts=80;type=text/plain" -F "ignoreIncomingPorts=90;type=text/plain"
-    ```
   
 ### Internal Configuration API Endpoints
 
