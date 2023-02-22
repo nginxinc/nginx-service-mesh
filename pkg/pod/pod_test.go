@@ -31,6 +31,42 @@ var _ = Describe("Pod", func() {
 		Expect(pod.IsInjected(podObj)).To(BeTrue())
 	})
 
+	Context("returns the mtls mode annotation", func() {
+		Specify("if no annotation", func() {
+			Expect(pod.GetMTLSModeAnnotation(nil)).To(Equal(""))
+		})
+		Specify("if bad annotation", func() {
+			annotations := map[string]string{mesh.MTLSModeAnnotation: "badvalue"}
+			val, err := pod.GetMTLSModeAnnotation(annotations)
+			Expect(err).To(HaveOccurred())
+			Expect(val).To(Equal(""))
+		})
+		Specify("if annotation is set to true", func() {
+			annotations := map[string]string{mesh.MTLSModeAnnotation: string(mesh.Permissive)}
+			Expect(pod.GetMTLSModeAnnotation(annotations)).To(Equal(string(mesh.Permissive)))
+		})
+		Specify("if annotation is set to false", func() {
+			annotations := map[string]string{mesh.MTLSModeAnnotation: string(mesh.Off)}
+			Expect(pod.GetMTLSModeAnnotation(annotations)).To(Equal(string(mesh.Off)))
+		})
+	})
+
+	Context("returns the client-max-body-size annotation", func() {
+		Specify("if no annotation", func() {
+			Expect(pod.GetClientMaxBodySizeAnnotation(nil)).To(Equal(""))
+		})
+		Specify("if annotation is specified", func() {
+			annotations := map[string]string{mesh.ClientMaxBodySizeAnnotation: "10m"}
+			Expect(pod.GetClientMaxBodySizeAnnotation(annotations)).To(Equal("10m"))
+		})
+		Specify("if bad annotation", func() {
+			annotations := map[string]string{mesh.ClientMaxBodySizeAnnotation: "badvalue"}
+			val, err := pod.GetClientMaxBodySizeAnnotation(annotations)
+			Expect(err).To(HaveOccurred())
+			Expect(val).To(Equal(""))
+		})
+	})
+
 	Context("gets a pod owner", func() {
 		trueVal := true
 		It("has a replicaset-based owner", func() {

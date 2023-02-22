@@ -9,6 +9,7 @@ replace github.com/chzyer/logex v1.1.10 => github.com/chzyer/logex v1.2.0
 require (
 	github.com/deepmap/oapi-codegen v1.12.4
 	github.com/getkin/kin-openapi v0.114.0
+	github.com/golang/glog v1.0.0
 	github.com/labstack/echo/v4 v4.10.2
 	github.com/maxbrunsfeld/counterfeiter/v6 v6.6.1
 	github.com/nats-io/nats-server/v2 v2.9.14

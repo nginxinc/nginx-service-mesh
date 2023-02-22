@@ -5,15 +5,17 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"io"
 	"net/http"
 	"os"
+	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/spf13/cobra"
 
-	"github.com/nginxinc/nginx-service-mesh/internal/nginx-meshctl/inject"
 	"github.com/nginxinc/nginx-service-mesh/pkg/apis/mesh"
-	"github.com/nginxinc/nginx-service-mesh/pkg/k8s"
+	"github.com/nginxinc/nginx-service-mesh/pkg/inject"
 )
 
 const (
@@ -75,7 +77,7 @@ func Inject() *cobra.Command {
 		var input []byte
 		var err error
 		if filename != "" {
-			input, err = inject.ReadFileOrURL(filename)
+			input, err = readFileOrURL(filename)
 			if err != nil {
 				_, _ = fmt.Fprintln(os.Stderr, genericInjectErrorInfo)
 
@@ -83,7 +85,7 @@ func Inject() *cobra.Command {
 			}
 		} else {
 			var tmpFile *os.File
-			input, tmpFile, err = inject.CreateFileFromSTDIN()
+			input, tmpFile, err = createFileFromSTDIN()
 			if err != nil {
 				_, _ = fmt.Fprintln(os.Stderr, genericInjectErrorInfo)
 
@@ -97,90 +99,121 @@ func Inject() *cobra.Command {
 				}
 			}()
 		}
-		err = validatePorts(ignoreIncoming)
+
+		ignPorts := inject.IgnorePorts{
+			Incoming: ignoreIncoming,
+			Outgoing: ignoreOutgoing,
+		}
+		if portErr := ignPorts.Validate(); portErr != nil {
+			return fmt.Errorf("invalid ignore ports: %w", portErr)
+		}
+
+		injectConfig := inject.Inject{
+			Resources:   input,
+			IgnorePorts: ignPorts,
+		}
+
+		meshClient, err := mesh.NewMeshClient(initK8sClient.Config(), meshTimeout)
 		if err != nil {
-			_, _ = fmt.Fprintln(os.Stderr, genericInjectErrorInfo)
-
-			return fmt.Errorf("ignore incoming ports value is not valid: %w", err)
+			return fmt.Errorf("failed to get mesh client: %w", err)
 		}
-		err = validatePorts(ignoreOutgoing)
+		meshConfig, err := GetMeshConfig(meshClient)
 		if err != nil {
-			_, _ = fmt.Fprintln(os.Stderr, genericInjectErrorInfo)
-
-			return fmt.Errorf("ignore outgoing ports value is not valid: %w", err)
+			return fmt.Errorf("unable to get mesh config: %w", err)
 		}
 
-		err = injectProxy(initK8sClient, input, filename, valueMap(ignoreIncoming, ignoreOutgoing))
-		if err != nil && strings.Contains(err.Error(), "Client.Timeout") {
-			_, _ = fmt.Fprintln(os.Stderr, "Try increasing the timeout using the '--timeout' flag.")
+		res, err := inject.IntoFile(injectConfig, *meshConfig)
+		if err != nil {
+			return fmt.Errorf("error injecting sidecar: %w", err)
 		}
+		fmt.Print(res)
 
-		return err
+		return nil
 	}
 
 	return cmd
 }
 
-func valueMap(incoming, outgoing []int) map[string][]int {
-	return map[string][]int{
-		mesh.IgnoreIncomingPortsField: incoming,
-		mesh.IgnoreOutgoingPortsField: outgoing,
+var errFileDoesNotExist = errors.New("files does not exist")
+
+// readFileOrURL returns the body from a local or remote file.
+func readFileOrURL(filename string) ([]byte, error) {
+	switch {
+	case filename != "" && !strings.HasPrefix(filename, "http"):
+		// Local file
+		if exists := fileExists(filename); !exists {
+			return nil, fmt.Errorf("%w: %s", errFileDoesNotExist, filename)
+		}
+		body, err := os.ReadFile(filepath.Clean(filename))
+		if err != nil {
+			return nil, fmt.Errorf("error reading file: %w", err)
+		}
+
+		return body, nil
+	case strings.HasPrefix(filename, "http"):
+		// Remote file
+		fileClient := &http.Client{Timeout: time.Minute}
+		req, err := http.NewRequestWithContext(context.TODO(), http.MethodGet, filename, http.NoBody)
+		if err != nil {
+			return nil, fmt.Errorf("error creating http request: %w", err)
+		}
+		resp, err := fileClient.Do(req)
+		if err != nil {
+			return nil, fmt.Errorf("error getting file: %w", err)
+		}
+		// this get around the errcheck lint when we really do not care
+		// 'Error return value of `resp.Body.Close` is not checked (errcheck)'
+		defer func() {
+			_ = resp.Body.Close()
+		}()
+
+		err = checkResponse(resp)
+		if err != nil {
+			return nil, err
+		}
+
+		body, err := io.ReadAll(resp.Body)
+		if err != nil {
+			return nil, fmt.Errorf("error reading file contents: %w", err)
+		}
+
+		return body, nil
 	}
+
+	return nil, nil
 }
 
-var errPortNotValid = errors.New("port is not valid")
-
-// validatePort checks that the port is within the range 1-65535.
-func validatePorts(ports []int) error {
-	for _, p := range ports {
-		if p <= 0 || p > 65535 {
-			return fmt.Errorf("%w: %d", errPortNotValid, p)
-		}
+func fileExists(filename string) bool {
+	info, err := os.Stat(filename)
+	if os.IsNotExist(err) {
+		return false
 	}
 
-	return nil
+	return !info.IsDir()
 }
 
-func injectProxy(k8sClient k8s.Client, input []byte, filename string, values map[string][]int) error {
-	meshClient, err := mesh.NewMeshClient(k8sClient.Config(), meshTimeout)
+var errResponse = errors.New("http request failed")
+
+func checkResponse(resp *http.Response) error {
+	if c := resp.StatusCode; c >= 200 && c <= 299 {
+		return nil
+	}
+	req := resp.Request
+
+	return fmt.Errorf("%w: %v %v failed: %v", errResponse, req.Method, req.URL.String(), resp.Status)
+}
+
+// createFileFromSTDIN creates a temporary file from the data contained in stdin and returns the data and file pointer.
+func createFileFromSTDIN() ([]byte, *os.File, error) {
+	data, err := io.ReadAll(os.Stdin)
 	if err != nil {
-		_, _ = fmt.Fprintln(os.Stderr, genericInjectErrorInfo)
-
-		return err
+		return nil, nil, fmt.Errorf("error reading file contents: %w", err)
 	}
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
 
-	body, contentType, err := inject.BuildMultipartRequestBody(values, input, filename)
+	f, err := os.CreateTemp("", "nginx-mesh-api-temp-file.txt")
 	if err != nil {
-		_, _ = fmt.Fprintln(os.Stderr, genericInjectErrorInfo)
-
-		return err
-	}
-	res, err := meshClient.InjectSidecarProxyWithBody(ctx, contentType, body)
-	if err != nil {
-		_, _ = fmt.Fprintln(os.Stderr, genericInjectErrorInfo)
-
-		return fmt.Errorf("error injecting sidecar proxy with body: %w", err)
-	}
-	defer func() {
-		closeErr := res.Body.Close()
-		if closeErr != nil {
-			fmt.Println(closeErr)
-		}
-	}()
-
-	if res.StatusCode != http.StatusOK {
-		_, _ = fmt.Fprintln(os.Stderr, genericInjectErrorInfo)
-
-		return mesh.ParseAPIError(res)
+		return nil, nil, fmt.Errorf("error creating temporary file: %w", err)
 	}
 
-	data, err := mesh.ParseInjectSidecarProxyResponse(res)
-	if err != nil {
-		return fmt.Errorf("error parsing response body from Service Mesh API Server: %w", err)
-	}
-	fmt.Print(string(data.Body))
-
-	return nil
+	return data, f, nil
 }

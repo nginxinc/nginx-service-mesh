@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: target
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: target
+  template:
+    metadata:
+      labels:
+        app: target
+    spec:
+      containers:
+      - name: target
+        image: "docker-registry/target:latest"
+        ports:
+            - containerPort: 80
+              name: http-80
+              protocol: TCP
+            - containerPort: 443
+              name: https-443
+              protocol: TCP

@@ -4,6 +4,7 @@ package pod
 import (
 	"context"
 	"fmt"
+	"regexp"
 	"strings"
 	"time"
 
@@ -21,6 +22,33 @@ func IsInjected(pod *v1.Pod) bool {
 	val, ok := pod.Annotations[mesh.InjectedAnnotation]
 
 	return ok && strings.ToLower(val) == mesh.Injected
+}
+
+// GetMTLSModeAnnotation returns the MTLS mode in a Pod's annotation, if applicable.
+func GetMTLSModeAnnotation(annotations map[string]string) (string, error) {
+	if val, ok := annotations[mesh.MTLSModeAnnotation]; ok {
+		lowerVal := strings.ToLower(val)
+		if _, ok := mesh.MtlsModes[lowerVal]; ok {
+			return lowerVal, nil
+		}
+		return "", fmt.Errorf("Invalid annotation value '%s', defaulting to configured MTLS mode", val)
+	}
+
+	return "", nil
+}
+
+// GetClientMaxBodySizeAnnotation returns the client-max-body-size in a Pod's annotation, if applicable.
+func GetClientMaxBodySizeAnnotation(annotations map[string]string) (string, error) {
+	if val, ok := annotations[mesh.ClientMaxBodySizeAnnotation]; ok {
+		re := regexp.MustCompile(`^\d+[kKmMgG]?$`)
+		if !re.MatchString(val) {
+			return "", fmt.Errorf("Invalid annotation value '%s', defaulting to configured client max body size", val)
+		}
+
+		return val, nil
+	}
+
+	return "", nil
 }
 
 // GetOwner gets a pod's owner type and name.

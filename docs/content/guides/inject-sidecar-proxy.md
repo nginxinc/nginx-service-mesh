@@ -106,26 +106,6 @@ Refer to the Kubernetes [`kubectl` Cheat Sheet](https://kubernetes.io/docs/refer
 
 ## Manual Proxy Injection
 
-Before running the `inject` command, make sure your Kubernetes user has the permission to `create` the resource `inject` in APIGroup `nsm.nginx.com`. Below is an example of a `ClusterRole` with this permission:
-
-```yaml
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRole
-metadata:
-  name: nsm-inject
-rules:
-- apiGroups:
-  - nsm.nginx.com
-  resources:
-  - inject
-  verbs:
-  - create
-```
-
-{{< note >}}
-If your Kubernetes user account has the `ClusterAdmin` role, then no additional permissions are necessary to run the inject command.
-{{< /note >}}
-
 To inject the sidecar proxy into a resource manually, use the `nginx-meshctl inject` command. Provide the path to the resource definition file and your desired output filename.
 
 ```bash
@@ -136,12 +116,6 @@ For example, the following command will write the updated config for "resource.y
 
 ```bash
 nginx-meshctl inject < resource.yaml > resource-injected.yaml
-```
-
-Depending on the network connection and the size of the file you're injecting, timeouts may occur while running the inject command. If this happens, you can use the `--timeout` flag to increase the timeout. The default timeout is 5 seconds.
-
-```bash
-nginx-meshctl --timeout 10s inject < resource.yaml > resource-injected.yaml
 ```
 
 ## Ignore Specific Ports
