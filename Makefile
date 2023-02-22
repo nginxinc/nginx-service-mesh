@@ -23,7 +23,7 @@ all: deps generate test lint format build
 generate: ## Generate Go code for apis and fakes
 	go generate ./...
 	go run sigs.k8s.io/controller-tools/cmd/controller-gen object paths=./pkg/apis/...
-	go run github.com/deepmap/oapi-codegen/cmd/oapi-codegen -package mesh ./api/mesh.yaml > ./pkg/apis/mesh/mesh.gen.go
+	go run github.com/deepmap/oapi-codegen/cmd/oapi-codegen@latest -package mesh ./api/mesh.yaml > ./pkg/apis/mesh/mesh.gen.go
 	scripts/generateSchema.sh api/upstream-ca-validation.json > internal/nginx-meshctl/upstreamauthority/schema.go
 	$(MAKE) format
 

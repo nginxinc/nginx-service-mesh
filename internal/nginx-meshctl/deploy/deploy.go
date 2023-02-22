@@ -53,7 +53,7 @@ func (d *Deployer) Deploy() (string, error) {
 			return "", fmt.Errorf("%w. To remove the existing mesh, run \"nginx-meshctl remove\"", existsErr)
 		}
 
-		return "", fmt.Errorf("%v: %w", meshErrors.ErrCheckingExistence, existsErr)
+		return "", fmt.Errorf("%v: %w", meshErrors.ErrCheckingExistence, existsErr) //nolint:errorlint // only one %w allowed
 	}
 	fmt.Println("Deploying NGINX Service Mesh...")
 
