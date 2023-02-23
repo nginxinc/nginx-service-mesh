@@ -141,7 +141,7 @@ Flags:
                                           		Valid values: disk, memory (default "disk")
       --telemetry-exporters stringArray   list of telemetry exporter key-value configurations
                                           		Format: "type=<exporter_type>,host=<exporter_host>,port=<exporter_port>".
-                                          		Type, host, and port are required. Only type "otlp" exporter is supported. Cannot be used with --tracing-address.
+                                          		Type, host, and port are required. Only type "otlp" exporter is supported.
       --telemetry-sampler-ratio float32   the percentage of traces that are processed and exported to the telemetry backend.
                                           		Float between 0 and 1 (default 0.01)
 
@@ -153,14 +153,7 @@ Global Flags:
 
 ### Deprecated Flags
 
-OpenTracing is deprecated in favor of OpenTelemetry. As a result, the following flags are deprecated and will be removed in a future release:
-
-      --sample-rate float32               the sample rate to use for tracing
-                                          		Float between 0 and 1 (default 0.01)
-      --tracing-address string            the address of a tracing server deployed in your Kubernetes cluster
-                                          		Address should be in the format <service-name>.<namespace>:<service_port>. Cannot be used with --telemetry-exporters.
-      --tracing-backend string            the tracing backend that you want to use
-                                          		Valid values: datadog, jaeger, zipkin
+The following flags are deprecated and will be removed in a future release:
 
 ### Deploy Examples
 
@@ -185,10 +178,6 @@ Most of the examples below show shortened commands for convenience. The '...' in
 - Deploy the Service Mesh and enable telemetry traces to be exported to your OTLP gRPC collector running in your Kubernetes cluster:
      
     `nginx-meshctl deploy ... --telemetry-exporters "type=otlp,host=otel-collector.my-namespace.svc.cluster.local,port=4317"`
-
-- Deploy the Service Mesh with a tracing server in your Kubernetes cluster (deprecated):
-
-    `nginx-meshctl deploy ... --tracing-backend="jaeger" --tracing-address="my-jaeger-server.my-namespace.svc.cluster.local:6831"`
 
 - Deploy the Service Mesh with upstream certificates and keys for mTLS:
 

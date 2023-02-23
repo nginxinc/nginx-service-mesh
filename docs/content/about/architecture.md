@@ -270,14 +270,6 @@ Here is an example of the tracing data flow using both DataDog and LightStep as 
 {{< img src="/img/opentelemetry.png" alt="OpenTelemetry Data Flow" >}}
 *Tracing data flow using the OpenTelemetry Collector*
 
-[OpenTracing](https://opentracing.io/docs/overview/what-is-tracing/) is an API used by tracing solutions like [Jaeger](https://www.jaegertracing.io/), [Zipkin](https://zipkin.io/), and [DataDog](https://docs.datadoghq.com/tracing/) that profiles and monitors requests passing through applications.
-
-NGINX Service Mesh sidecars use the [NGINX OpenTracing module](https://github.com/opentracing-contrib/nginx-opentracing) to connect to the tracing backend. This module creates new tracing spans and propagates existing ones as requests pass through applications. The tracing backend then collects and saves these spans in memory.
-
-{{< note >}}
-OpenTracing is deprecated in favor of OpenTelemetry.
-{{< /note >}}
-
 ### Ingress and Egress Traffic
 
 You can deploy [NGINX Plus Ingress Controller](https://www.nginx.com/products/nginx-ingress-controller/) with NGINX Service Mesh to provide production-grade control over ingress and egress traffic. Like the NGINX Service Mesh sidecar, NGINX Plus Ingress Controller fetches certificates from [SPIRE](#spire) to authenticate with NGINX Service Mesh workloads. This integration with SPIRE allows NGINX Plus Ingress Controller to communicate with NGINX Service Mesh workloads without being injected with a sidecar.

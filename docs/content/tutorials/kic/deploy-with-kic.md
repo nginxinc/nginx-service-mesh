@@ -315,58 +315,6 @@ it is possible that internal routes could be accessible from the public internet
 We highly recommend [installing NGINX Ingress Controller with mTLS enabled](#install-nginx-ingress-controller-with-mtls-enabled).
 {{< /caution >}}
 
-## OpenTracing Integration
-
-To enable traces to span from NGINX Ingress Controller through the backend services in the Mesh, you'll first need to [build the NGINX Ingress Controller image](https://docs.nginx.com/nginx-ingress-controller/installation/building-ingress-controller-image/#) with the OpenTracing module.
-Refer to the [NGINX Ingress Controller guide to using OpenTracing](https://docs.nginx.com/nginx-ingress-controller/third-party-modules/opentracing/) for more information.
-
-NGINX Service Mesh natively supports Zipkin, Jaeger, and DataDog; refer to the [Monitoring and Tracing]( {{< ref "/guides/monitoring-and-tracing.md" >}} ) topic for more information.
-
-If your tracing backend is being used by the Mesh, use the CLI tool to find the address of the tracing server and the sample rate.
-
-```bash
-nginx-meshctl config
-{
-...
-  "tracing": {
-    "backend": "jaeger",
-    "backendAddress": "jaeger.my-namespace.svc:6831",
-    "sampleRate": .01
-  },
-...
-}
-```
-
-You will need to provide these values in the `opentracing-tracer-config` field of the NGINX Ingress Controller ConfigMap.
-
-Below is an example of the config for Jaeger:
-
-```yaml
-  opentracing-tracer-config: |
-     {
-       "service_name": "nginx-ingress",
-       "sampler": {
-          "type": "probabilistic",
-          "param": .01
-       },
-       "reporter": {
-          "localAgentHostPort": "jaeger.my-namespace.svc:6831"
-       }
-     }
-```
-
-Add the annotation shown below to your Ingress resources. Doing so ensures that the span context propagates to the upstream requests and the operation name displays as "nginx-ingress".
-
-{{< note >}}
-The example below uses the snippets annotation. Starting with NGINX Plus Ingress Controller version 2.1.0, snippets are disabled by default. To use snippets, set the `enable-snippets` [command-line argument](https://docs.nginx.com/nginx-ingress-controller/configuration/global-configuration/command-line-arguments) on the NGINX Plus Ingress Controller Deployment or Daemonset.
-{{< /note >}}
-
-```yaml
-    nginx.org/location-snippets: |
-     opentracing_propagate_context;
-     opentracing_operation_name "nginx-ingress";
-```
-
 ## NGINX Ingress Controller Metrics
 
 To enable metrics collection for the NGINX Ingress Controller, take the following steps:

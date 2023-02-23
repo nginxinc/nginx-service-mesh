@@ -20,6 +20,10 @@ Incompatibilities between previous and current versions may require specific ste
 - [Manual Upgrade](#manual-upgrade)
 - [Upgrade to 1.7.0 in OpenShift](#upgrade-to-170-in-openshift)
 
+{< important >}}
+When upgrading from <v1.7 to >=v1.7, any tracing settings that do not refer to an OpenTelemetry configuration will be erased. To deploy OpenTelemetry services and configure your mesh for OpenTelemetry tracing refer to the [Monitoring and Tracing]( {{< ref "/guides/monitoring-and-tracing.md" >}} ) guide.
+{{< /important >}}
+
 ## In-Place Upgrade
 
 {{< important >}}

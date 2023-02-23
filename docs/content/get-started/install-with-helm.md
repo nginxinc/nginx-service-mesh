@@ -208,9 +208,6 @@ The following table lists the configurable parameters of the NGINX Service Mesh 
 | `telemetry.exporters.otlp` | The configuration for an OTLP gRPC exporter. | |
 | `telemetry.exporters.otlp.host` | The host of the OpenTelemetry gRPC exporter to connect to. Must be accessible from within the cluster. | |
 | `telemetry.exporters.otlp.port` | The port of the OpenTelemetry gRPC exporter to connect to. | 4317 |
-| `tracing.address` (deprecated) | The address of a tracing server deployed in your Kubernetes cluster. Address should be in the format `<service-name>.<namespace>:<service_port>`. | |
-| `tracing.backend` (deprecated) | The tracing backend that you want to use. | |
-| `tracing.sampleRate` (deprecated) | The sample rate to use for tracing. Float between 0 and 1. | 0.01 |
 | `mtls.mode` | mTLS mode for pod-to-pod communication. | permissive |
 | `mtls.caTTL` | The CA/signing key TTL in hours(h). Min value 24h. Max value 999999h. | 720h |
 | `mtls.svidTTL` | The trust domain of the NGINX Service Mesh. Max value is 999999. | 1h |
