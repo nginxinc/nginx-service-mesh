@@ -78,6 +78,9 @@ const (
 	TCPRouteKind = "TCPRoute"
 )
 
+// ControllerVersionPort is the port that the controller runs the /version endpoint on.
+const ControllerVersionPort = 8090
+
 // MetricsConfig holds the data that may be dynamically updated at runtime for the nginx-mesh-metrics component.
 type MetricsConfig struct {
 	PromAddr *string `json:"PrometheusAddress,omitempty"`
