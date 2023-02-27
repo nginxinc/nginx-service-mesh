@@ -12,7 +12,7 @@ require (
 	github.com/labstack/echo/v4 v4.10.2
 	github.com/maxbrunsfeld/counterfeiter/v6 v6.6.1
 	github.com/nats-io/nats-server/v2 v2.9.14
-	github.com/nats-io/nats.go v1.23.0
+	github.com/nats-io/nats.go v1.24.0
 	github.com/onsi/ginkgo/v2 v2.8.3
 	github.com/onsi/gomega v1.27.1
 	github.com/servicemeshinterface/smi-controller-sdk v0.0.0-20220429210008-4cbed06a6789
