@@ -125,7 +125,7 @@ func generateBundle(k8sClient k8s.Client, writer support.FileWriter, output, ver
 // writeMeshVersion gets the output of nginx-meshctl version and writes to a file.
 func writeMeshVersion(k8sClient k8s.Client, writer support.FileWriter, directory, version string) error {
 	versionTxt := fmt.Sprintf("nginx-meshctl - v%s\n", version)
-	versions, err := getComponentVersions(k8sClient)
+	versions, err := getComponentVersions(k8sClient.Config(), k8sClient.Namespace(), meshTimeout)
 	if err != nil {
 		return err
 	}

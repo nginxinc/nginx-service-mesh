@@ -259,6 +259,5 @@ These endpoints are for internal use only.
 |Resource Name|REST API Endpoint                       |Description                                                                                                      |CLI Command|Helm Job                |Permissions                             |
 |-------------|----------------------------------------|-----------------------------------------------------------------------------------------------------------------|-----------|------------------------|----------------------------------------|
 |clear        |`/apis/nsm.nginx.com/v1alpha1/clear`    |a POST request to `/clear` turns all NGINX Service Mesh sidecars transparent                                     |remove     |turn-proxies-transparent|create clear in APIGroup nsm.nginx.com  |
-|version      |`/apis/nsm.nginx.com/v1alpha1/version`  |a GET request to `/version` returns the versions of the control plane components and the sidecars                |version    |N/A                     |list version in APIGroup nsm.nginx.com  |
 
 {{< /bootstrap-table >}}
