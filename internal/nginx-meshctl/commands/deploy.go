@@ -424,9 +424,7 @@ func Deploy() *cobra.Command {
 	return cmd
 }
 
-var (
-	errInvalidConfig = errors.New("invalid configuration")
-)
+var errInvalidConfig = errors.New("invalid configuration")
 
 func setTelemetryValues(telemetry telemetryConfig, values *helm.Values) error {
 	if len(telemetry.exporters) > 0 {
