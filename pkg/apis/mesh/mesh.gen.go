@@ -411,33 +411,6 @@ type ProxyConfig struct {
 	Transparent bool `json:"transparent"`
 }
 
-// Service The configuration of a Service resource in NGINX Service Mesh.
-type Service struct {
-	// Addresses The IP addresses of the Endpoints of the Kubernetes Service.
-	Addresses []string `json:"addresses"`
-
-	// Name The Kubernetes Service name.
-	Name string `json:"name"`
-
-	// Namespace The namespace of the Kubernetes Service.
-	Namespace *string `json:"namespace,omitempty"`
-
-	// Ports The ports of the Kubernetes Service.
-	Ports []ServicePort `json:"ports"`
-
-	// ServiceIP The IP address of the Kubernetes Service.
-	ServiceIP *string `json:"serviceIP,omitempty"`
-}
-
-// ServicePort A representation of a Service Port in NGINX Service Mesh. Contains the port number and the protocol.
-type ServicePort struct {
-	// Port The port number.
-	Port int32 `json:"port"`
-
-	// Protocol The protocol of the traffic.
-	Protocol string `json:"protocol"`
-}
-
 // TelemetryConfig The configuration for telemetry.
 type TelemetryConfig struct {
 	// Exporters The configuration of exporters to send telemetry data to.
@@ -551,8 +524,6 @@ type ClientInterface interface {
 
 	PatchConfig(ctx context.Context, body PatchConfigJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// GetServices request
-	GetServices(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 }
 
 func (c *Client) GetConfig(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
@@ -591,17 +562,6 @@ func (c *Client) PatchConfig(ctx context.Context, body PatchConfigJSONRequestBod
 	return c.Client.Do(req)
 }
 
-func (c *Client) GetServices(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewGetServicesRequest(c.Server)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
 
 // NewGetConfigRequest generates requests for GetConfig
 func NewGetConfigRequest(server string) (*http.Request, error) {
@@ -670,32 +630,6 @@ func NewPatchConfigRequestWithBody(server string, contentType string, body io.Re
 	return req, nil
 }
 
-// NewGetServicesRequest generates requests for GetServices
-func NewGetServicesRequest(server string) (*http.Request, error) {
-	var err error
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/services")
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	req, err := http.NewRequest("GET", queryURL.String(), nil)
-	if err != nil {
-		return nil, err
-	}
-
-	return req, nil
-}
 
 func (c *Client) applyEditors(ctx context.Context, req *http.Request, additionalEditors []RequestEditorFn) error {
 	for _, r := range c.RequestEditors {
@@ -748,8 +682,6 @@ type ClientWithResponsesInterface interface {
 
 	PatchConfigWithResponse(ctx context.Context, body PatchConfigJSONRequestBody, reqEditors ...RequestEditorFn) (*PatchConfigResponse, error)
 
-	// GetServices request
-	GetServicesWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetServicesResponse, error)
 }
 
 type GetConfigResponse struct {
@@ -802,207 +734,6 @@ func (r PatchConfigResponse) StatusCode() int {
 	return 0
 }
 
-type GetServicesResponse struct {
-	Body         []byte
-	HTTPResponse *http.Response
-	JSON200      *[]Service
-	JSON401      *ErrorModel
-	JSON403      *ErrorModel
-	JSON500      *ErrorModel
-}
-
-// Status returns HTTPResponse.Status
-func (r GetServicesResponse) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r GetServicesResponse) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
-// GetConfigWithResponse request returning *GetConfigResponse
-func (c *ClientWithResponses) GetConfigWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetConfigResponse, error) {
-	rsp, err := c.GetConfig(ctx, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseGetConfigResponse(rsp)
-}
-
-// PatchConfigWithBodyWithResponse request with arbitrary body returning *PatchConfigResponse
-func (c *ClientWithResponses) PatchConfigWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PatchConfigResponse, error) {
-	rsp, err := c.PatchConfigWithBody(ctx, contentType, body, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParsePatchConfigResponse(rsp)
-}
-
-func (c *ClientWithResponses) PatchConfigWithResponse(ctx context.Context, body PatchConfigJSONRequestBody, reqEditors ...RequestEditorFn) (*PatchConfigResponse, error) {
-	rsp, err := c.PatchConfig(ctx, body, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParsePatchConfigResponse(rsp)
-}
-
-// GetServicesWithResponse request returning *GetServicesResponse
-func (c *ClientWithResponses) GetServicesWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetServicesResponse, error) {
-	rsp, err := c.GetServices(ctx, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseGetServicesResponse(rsp)
-}
-
-// ParseGetConfigResponse parses an HTTP response from a GetConfigWithResponse call
-func ParseGetConfigResponse(rsp *http.Response) (*GetConfigResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &GetConfigResponse{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest MeshConfig
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON200 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
-		var dest ErrorModel
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON401 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
-		var dest ErrorModel
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON403 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
-		var dest ErrorModel
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON500 = &dest
-
-	}
-
-	return response, nil
-}
-
-// ParsePatchConfigResponse parses an HTTP response from a PatchConfigWithResponse call
-func ParsePatchConfigResponse(rsp *http.Response) (*PatchConfigResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &PatchConfigResponse{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest MeshConfig
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON200 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
-		var dest ErrorModel
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON400 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
-		var dest ErrorModel
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON401 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
-		var dest ErrorModel
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON403 = &dest
-
-	}
-
-	return response, nil
-}
-
-// ParseGetServicesResponse parses an HTTP response from a GetServicesWithResponse call
-func ParseGetServicesResponse(rsp *http.Response) (*GetServicesResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &GetServicesResponse{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest []Service
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON200 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
-		var dest ErrorModel
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON401 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
-		var dest ErrorModel
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON403 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
-		var dest ErrorModel
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON500 = &dest
-
-	}
-
-	return response, nil
-}
-
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
 	// Get NGINX Service Mesh configuration
@@ -1011,9 +742,6 @@ type ServerInterface interface {
 	// Update NGINX Service Mesh Configuration
 	// (PATCH /config)
 	PatchConfig(ctx echo.Context) error
-	// List all Services
-	// (GET /services)
-	GetServices(ctx echo.Context) error
 }
 
 // ServerInterfaceWrapper converts echo contexts to parameters.
@@ -1036,15 +764,6 @@ func (w *ServerInterfaceWrapper) PatchConfig(ctx echo.Context) error {
 
 	// Invoke the callback with all the unmarshalled arguments
 	err = w.Handler.PatchConfig(ctx)
-	return err
-}
-
-// GetServices converts echo context to params.
-func (w *ServerInterfaceWrapper) GetServices(ctx echo.Context) error {
-	var err error
-
-	// Invoke the callback with all the unmarshalled arguments
-	err = w.Handler.GetServices(ctx)
 	return err
 }
 
@@ -1078,13 +797,12 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 
 	router.GET(baseURL+"/config", wrapper.GetConfig)
 	router.PATCH(baseURL+"/config", wrapper.PatchConfig)
-	router.GET(baseURL+"/services", wrapper.GetServices)
 
 }
 
 // Base64 encoded, gzipped, json marshaled Swagger object
 var swaggerSpec = []string{
-
+	
 	"H4sIAAAAAAAC/+w8a3PbNrZ/BcO7H9q5siz5kdqeuXPHTbKtp0mqSZzbO+Pk7kDkkYgNCXABULHa9X+/",
 	"cw7ANyjJabLb3Yk/mSQeB+f9gn6LYpUXSoK0Jrr6LdJgCiUN0MP3PHkNfyvBWHyKlbQg6V9eFJmIuRVK",
 	"Hv/VKInv4J7nRQZuZALR1XcXlyeTKAdj+Bqiq0jIDc9EwmIlV2Jdapp+xUDyZQYJkzwHU/AYDDOpKrOE",

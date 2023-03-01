@@ -38,15 +38,6 @@ The following `APIResourceList` describes the resources and actions that are ava
   "groupVersion": "nsm.nginx.com/v1alpha1",
   "resources": [
     {
-      "name": "services",
-      "singularName": "",
-      "namespaced": false,
-      "kind": "",
-      "verbs": [
-        "list"
-      ]
-    },
-    {
       "name": "config",
       "singularName": "",
       "namespaced": false,
@@ -69,7 +60,7 @@ For more information on API discovery roles and how to check your cluster's conf
 
 ## Authentication and Authorization
 
-In order to access the NGINX Service Mesh API, you must be authenticated with the Kubernetes API server and authorized to perform the action (for example, `list`, `create`, `patch`) on the `nsm.nginx.com` resource (for example, `config`, `services`). 
+In order to access the NGINX Service Mesh API, you must be authenticated with the Kubernetes API server and authorized to perform the action (for example, `list`, `create`, `patch`) on the `nsm.nginx.com` resource (for example, `config`). 
 
 You can find information about authenticating with the Kubernetes API server in the Kubernetes [Authenticating](https://kubernetes.io/docs/reference/access-authn-authz/authentication/) documentation.
 
@@ -84,7 +75,6 @@ rules:
 - apiGroups:
   - nsm.nginx.com
   resources:
-  - services
   - config
   verbs:
   - list
@@ -96,18 +86,18 @@ rules:
   - patch
 ```
 
-You can also create a `ClusterRole` with a subset of these permissions if you do not want to grant a user or Pod full access to the NGINX Service Mesh API. For example, if you would like to allow a user to only list NGINX Service Mesh services, you can define the following `ClusterRole`:
+You can also create a `ClusterRole` with a subset of these permissions if you do not want to grant a user or Pod full access to the NGINX Service Mesh API. For example, if you would like to allow a user to only list NGINX Service Mesh config, you can define the following `ClusterRole`:
 
 ```yaml
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: nsm-api-list-services
+  name: nsm-api-list-config
 rules:
 - apiGroups:
   - nsm.nginx.com
   resources:
-  - services
+  - config
   verbs:
   - list
 ```
@@ -165,12 +155,6 @@ To get the NGINX Service Mesh deployment configuration:
 kubectl get --raw /apis/nsm.nginx.com/v1alpha1/config
 ```
 
-To get the list of NGINX Service Mesh services:
-
-```bash
-kubectl get --raw /apis/nsm.nginx.com/v1alpha1/services
-```
-
 ### Command Line Access
 The `nginx-meshctl` command line tool acts as a wrapper around the Service Mesh API. You can use the `nginx-meshctl` CLI to access the API endpoints, which simplifies human interactions with the REST API. For automation purposes, you can also access the REST API programmatically.
 
@@ -193,9 +177,6 @@ You can use the REST API, `nginx-meshctl` command line tool, or `kubectl` to vie
   - CLI command: `nginx-meshctl config`
 
 - View the services participating in the mesh:
-
-  - REST API endpoint: `/apis/nsm.nginx.com/v1alpha1/services`
-  - kubectl command: `kubectl get --raw /apis/nsm.nginx.com/v1alpha1/services`
   - CLI command: `nginx-meshctl services`
 
 ### Modify the Mesh State by using the REST API
