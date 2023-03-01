@@ -151,10 +151,6 @@ Global Flags:
   -t, --timeout duration    timeout when communicating with NGINX Service Mesh API Server (default 5s)
 ```
 
-### Deprecated Flags
-
-The following flags are deprecated and will be removed in a future release:
-
 ### Deploy Examples
 
 Most of the examples below show shortened commands for convenience. The '...' in these examples represents the image references. Be sure to include the image references when running the deploy command.
