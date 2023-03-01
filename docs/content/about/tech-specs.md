@@ -66,10 +66,11 @@ NGINX Service Mesh also pulls the following publicly-accessible third-party cont
 
 ### Libraries
 {{% table %}}
-| NGINX Service Mesh | OpenTelemetry C++ | NGINX OpenTracing | OpenTracing C++ | OpenTracing Zipkin C++ | OpenTracing Jaeger Client C++ | OpenTracing Datadog C++ Client |
-|--------------------|-------------------|-------------------|-----------------|-------------------------|------------------------------|--------------------------------|
-| v1.7.0             | 1.8.1             | 0.25.0            | 1.5.1           | 0.5.2                  | 0.9.0                         | 1.2.0                          |
-| v1.6.0             | 1.4.1             | 0.25.0            | 1.5.1           | 0.5.2                  | 0.9.0                         | 1.2.0                          |
+| NGINX Service Mesh | OpenTelemetry C++ |
+|--------------------|-------------------|
+| v2.0.0             | 1.8.1             |
+| v1.7.0             | 1.8.1             |
+| v1.6.0             | 1.4.1             |
 {{% /table %}}
 
 ### UDP

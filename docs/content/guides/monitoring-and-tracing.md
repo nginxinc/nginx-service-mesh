@@ -135,6 +135,7 @@ Refer to [NGINX Service Mesh Labels and Annotations]( {{< ref "/get-started/conf
          }
       }
    }
+   ```
 
 If configured correctly, tracing data that is generated or propagated by the NGINX Service Mesh sidecar will be exported to the OTEL Collector, and then exported to the upstream collector(s), as shown in the following example diagram:
 
