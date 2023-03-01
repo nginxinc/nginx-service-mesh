@@ -34,7 +34,7 @@ The following tables list the software versions NGINX Service Mesh supports and 
 {{% table %}}
 | NGINX Service Mesh | NGINX Plus (sidecar) | SPIRE   | NATS                  |
 |--------------------|----------------------|---------|-----------------------|
-| v1.7.0             | R28                  | 1.5.4   | nats:2.9-alpine       |
+| v1.7.0+            | R28                  | 1.5.4   | nats:2.9-alpine       |
 | v1.6.0             | R27                  | 1.4.4   | nats:2.9.3-alpine3.16 |
 {{% /table %}}
 
@@ -68,8 +68,7 @@ NGINX Service Mesh also pulls the following publicly-accessible third-party cont
 {{% table %}}
 | NGINX Service Mesh | OpenTelemetry C++ |
 |--------------------|-------------------|
-| v2.0.0             | 1.8.1             |
-| v1.7.0             | 1.8.1             |
+| v1.7.0+            | 1.8.1             |
 | v1.6.0             | 1.4.1             |
 {{% /table %}}
 
