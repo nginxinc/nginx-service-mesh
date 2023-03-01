@@ -110,13 +110,6 @@ var NGINXLogFormats = map[string]struct{}{
 	string(MeshConfigNginxLogFormatJson):    {},
 }
 
-// TracingBackends are the supported tracing backends.
-var TracingBackends = map[string]struct{}{
-	string(Zipkin):  {},
-	string(Jaeger):  {},
-	string(Datadog): {},
-}
-
 // Environments are the supported kubernetes environments.
 var Environments = map[string]struct{}{
 	string(Kubernetes): {},

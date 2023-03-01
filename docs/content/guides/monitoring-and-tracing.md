@@ -85,11 +85,7 @@ Another option is to disable auto injection globally when deploying the mesh.
 Refer to [NGINX Service Mesh Labels and Annotations]( {{< ref "/get-started/configuration.md#supported-labels-and-annotations" >}}) for more information.
 {{< /important >}}
 
-### Tracing
-
-NGINX Service Mesh can export tracing data using either [OpenTelemetry](#opentelemetry) or [OpenTracing](#opentracing).
-
-#### OpenTelemetry
+### Tracing with OpenTelemetry
 
 NGINX Service Mesh can export tracing data using `OpenTelemetry`. Tracing data can be exported to an OpenTelemetry Protocol (OTLP) gRPC Exporter, such as the [OpenTelemetry (OTEL) Collector](https://opentelemetry.io/docs/collector/), which can then export data to one or more upstream collectors like [Jaeger](https://www.jaegertracing.io/), [DataDog](https://docs.datadoghq.com/tracing/), [LightStep](https://lightstep.com/), or many others. Before installing the mesh, deploy an OTEL Collector that is [configured to export data](https://opentelemetry.io/docs/collector/configuration/#exporters) to an upstream collector that you have already deployed or have access to.
 
@@ -102,10 +98,6 @@ Another option is to disable auto injection globally when deploying the mesh.
 
 Refer to [NGINX Service Mesh Labels and Annotations]( {{< ref "/get-started/configuration.md#supported-labels-and-annotations" >}}) for more information.
 {{< /important >}}
-
-{{< note >}}
-[OpenTracing](#opentracing) and OpenTelemetry cannot be enabled at the same time.
-{{< /note >}}
 
 - *At deployment*:
 
@@ -143,73 +135,9 @@ Refer to [NGINX Service Mesh Labels and Annotations]( {{< ref "/get-started/conf
          }
       }
    }
+   ```
 
 If configured correctly, tracing data that is generated or propagated by the NGINX Service Mesh sidecar will be exported to the OTEL Collector, and then exported to the upstream collector(s), as shown in the following example diagram:
 
 {{< img src="/img/opentelemetry.png" alt="OpenTelemetry Data Flow" >}}
 *Tracing data flow using the OpenTelemetry Collector*
-
-#### OpenTracing
-
-{{< note >}}
-OpenTracing is deprecated in favor of OpenTelemetry.
-{{< /note >}}
-
-NGINX Service Mesh supports `OpenTracing`. We support [Zipkin](https://zipkin.io/), [Jaeger](https://www.jaegertracing.io/), and [DataDog](https://docs.datadoghq.com/tracing/) via the [NGINX Opentracing Module](https://github.com/opentracing-contrib/nginx-opentracing).
-
-Tracing relies on the trace headers passed through each microservice in an application in order to build a full trace of a request. If you don't configure your app to pass trace headers, you'll get disjointed traces that are more difficult to understand. See the [OpenTracing Language Support](https://opentracing.io/docs/supported-languages/) guide for information on how to instrument your application to pass trace headers depending on your desired language.
-
-{{< important >}}
-In order to prevent automatic sidecar injection into your tracing deployment, it should be deployed in a namespace where auto-injection is disabled, or the `injector.nsm.nginx.com/auto-inject: disabled` label must be added to the *PodTemplateSpec* of the deployment.
-
-Another option is to disable auto injection globally when deploying the mesh.
-
-Refer to [NGINX Service Mesh Labels and Annotations]( {{< ref "/get-started/configuration.md#supported-labels-and-annotations" >}}) for more information.
-{{< /important >}}
-
-
-{{< important >}}
-OpenTracing and [OpenTelemetry](#opentelemetry) cannot be enabled at the same time.
-{{< /important >}}
-
-- *At deployment*:
-
-   Add the `--tracing-address` and `--tracing-backend` flags to your `nginx-meshctl deploy` command.
-
-   The expected address format is `<service-name>.<namespace>:<port>`.
-
-   For example:
-
-   ```bash
-   nginx-meshctl deploy ... --tracing-backend "zipkin" --tracing-address "my-zipkin-server.example-namespace:9411"
-
-   nginx-meshctl deploy ... --tracing-backend "jaeger" --tracing-address "my-jaeger-server.example-namespace:6831"
-   ```
-
-   You can set the desired sample rate to use for tracing by adding the `--sample-rate` flag to your deploy command. 
-   The sample rate must be a float between `0` and `1`. The sample rate sets the probability of sampling a span; this means that a sample rate of `0.1` sets a 10% probability the span is sampled. For example:
-
-   ```bash
-   nginx-meshctl deploy ... --sample-rate 0.1
-   ```
-
-- *At runtime*:
-
-   You can use the [NGINX Service Mesh API]({{< ref "reference/api/api-usage.md" >}}) to update the tracing configuration.
-
-   For example, send the following payload via `PATCH` to the NGINX Service Mesh API:
-
-   ```json
-   {
-      "op": "replace",
-      "field": {
-         "tracing": {
-            "backend": "jaeger",
-            "backendAddress": "my-jaeger-server.example-namespace:6831",
-            "sampleRate": 0.1
-         }
-      }
-   }
-
-If using DataDog, refer to the [DataDog Agent documentation](https://docs.datadoghq.com/agent/kubernetes) for deployment instructions. The DataDog Agent is required to connect mesh services to your DataDog
-server. You should set the `--tracing-address` to the address of your DataDog Agent and `--tracing-backend` to `datadog`.

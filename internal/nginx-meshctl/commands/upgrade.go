@@ -329,15 +329,6 @@ func (u *upgrader) savePreviousConfig(meshConfig mesh.MeshConfig) {
 	u.values.EnabledNamespaces = *meshConfig.EnabledNamespaces
 	u.values.ClientMaxBodySize = meshConfig.ClientMaxBodySize
 
-	if meshConfig.Tracing != (mesh.TraceConfig{}) {
-		if u.values.Tracing == nil {
-			u.values.Tracing = &helm.Tracing{}
-		}
-		u.values.Tracing.Address = *meshConfig.Tracing.BackendAddress
-		u.values.Tracing.Backend = string(*meshConfig.Tracing.Backend)
-		u.values.Tracing.SampleRate = *meshConfig.Tracing.SampleRate
-		u.values.Telemetry = nil
-	}
 	if meshConfig.Telemetry != (mesh.TelemetryConfig{}) {
 		if u.values.Telemetry == nil {
 			u.values.Telemetry = &helm.Telemetry{
@@ -351,6 +342,5 @@ func (u *upgrader) savePreviousConfig(meshConfig mesh.MeshConfig) {
 		u.values.Telemetry.SamplerRatio = *meshConfig.Telemetry.SamplerRatio
 		u.values.Telemetry.Exporters.OTLP.Host = meshConfig.Telemetry.Exporters.Otlp.Host
 		u.values.Telemetry.Exporters.OTLP.Port = meshConfig.Telemetry.Exporters.Otlp.Port
-		u.values.Tracing = nil
 	}
 }
