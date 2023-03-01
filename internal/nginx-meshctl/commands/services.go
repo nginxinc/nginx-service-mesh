@@ -20,11 +20,6 @@ const longServices = `List the Services registered with NGINX Service Mesh.
 - Outputs the Services and their upstream addresses and ports.
 - The list contains only those Services whose Pods contain the NGINX Service Mesh sidecar.
 `
-const injectionLabel = "injector.nsm.nginx.com/auto-inject"
-
-var IgnoredNamespaces = map[string]bool{
-	"kube-system": true,
-}
 
 type serviceDetails struct {
 	name      string
@@ -153,6 +148,6 @@ func isNamespaceInjectionEnabled(ctx context.Context, k8sClient client.Client, n
 		return false, err
 	}
 	return slices.Contains(*meshConfig.EnabledNamespaces, ns) ||
-		nsObj.GetLabels()[injectionLabel] == "enabled" ||
-		(*meshConfig.IsAutoInjectEnabled && !(IgnoredNamespaces[ns])), nil
+		nsObj.GetLabels()[mesh.AutoInjectLabel] == mesh.AutoInjectionEnabled ||
+		(*meshConfig.IsAutoInjectEnabled && !(mesh.IgnoredNamespaces[ns])), nil
 }
