@@ -13,6 +13,9 @@ const (
 // Injected is used as the value in the InjectedAnnotation.
 const Injected = "injected"
 
+// AutoInjectionEnabled is used as the value in the AutoInjectLabel.
+const AutoInjectionEnabled = "enabled"
+
 // IgnoredNamespaces is a map of the namespaces that the service mesh will ignore.
 var IgnoredNamespaces = map[string]bool{
 	"kube-system": true,

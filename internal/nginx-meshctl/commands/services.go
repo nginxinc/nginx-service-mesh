@@ -4,8 +4,12 @@ package commands // import "github.com/nginxinc/nginx-service-mesh/internal/ngin
 import (
 	"context"
 	"fmt"
-	"net/http"
 	"strings"
+
+	v1 "k8s.io/api/core/v1"
+	discoveryv1beta1 "k8s.io/api/discovery/v1beta1"
+	"k8s.io/utils/strings/slices"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/spf13/cobra"
 
@@ -17,9 +21,14 @@ const longServices = `List the Services registered with NGINX Service Mesh.
 - The list contains only those Services whose Pods contain the NGINX Service Mesh sidecar.
 `
 
-const genericGetServicesErrorInfo = "Cannot get Services from NGINX Service Mesh API Server."
+type serviceDetails struct {
+	name      string
+	namespace string
+	ports     []v1.ServicePort
+	addresses []string
+}
 
-// GetServices prints the service list fetched from the Control Plane.
+// GetServices prints the list of services registered with NGINX Service Mesh.
 func GetServices() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "services",
@@ -29,60 +38,58 @@ func GetServices() *cobra.Command {
 
 	cmd.PersistentPreRunE = defaultPreRunFunc()
 	cmd.RunE = func(cmd *cobra.Command, args []string) error {
-		meshClient, err := mesh.NewMeshClient(initK8sClient.Config(), meshTimeout)
+		var meshServices []serviceDetails
+		k8sClient, err := client.New(initK8sClient.Config(), client.Options{})
 		if err != nil {
-			fmt.Println(genericGetServicesErrorInfo)
-
+			fmt.Printf("failed to initialize k8s client: %v\n", err)
 			return err
 		}
 		ctx, cancel := context.WithCancel(context.Background())
 		defer cancel()
 
-		res, err := meshClient.GetServices(ctx)
-		if err != nil {
-			fmt.Println(genericGetServicesErrorInfo)
-
+		services := &v1.ServiceList{}
+		if err := k8sClient.List(ctx, services); err != nil {
+			fmt.Printf("error getting list of services: %v\n", err)
 			return err
 		}
-		defer func() {
-			closeErr := res.Body.Close()
-			if closeErr != nil {
-				fmt.Println(closeErr)
+
+		for _, serviceObj := range services.Items {
+			// if we consider a service injectable then we consider it registered with our mesh
+			if injectable, err := isNamespaceInjectionEnabled(ctx, k8sClient, serviceObj.Namespace); err == nil && injectable {
+				upstreams, epErr := getEndpoints(ctx, k8sClient, serviceObj)
+				if err != nil {
+					return epErr
+				}
+				meshServices = append(meshServices, serviceDetails{
+					name:      serviceObj.Name,
+					namespace: serviceObj.Namespace,
+					ports:     serviceObj.Spec.Ports,
+					addresses: upstreams,
+				})
+			} else if err != nil {
+				return err
 			}
-		}()
-
-		if res.StatusCode != http.StatusOK {
-			fmt.Println(genericGetServicesErrorInfo)
-
-			return mesh.ParseAPIError(res)
-		}
-
-		data, err := mesh.ParseGetServicesResponse(res)
-		if err != nil {
-			fmt.Println(genericGetServicesErrorInfo)
-
-			return fmt.Errorf("error parsing response body from NGINX Service Mesh API Server: %w", err)
 		}
 
 		tabWriter := TabWriterWithOpts()
 		fmt.Fprintln(tabWriter, "Service\tUpstream\tPort")
-		for _, svc := range *data.JSON200 {
-			serviceLine := fmt.Sprintf("%s/%s\t", *svc.Namespace, svc.Name)
+		for _, svc := range meshServices {
+			serviceLine := fmt.Sprintf("%s/%s\t", svc.namespace, svc.name)
 
 			// create list of ports
-			ports := make([]string, 0, len(svc.Ports))
-			for _, port := range svc.Ports {
+			ports := make([]string, 0, len(svc.ports))
+			for _, port := range svc.ports {
 				ports = append(ports, fmt.Sprintf("%v", port.Port))
 			}
-			if len(svc.Ports) == 0 {
+			if len(svc.ports) == 0 {
 				ports = append(ports, "<none>")
 			}
 
 			// create list of address and port combos
-			for _, addr := range svc.Addresses {
+			for _, addr := range svc.addresses {
 				serviceLine += fmt.Sprintf("%v\t%s\n\t", addr, strings.Join(ports, ","))
 			}
-			if len(svc.Addresses) == 0 {
+			if len(svc.addresses) == 0 {
 				serviceLine += fmt.Sprintf("<none>\t%s\n\t", strings.Join(ports, ","))
 			}
 
@@ -95,4 +102,58 @@ func GetServices() *cobra.Command {
 	}
 
 	return cmd
+}
+
+// getEndpoints returns a slice of upstream addresses for a service.
+func getEndpoints(ctx context.Context, k8sClient client.Client, svc v1.Service) ([]string, error) {
+	endpointSlices := &discoveryv1beta1.EndpointSliceList{}
+	var upstreamAdresses []string
+	opt := client.MatchingLabels{"kubernetes.io/service-name": svc.Name}
+	if err := k8sClient.List(ctx, endpointSlices, opt); err != nil {
+		fmt.Printf("error getting list of endpoint slices for service: %v\n", err)
+		return nil, err
+	}
+	for _, epSlice := range endpointSlices.Items {
+		if epSlice.Namespace == svc.Namespace {
+			for _, endpoint := range epSlice.Endpoints {
+				upstreamAdresses = append(upstreamAdresses, endpoint.Addresses...)
+			}
+			return upstreamAdresses, nil
+		}
+	}
+	// in the case that a service has no upstreams yet but is in a namespace where injection would be enabled
+	// return nothing rather than an error since that service is still 'part' of the mesh.
+	return nil, nil
+}
+
+// isNamespaceInjectionEnabled returns whether a given namespace has injection enabled.
+func isNamespaceInjectionEnabled(ctx context.Context, k8sClient client.Client, ns string) (bool, error) {
+	meshConfig, confErr := getMeshConfig()
+	if confErr != nil {
+		return false, confErr
+	}
+	nsObj := &v1.Namespace{}
+	if err := k8sClient.Get(ctx, client.ObjectKey{
+		Namespace: "",
+		Name:      ns,
+	}, nsObj); err != nil {
+		fmt.Printf("error getting namespace: %v\n", err)
+		return false, err
+	}
+	return slices.Contains(*meshConfig.EnabledNamespaces, ns) ||
+		nsObj.GetLabels()[mesh.AutoInjectLabel] == mesh.AutoInjectionEnabled ||
+		(*meshConfig.IsAutoInjectEnabled && !(mesh.IgnoredNamespaces[ns])), nil
+}
+
+// getMeshConfig fetches the mesh.MeshConfig of the mesh using the mesh.MeshClient.
+func getMeshConfig() (*mesh.MeshConfig, error) {
+	meshClient, err := mesh.NewMeshClient(initK8sClient.Config(), meshTimeout)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get mesh client: %w", err)
+	}
+	meshConfig, err := GetMeshConfig(meshClient)
+	if err != nil {
+		return nil, fmt.Errorf("unable to get mesh config: %w", err)
+	}
+	return meshConfig, nil
 }
