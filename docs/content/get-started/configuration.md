@@ -177,8 +177,6 @@ If not specified, then the global defaults will be used.
 | [config.nsm.nginx.com/ignore-incoming-ports]({{< ref "/guides/inject-sidecar-proxy.md#ignore-specific-ports" >}})                                                 | list of port strings                   | ""            |
 | [config.nsm.nginx.com/ignore-outgoing-ports]({{< ref "/guides/inject-sidecar-proxy.md#ignore-specific-ports" >}})                                                 | list of port strings                   | ""            |
 | [config.nsm.nginx.com/default-egress-allowed]({{< ref "/tutorials/kic/deploy-with-kic.md#enable-egress" >}})                                                    | `true`, `false`                        | `false`       |
-| [nsm.nginx.com/enable-ingress]({{< ref "/tutorials/kic/deploy-with-kic.md#secure-communication-between-nginx-plus-ingress-controller-and-nginx-service-mesh" >}}) (deprecated, use label instead) | `true`, `false` | `false`       |
-| [nsm.nginx.com/enable-egress]({{< ref "/tutorials/kic/deploy-with-kic.md#enable-egress" >}}) (deprecated, use label instead)                                      | `true`, `false` | `false`       |
 {{% /table %}}
 
 The Pod labels and annotations should be added to the **PodTemplateSpec** of a Deployment, StatefulSet, and so on, **before** injecting the sidecar proxy.
