@@ -54,20 +54,18 @@ func GetServices() *cobra.Command {
 		}
 
 		for _, serviceObj := range services.Items {
-			serviceObj := serviceObj
 			// if we consider a service injectable then we consider it registered with our mesh
 			if injectable, err := isNamespaceInjectionEnabled(ctx, k8sClient, serviceObj.Namespace); err == nil && injectable {
 				upstreams, epErr := getEndpoints(ctx, k8sClient, serviceObj)
 				if err != nil {
 					return epErr
 				}
-				newDetails := serviceDetails{
+				meshServices = append(meshServices, serviceDetails{
 					name:      serviceObj.Name,
 					namespace: serviceObj.Namespace,
 					ports:     serviceObj.Spec.Ports,
 					addresses: upstreams,
-				}
-				meshServices = append(meshServices, newDetails)
+				})
 			} else if err != nil {
 				return err
 			}
@@ -116,7 +114,6 @@ func getEndpoints(ctx context.Context, k8sClient client.Client, svc v1.Service) 
 		return nil, err
 	}
 	for _, epSlice := range endpointSlices.Items {
-		epSlice := epSlice
 		if epSlice.Namespace == svc.Namespace {
 			for _, endpoint := range epSlice.Endpoints {
 				upstreamAdresses = append(upstreamAdresses, endpoint.Addresses...)
@@ -131,13 +128,9 @@ func getEndpoints(ctx context.Context, k8sClient client.Client, svc v1.Service) 
 
 // isNamespaceInjectionEnabled returns whether a given namespace has injection enabled.
 func isNamespaceInjectionEnabled(ctx context.Context, k8sClient client.Client, ns string) (bool, error) {
-	meshClient, err := mesh.NewMeshClient(initK8sClient.Config(), meshTimeout)
-	if err != nil {
-		return false, fmt.Errorf("failed to get mesh client: %w", err)
-	}
-	meshConfig, err := GetMeshConfig(meshClient)
-	if err != nil {
-		return false, fmt.Errorf("unable to get mesh config: %w", err)
+	meshConfig, confErr := getMeshConfig()
+	if confErr != nil {
+		return false, confErr
 	}
 	nsObj := &v1.Namespace{}
 	if err := k8sClient.Get(ctx, client.ObjectKey{
@@ -150,4 +143,17 @@ func isNamespaceInjectionEnabled(ctx context.Context, k8sClient client.Client, n
 	return slices.Contains(*meshConfig.EnabledNamespaces, ns) ||
 		nsObj.GetLabels()[mesh.AutoInjectLabel] == mesh.AutoInjectionEnabled ||
 		(*meshConfig.IsAutoInjectEnabled && !(mesh.IgnoredNamespaces[ns])), nil
+}
+
+// getMeshConfig fetches the mesh.MeshConfig of the mesh using the mesh.MeshClient.
+func getMeshConfig() (*mesh.MeshConfig, error) {
+	meshClient, err := mesh.NewMeshClient(initK8sClient.Config(), meshTimeout)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get mesh client: %w", err)
+	}
+	meshConfig, err := GetMeshConfig(meshClient)
+	if err != nil {
+		return nil, fmt.Errorf("unable to get mesh config: %w", err)
+	}
+	return meshConfig, nil
 }
