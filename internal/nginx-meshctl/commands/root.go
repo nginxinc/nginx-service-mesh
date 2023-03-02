@@ -10,6 +10,10 @@ import (
 	"time"
 
 	"github.com/spf13/cobra"
+	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/runtime/schema"
+	"k8s.io/apimachinery/pkg/runtime/serializer"
+	"k8s.io/client-go/rest"
 
 	"github.com/nginxinc/nginx-service-mesh/pkg/apis/mesh"
 	"github.com/nginxinc/nginx-service-mesh/pkg/health"
@@ -202,7 +206,7 @@ Will contact Mesh API Server for version and timeout if unable to connect.`,
 		}
 
 		// Print remaining version if an error wasn't encountered
-		versions, err := getComponentVersions(initK8sClient)
+		versions, err := getComponentVersions(initK8sClient.Config(), meshNamespace, meshTimeout)
 		if err != nil {
 			printHelp(err)
 
@@ -214,19 +218,19 @@ Will contact Mesh API Server for version and timeout if unable to connect.`,
 	return cmd
 }
 
-func getComponentVersions(k8sClient k8s.Client) (string, error) {
-	// contact mesh-api to get component versions
-	client, err := mesh.NewMeshClient(k8sClient.Config(), meshTimeout)
+// contact mesh controller to get component versions.
+func getComponentVersions(config *rest.Config, namespace string, timeout time.Duration) (string, error) {
+	client, server, err := newVersionClient(config, namespace, timeout)
 	if err != nil {
 		return "", err
 	}
 
-	req, err := http.NewRequestWithContext(context.Background(), http.MethodGet, client.Server+"version", http.NoBody)
+	req, err := http.NewRequestWithContext(context.Background(), http.MethodGet, server, http.NoBody)
 	if err != nil {
 		return "", fmt.Errorf("error building http request: %w", err)
 	}
 
-	resp, err := client.Client.Do(req)
+	resp, err := client.Do(req)
 	if err != nil {
 		return "", err
 	}
@@ -238,7 +242,7 @@ func getComponentVersions(k8sClient k8s.Client) (string, error) {
 	}()
 
 	if resp.StatusCode != http.StatusOK {
-		return "", mesh.ParseAPIError(resp)
+		return "", fmt.Errorf("bad status code: %v", resp.StatusCode)
 	}
 
 	versions := make(map[string][]string)
@@ -253,4 +257,29 @@ func getComponentVersions(k8sClient k8s.Client) (string, error) {
 	}
 
 	return str, nil
+}
+
+func newVersionClient(config *rest.Config, namespace string, timeout time.Duration) (*http.Client, string, error) {
+	gv := schema.GroupVersion{Group: "", Version: "v1"}
+	config.GroupVersion = &gv
+	config.APIPath = fmt.Sprintf("/api/v1/namespaces/%s/services/nginx-mesh-api:%d/proxy/version", namespace, mesh.ControllerVersionPort)
+	config.Timeout = timeout
+	config.NegotiatedSerializer = serializer.NewCodecFactory(runtime.NewScheme())
+
+	restClient, err := rest.RESTClientFor(config)
+	if err != nil {
+		return nil, "", fmt.Errorf("error creating RESTClient: %w", err)
+	}
+
+	httpClient := &http.Client{
+		Timeout: timeout,
+	}
+
+	if restClient.Client != nil {
+		httpClient = restClient.Client
+	}
+
+	server := fmt.Sprintf("%s%s", config.Host, config.APIPath)
+
+	return httpClient, server, nil
 }
