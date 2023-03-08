@@ -2,8 +2,6 @@ module github.com/nginxinc/nginx-service-mesh
 
 go 1.19
 
-replace github.com/servicemeshinterface/smi-controller-sdk => github.com/sjberman/smi-controller-sdk v0.0.0-20221228160702-f642bac3bdf9
-
 replace github.com/chzyer/logex v1.1.10 => github.com/chzyer/logex v1.2.0
 
 require (
@@ -16,7 +14,7 @@ require (
 	github.com/nats-io/nats.go v1.24.0
 	github.com/onsi/ginkgo/v2 v2.9.0
 	github.com/onsi/gomega v1.27.1
-	github.com/servicemeshinterface/smi-controller-sdk v0.0.0-20220429210008-4cbed06a6789
+	github.com/servicemeshinterface/smi-controller-sdk v0.0.0-20230308185107-6a7dfd7d25c7
 	github.com/servicemeshinterface/smi-sdk-go v0.5.0
 	github.com/spf13/cobra v1.6.1
 	github.com/spiffe/go-spiffe/v2 v2.1.2
