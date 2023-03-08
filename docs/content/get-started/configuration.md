@@ -171,7 +171,6 @@ If not specified, then the global defaults will be used.
 {{% table %}}
 | Annotation                                                                                                                                                        | Values                                 | Default       |
 |-------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------|---------------|
-| [injector.nsm.nginx.com/auto-inject]({{< ref "/guides/inject-sidecar-proxy.md#automatic-proxy-injection" >}}) (deprecated, use label instead)                     | `true`, `false`                        | `true`        |
 | [config.nsm.nginx.com/mtls-mode]({{< ref "/guides/secure-traffic-mtls.md#change-the-mtls-setting-for-a-resource" >}})                                             | `off`, `permissive`, `strict`          | `permissive`  |
 | [config.nsm.nginx.com/client-max-body-size](#client-max-body-size)                                                                                                | `0`, `64k`, `10m`, ...                 | `1m`          |
 | [config.nsm.nginx.com/ignore-incoming-ports]({{< ref "/guides/inject-sidecar-proxy.md#ignore-specific-ports" >}})                                                 | list of port strings                   | ""            |
