@@ -266,7 +266,11 @@ func getComponentVersions(config *rest.Config, namespace string, timeout time.Du
 func newVersionClient(config *rest.Config, namespace string, timeout time.Duration) (*http.Client, string, error) {
 	gv := schema.GroupVersion{Group: "", Version: "v1"}
 	config.GroupVersion = &gv
-	config.APIPath = fmt.Sprintf("/api/v1/namespaces/%s/services/nginx-mesh-controller:%d/proxy/version", namespace, mesh.ControllerVersionPort)
+	config.APIPath = fmt.Sprintf(
+		"/api/v1/namespaces/%s/services/nginx-mesh-controller:%d/proxy/version",
+		namespace,
+		mesh.ControllerVersionPort,
+	)
 	config.Timeout = timeout
 	config.NegotiatedSerializer = serializer.NewCodecFactory(runtime.NewScheme())
 
