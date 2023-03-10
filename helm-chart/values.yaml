@@ -57,12 +57,7 @@ nginxLBMethod: "least_time"
 # Setting to "0" disables checking of client request body size.
 clientMaxBodySize: "1m"
 
-# Globally disable automatic sidecar injection upon resource creation.
-# Use either "enabledNamespaces" or a namespace label to enable automatic injection.
-disableAutoInjection: false
-
 # Enable automatic sidecar injection for specific namespaces.
-# Must be used with "disableAutoInjection".
 enabledNamespaces: []
 
 # The address of a Prometheus server deployed in your Kubernetes cluster.

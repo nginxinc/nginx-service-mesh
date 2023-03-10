@@ -257,10 +257,6 @@ var _ = Describe("Deploy", func() {
 			values.Registry.Password = password
 			runTest(values, "key-file", "cannot set both --registry-key and --registry-username/--registry-password")
 		})
-		It("makes sure enabled namespaces aren't provided when injection is enabled", func() {
-			values.EnabledNamespaces = []string{"ns"}
-			runTest(values, "", "invalid configuration: enabled namespaces should not be set")
-		})
 		It("passes if everything is valid", func() {
 			values.Registry.Username = user
 			values.Registry.Password = password

@@ -56,13 +56,13 @@ This command installs the following resources into your Kubernetes cluster by de
 
       nginx-meshctl deploy ... --namespace my-namespace
 
-  - Deploy the Service Mesh with mTLS and automatic injection turned off:
+  - Deploy the Service Mesh with mTLS turned off:
 
-      nginx-meshctl deploy ... --mtls-mode off --disable-auto-inject
+      nginx-meshctl deploy ... --mtls-mode off
 
-  - Deploy the Service Mesh and only allow automatic injection in namespace "my-namespace":
+  - Deploy the Service Mesh with automatic injection enabled for my-namespace-1 and my-namespace-2:
 
-      nginx-meshctl deploy ... --disable-auto-inject --enabled-namespaces="my-namespace"
+      nginx-meshctl deploy ... --enabled-namespaces "my-namespace-1,my-namespace-2"
 
   - Deploy the Service Mesh and enable telemetry traces to be exported to your OTLP gRPC collector running in your Kubernetes cluster:
       
@@ -203,18 +203,11 @@ func Deploy() *cobra.Command {
 	if err != nil {
 		fmt.Println("error marking flag as hidden: ", err)
 	}
-	cmd.Flags().BoolVar(
-		&values.DisableAutoInjection,
-		"disable-auto-inject",
-		defaultValues.DisableAutoInjection,
-		`disable automatic sidecar injection upon resource creation
-		Use the --enabled-namespaces flag to enable automatic injection in select namespaces`)
 	cmd.Flags().StringSliceVar(
 		&values.EnabledNamespaces,
 		"enabled-namespaces",
 		defaultValues.EnabledNamespaces,
-		`enable automatic sidecar injection for specific namespaces
-		Must be used with --disable-auto-inject`,
+		"enable automatic sidecar injection for specific namespaces",
 	)
 	cmd.Flags().StringVar(
 		&values.PrometheusAddress,
@@ -532,10 +525,6 @@ func validateInput(values *helm.Values, registryKeyFile string) error {
 
 	if registryKeyFile != "" && values.Registry.Username != "" {
 		return fmt.Errorf("%w: cannot set both --registry-key and --registry-username/--registry-password", errInvalidConfig)
-	}
-
-	if !values.DisableAutoInjection && len(values.EnabledNamespaces) > 0 {
-		return fmt.Errorf("%w: enabled namespaces should not be set when auto injection is enabled", errInvalidConfig)
 	}
 
 	return nil

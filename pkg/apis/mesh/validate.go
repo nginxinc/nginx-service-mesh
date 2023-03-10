@@ -13,17 +13,11 @@ import (
 
 // CheckForInvalidConfig returns an error if config is not valid
 // Invalid configs:
-//   - AutoInjection is enabled but there are enabled namespaces
 //   - LoadBalancingMethod is "random" when CircuitBreakers exist
 //   - both tracing and telemetry are enabled
 //
 //nolint:goerr113 // can convert to constants at some point if desired
 func (config *MeshConfig) CheckForInvalidConfig(k8sClient client.Client) error {
-	if *config.IsAutoInjectEnabled && len(*config.EnabledNamespaces) > 0 {
-		return errors.New("invalid configuration: enabled namespaces should not be set " +
-			"when auto injection is enabled")
-	}
-
 	if k8sClient != nil && strings.Contains(string(config.LoadBalancingMethod), string(MeshConfigLoadBalancingMethodRandom)) {
 		cbs := &specs.CircuitBreakerList{}
 		ctx, cancel := context.WithCancel(context.Background())
