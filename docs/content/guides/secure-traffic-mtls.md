@@ -170,7 +170,7 @@ To find out more about how `nginx-meshctl` interprets the upstream authority con
 
 #### Pathlen
 
-x509 certificates have a [pathlen field](https://tools.ietf.org/html/rfc5280#section-4.2.1.9) that is used to limit the number of intermediate certificates in between the current certificate and the final endpoint certificate, not including the endpoint certificate.
+x509 certificates have a [pathlen field](https://www.rfc-editor.org/rfc/rfc5280#section-4.2.1.9) that is used to limit the number of intermediate certificates in between the current certificate and the final endpoint certificate, not including the endpoint certificate.
 
 SPIRE creates a certificate for itself using the intermediate certificate passed in using the arguments defined above, so the `pathlen` must be either set to 1 or unset. For the root certificate, the pathlen must be at least 2, or unset.
 
