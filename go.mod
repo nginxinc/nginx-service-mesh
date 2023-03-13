@@ -10,7 +10,7 @@ require (
 	github.com/golang/glog v1.1.0
 	github.com/labstack/echo/v4 v4.10.2
 	github.com/maxbrunsfeld/counterfeiter/v6 v6.6.1
-	github.com/nats-io/nats-server/v2 v2.9.14
+	github.com/nats-io/nats-server/v2 v2.9.15
 	github.com/nats-io/nats.go v1.24.0
 	github.com/onsi/ginkgo/v2 v2.9.0
 	github.com/onsi/gomega v1.27.3
@@ -97,7 +97,7 @@ require (
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/karrick/godirwalk v1.17.0 // indirect
-	github.com/klauspost/compress v1.15.15 // indirect
+	github.com/klauspost/compress v1.16.0 // indirect
 	github.com/labstack/gommon v0.4.0 // indirect
 	github.com/lann/builder v0.0.0-20180802200727-47ae307949d0 // indirect
 	github.com/lann/ps v0.0.0-20150810152359-62de8c46ede0 // indirect
