@@ -13,7 +13,7 @@ require (
 	github.com/nats-io/nats-server/v2 v2.9.14
 	github.com/nats-io/nats.go v1.24.0
 	github.com/onsi/ginkgo/v2 v2.9.0
-	github.com/onsi/gomega v1.27.1
+	github.com/onsi/gomega v1.27.3
 	github.com/servicemeshinterface/smi-controller-sdk v0.0.0-20230308185107-6a7dfd7d25c7
 	github.com/servicemeshinterface/smi-sdk-go v0.5.0
 	github.com/spf13/cobra v1.6.1
@@ -78,7 +78,7 @@ require (
 	github.com/gobwas/glob v0.2.3 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
-	github.com/golang/protobuf v1.5.2 // indirect
+	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/google/btree v1.1.2 // indirect
 	github.com/google/gnostic v0.6.9 // indirect
 	github.com/google/go-cmp v0.5.9 // indirect
