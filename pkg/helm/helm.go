@@ -17,20 +17,19 @@ import (
 
 // Values is the top level representation of the Helm values.yaml.
 type Values struct {
-	Tracing              *Tracing   `yaml:"tracing" json:"tracing"`
-	Telemetry            *Telemetry `yaml:"telemetry" json:"telemetry"`
-	MTLS                 MTLS       `yaml:"mtls" json:"mtls"`
-	ClientMaxBodySize    string     `yaml:"clientMaxBodySize" json:"clientMaxBodySize"`
-	PrometheusAddress    string     `yaml:"prometheusAddress" json:"prometheusAddress"`
-	Environment          string     `yaml:"environment" json:"environment"`
-	AccessControlMode    string     `yaml:"accessControlMode" json:"accessControlMode"`
-	NGINXErrorLogLevel   string     `yaml:"nginxErrorLogLevel" json:"nginxErrorLogLevel"`
-	NGINXLBMethod        string     `yaml:"nginxLBMethod" json:"nginxLBMethod"`
-	NGINXLogFormat       string     `yaml:"nginxLogFormat" json:"nginxLogFormat"`
-	Registry             Registry   `yaml:"registry" json:"registry"`
-	EnabledNamespaces    []string   `yaml:"enabledNamespaces" json:"enabledNamespaces"`
-	EnableUDP            bool       `yaml:"enableUDP" json:"enableUDP"`
-	DisableAutoInjection bool       `yaml:"disableAutoInjection" json:"disableAutoInjection"`
+	Tracing            *Tracing   `yaml:"tracing" json:"tracing"`
+	Telemetry          *Telemetry `yaml:"telemetry" json:"telemetry"`
+	MTLS               MTLS       `yaml:"mtls" json:"mtls"`
+	ClientMaxBodySize  string     `yaml:"clientMaxBodySize" json:"clientMaxBodySize"`
+	PrometheusAddress  string     `yaml:"prometheusAddress" json:"prometheusAddress"`
+	Environment        string     `yaml:"environment" json:"environment"`
+	AccessControlMode  string     `yaml:"accessControlMode" json:"accessControlMode"`
+	NGINXErrorLogLevel string     `yaml:"nginxErrorLogLevel" json:"nginxErrorLogLevel"`
+	NGINXLBMethod      string     `yaml:"nginxLBMethod" json:"nginxLBMethod"`
+	NGINXLogFormat     string     `yaml:"nginxLogFormat" json:"nginxLogFormat"`
+	Registry           Registry   `yaml:"registry" json:"registry"`
+	EnabledNamespaces  []string   `yaml:"enabledNamespaces" json:"enabledNamespaces"`
+	EnableUDP          bool       `yaml:"enableUDP" json:"enableUDP"`
 }
 
 // Registry is the registry struct within Values.

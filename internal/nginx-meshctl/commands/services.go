@@ -140,9 +140,7 @@ func isNamespaceInjectionEnabled(ctx context.Context, k8sClient client.Client, n
 		fmt.Printf("error getting namespace: %v\n", err)
 		return false, err
 	}
-	return slices.Contains(*meshConfig.EnabledNamespaces, ns) ||
-		nsObj.GetLabels()[mesh.AutoInjectLabel] == mesh.AutoInjectionEnabled ||
-		(*meshConfig.IsAutoInjectEnabled && !(mesh.IgnoredNamespaces[ns])), nil
+	return slices.Contains(*meshConfig.EnabledNamespaces, ns) || nsObj.GetLabels()[mesh.AutoInjectLabel] == mesh.AutoInjectionEnabled, nil
 }
 
 // getMeshConfig fetches the mesh.MeshConfig of the mesh using the mesh.MeshClient.

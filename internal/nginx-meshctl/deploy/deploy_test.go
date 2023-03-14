@@ -141,13 +141,11 @@ var _ = Describe("Deploy", func() {
 
 		It("validates telemetry fields", func() {
 			values := &helm.Values{
-				DisableAutoInjection: true,
 				Telemetry: &helm.Telemetry{
 					SamplerRatio: 5.0,
 				},
 				Tracing: nil,
 			}
-			values.DisableAutoInjection = true
 			values.EnabledNamespaces = []string{"default"}
 			deployer.Values = values
 			_, err := deployer.Deploy()

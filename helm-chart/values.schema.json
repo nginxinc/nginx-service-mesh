@@ -44,7 +44,12 @@
         "caKeyType": {
           "description": "The key type used for the SPIRE Server CA",
           "type": "string",
-          "enum": ["ec-p256", "ec-p384", "rsa-2048", "rsa-4096"],
+          "enum": [
+            "ec-p256",
+            "ec-p384",
+            "rsa-2048",
+            "rsa-4096"
+          ],
           "default": "ec-p256"
         },
         "upstreamAuthority": {
@@ -153,7 +158,11 @@
                   "type": "string"
                 }
               },
-              "required": ["region", "certFileArn", "keyFileArn"]
+              "required": [
+                "region",
+                "certFileArn",
+                "keyFileArn"
+              ]
             },
             "vault": {
               "description": "Vault object",
@@ -245,7 +254,11 @@
                   "required": ["approleID", "approleSecretID"]
                 }
               },
-              "required": ["vaultAddr", "namespace", "caCert"],
+              "required": [
+                "vaultAddr",
+                "namespace",
+                "caCert"
+              ],
               "oneOf": [
                 {"required": ["certAuth"]},
                 {"required": ["tokenAuth"]},
@@ -294,7 +307,14 @@
           ]
         }
       },
-      "required": ["mode", "caTTL", "svidTTL", "trustDomain", "persistentStorage", "spireServerKeyManager"]
+      "required": [
+        "mode",
+        "caTTL",
+        "svidTTL",
+        "trustDomain",
+        "persistentStorage",
+        "spireServerKeyManager"
+      ]
     },
     "registry": {
       "description": "NGINX Service Mesh image registry settings",
@@ -330,7 +350,11 @@
         "imagePullPolicy": {
           "description": "Image pull policy",
           "type": "string",
-          "enum": ["Never", "IfNotPresent", "Always"],
+          "enum": [
+            "Never",
+            "IfNotPresent",
+            "Always"
+          ],
           "default": "IfNotPresent"
         }
       },
@@ -357,7 +381,12 @@
           }
         }
       ],
-      "required": ["server", "imageTag", "disablePublicImages", "imagePullPolicy"]
+      "required": [
+        "server",
+        "imageTag",
+        "disablePublicImages",
+        "imagePullPolicy"
+      ]
     },
     "accessControlMode": {
       "description": "Default access control mode for service-to-service communication",
@@ -376,7 +405,16 @@
     "nginxErrorLogLevel": {
       "description": "NGINX error log level",
       "type": "string",
-      "enum": ["debug", "info", "notice", "warn", "error", "crit", "alert", "emerg"]
+      "enum": [
+        "debug",
+        "info",
+        "notice",
+        "warn",
+        "error",
+        "crit",
+        "alert",
+        "emerg"
+      ]
     },
     "nginxLogFormat": {
       "description": "NGINX log format",
@@ -386,7 +424,18 @@
     "nginxLBMethod": {
       "description": "NGINX load balancing method",
       "type": "string",
-      "enum": ["least_conn", "least_time", "least_time last_byte", "least_time last_byte inflight", "random", "random two", "random two least_conn", "random two least_time", "random two least_time=last_byte", "round_robin"]
+      "enum": [
+        "least_conn",
+        "least_time",
+        "least_time last_byte",
+        "least_time last_byte inflight",
+        "random",
+        "random two",
+        "random two least_conn",
+        "random two least_time",
+        "random two least_time=last_byte",
+        "round_robin"
+      ]
     },
     "clientMaxBodySize": {
       "description": "NGINX client max body size",
@@ -397,11 +446,6 @@
       "description": "The address of a Prometheus server deployed in your Kubernetes cluster",
       "type": "string"
     },
-    "disableAutoInjection": {
-      "description": "Disable automatic sidecar injection upon resource creation",
-      "type": "boolean",
-      "default": false
-    },
     "enabledNamespaces": {
       "description": "Enable automatic sidecar injection for specific namespaces",
       "type": "array",
@@ -410,7 +454,7 @@
       },
       "default": []
     },
-    "telemetry":{
+    "telemetry": {
       "description": "NGINX Service Mesh telemetry settings",
       "type": "object",
       "oneOf": [
@@ -476,47 +520,6 @@
       "required": ["samplerRatio", "exporters"]
     }
   },
-  "allOf": [
-  {
-    "if": {
-      "properties": {
-        "disableAutoInjection": {
-          "const": false
-        }
-      }
-    },
-    "then":{
-      "properties": {
-        "enabledNamespaces": {
-          "$ref": "#/definitions/emptyArray"
-        }
-      }
-    }
-  }
-],
-  "anyOf": [
-    {
-      "properties": {
-        "telemetry": {
-          "$ref": "#/definitions/emptyObject"
-        }
-      }
-    },
-    {
-      "properties": {
-        "telemetry": {
-          "$ref": "#/definitions/emptyObject"
-        }
-      }
-    },
-    {
-      "properties": {
-        "telemetry": {
-          "$ref": "#/definitions/telemetryConfig"
-        }
-      }
-    }
-  ],
   "required": [
     "mtls",
     "registry",
@@ -524,7 +527,6 @@
     "environment",
     "nginxErrorLogLevel",
     "nginxLogFormat",
-    "nginxLBMethod",
-    "disableAutoInjection"
+    "nginxLBMethod"
   ]
 }

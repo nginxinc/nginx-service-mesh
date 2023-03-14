@@ -120,7 +120,7 @@ paths:
                 {
                   "op": "replace",
                   "field": {
-                    "isAutoInjectEnabled": false
+                    "loadBalancingMethod": "least_time"
                   }
                 },
                 {
@@ -152,8 +152,7 @@ paths:
                       "prod",
                       "staging"
                 ],
-                  "isAutoInjectEnabled": false,
-                  "loadBalancingMethod": "round_robin",
+                  "loadBalancingMethod": "least_time",
                   "mtls": {
                     "caKeyType": "ec-p256",
                     "caTTL": "720h",
@@ -286,14 +285,10 @@ components:
           enum:
             - "kubernetes"
             - "openshift"
-        isAutoInjectEnabled:
-          type: boolean
-          description: Whether or not automatic injection of the NGINX Service Mesh sidecar is enabled globally.
-          example: true
         enabledNamespaces:
           type: array
-          description: A list of namespaces where automatic injection is enabled. To set this field, the isAutoInjectEnabled field must be false.
-          example: [ ]
+          description: A list of namespaces where automatic injection is enabled.
+          example: ["my-namespace-1", "my-namespace-2"]
           items:
             type: string
         isUDPEnabled:
@@ -644,13 +639,9 @@ components:
               type: string
               description: The address of the Prometheus server. Must be reachable from the Kubernetes cluster that NGINX Service Mesh is installed in.
               example: "prometheus-server.prometheus-namespace.svc.cluster.local:9090"
-            isAutoInjectEnabled:
-              type: boolean
-              description: Whether or not automatic injection of the NGINX Service Mesh sidecar is enabled. This value can be overridden on a per-Pod basis with a Pod annotation.
-              example: true
             enabledNamespaces:
               type: array
-              description: A list of namespaces where automatic injection is enabled. To set this field, the isAutoInjectEnabled field must be false.
+              description: A list of namespaces where automatic injection is enabled.
               example: [ ]
               items:
                 type: string
