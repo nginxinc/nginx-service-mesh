@@ -520,22 +520,6 @@
       "required": ["samplerRatio", "exporters"]
     }
   },
-  "anyOf": [
-    {
-      "properties": {
-        "telemetry": {
-          "$ref": "#/definitions/emptyObject"
-        }
-      }
-    },
-    {
-      "properties": {
-        "telemetry": {
-          "$ref": "#/definitions/telemetryConfig"
-        }
-      }
-    }
-  ],
   "required": [
     "mtls",
     "registry",
