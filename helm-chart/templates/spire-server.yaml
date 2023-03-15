@@ -214,10 +214,17 @@ spec:
     spec:
       serviceAccountName: spire-server
       shareProcessNamespace: true
+      securityContext:
+        fsGroup: 1000 #spire
+        runAsNonRoot: true
+        runAsUser: 1000 #spire
       containers:
       - name: spire-server
-        image: {{ include "spire.image-server" . }}/spire-server:1.5.4
+        image: {{ include "spire.image-server" . }}/spire-server:1.6.1
         imagePullPolicy: {{ .Values.registry.imagePullPolicy }}
+        securityContext:
+          allowPrivilegeEscalation: false
+          privileged: false
         args:
         - -config
         - /run/spire/config/server.conf
@@ -265,8 +272,11 @@ spec:
           initialDelaySeconds: 5
           periodSeconds: 5
       - name: k8s-workload-registrar
-        image: {{ include "spire.image-server" . }}/k8s-workload-registrar:1.5.4
+        image: {{ include "workload-registrar.image-server" . }}/k8s-workload-registrar:1.5.4
         imagePullPolicy: {{ .Values.registry.imagePullPolicy }}
+        securityContext:
+          allowPrivilegeEscalation: false
+          privileged: false
         args:
         - -config
         - /run/spire/config/k8s-workload-registrar.conf
