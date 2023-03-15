@@ -57,9 +57,6 @@ nginxLBMethod: "least_time"
 # Setting to "0" disables checking of client request body size.
 clientMaxBodySize: "1m"
 
-# Enable automatic sidecar injection for specific namespaces.
-enabledNamespaces: []
-
 # The address of a Prometheus server deployed in your Kubernetes cluster.
 # Address should be in the format <service-name>.<namespace>:<service-port>.
 prometheusAddress: ""

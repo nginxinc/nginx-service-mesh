@@ -25,6 +25,14 @@ This command removes the existing NGINX Service Mesh while preserving user confi
 The latest version of NGINX Service Mesh is then deployed using that data.
 `
 
+// FIXME(@jbyers19): Remove this warning and its references after v2.0.0 is released.
+const NSMv2UpgradeWarning = `
+Warning!
+  In NGINX Service Mesh v2, sidecars are no longer auto-injected by default and the '--enabled-namespaces' flag has been removed.
+  To enable automatic sidecar injection, add the auto-inject label to each namespace where auto-injection is desired:
+	'kubectl label namespaces <namespace> injector.nsm.nginx.com/auto-inject=enabled'
+  The label must be added BEFORE upgrading the sidecar to prevent it from being removed.`
+
 var upgradeTimeout = 5 * time.Minute
 
 // Upgrade handles a version upgrade of NGINX Service Mesh.
@@ -45,7 +53,7 @@ func Upgrade(version string) *cobra.Command {
 			return err
 		}
 		if !yes {
-			msg := fmt.Sprintf("Preparing to upgrade NGINX Service Mesh in namespace \"%s\".", namespace)
+			msg := fmt.Sprintf("Preparing to upgrade NGINX Service Mesh in namespace \"%s\".\n%s\n", namespace, NSMv2UpgradeWarning)
 			if err := ReadYes(msg); err != nil {
 				return err
 			}
@@ -70,9 +78,11 @@ func Upgrade(version string) *cobra.Command {
 			return upgradeErr
 		}
 
-		fmt.Println("done.")
 		fmt.Println("Upgrade complete.")
 		fmt.Println("To upgrade sidecars, re-roll resources using 'kubectl rollout restart <resource>/<name>'.")
+		if yes {
+			fmt.Println(NSMv2UpgradeWarning)
+		}
 
 		return nil
 	}
@@ -325,7 +335,6 @@ func (u *upgrader) savePreviousConfig(meshConfig mesh.MeshConfig) {
 	u.values.MTLS.CATTL = *meshConfig.Mtls.CaTTL
 	u.values.MTLS.SVIDTTL = *meshConfig.Mtls.SvidTTL
 	u.values.MTLS.Mode = string(*meshConfig.Mtls.Mode)
-	u.values.EnabledNamespaces = *meshConfig.EnabledNamespaces
 	u.values.ClientMaxBodySize = meshConfig.ClientMaxBodySize
 
 	if meshConfig.Telemetry != (mesh.TelemetryConfig{}) {

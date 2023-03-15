@@ -146,7 +146,6 @@ var _ = Describe("Deploy", func() {
 				},
 				Tracing: nil,
 			}
-			values.EnabledNamespaces = []string{"default"}
 			deployer.Values = values
 			_, err := deployer.Deploy()
 			Expect(err).To(HaveOccurred())

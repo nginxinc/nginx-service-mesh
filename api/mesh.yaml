@@ -122,12 +122,6 @@ paths:
                   "field": {
                     "loadBalancingMethod": "least_time"
                   }
-                },
-                {
-                  "op": "add",
-                  "field": {
-                    "enabledNamespaces": [ "prod", "staging" ]
-                  }
                 }
               ]
       responses:
@@ -148,10 +142,6 @@ paths:
                   "autoInjectorPort": 9443,
                   "clientMaxBodySize": "1m",
                   "environment": "kubernetes",
-                  "enabledNamespaces": [
-                      "prod",
-                      "staging"
-                ],
                   "loadBalancingMethod": "least_time",
                   "mtls": {
                     "caKeyType": "ec-p256",
@@ -285,12 +275,6 @@ components:
           enum:
             - "kubernetes"
             - "openshift"
-        enabledNamespaces:
-          type: array
-          description: A list of namespaces where automatic injection is enabled.
-          example: ["my-namespace-1", "my-namespace-2"]
-          items:
-            type: string
         isUDPEnabled:
           type: boolean
           description: Enable UDP traffic proxying.
@@ -639,12 +623,6 @@ components:
               type: string
               description: The address of the Prometheus server. Must be reachable from the Kubernetes cluster that NGINX Service Mesh is installed in.
               example: "prometheus-server.prometheus-namespace.svc.cluster.local:9090"
-            enabledNamespaces:
-              type: array
-              description: A list of namespaces where automatic injection is enabled.
-              example: [ ]
-              items:
-                type: string
             loadBalancingMethod:
               type: string
               description: The global load balancing method for Services in NGINX Service Mesh. This value can be overridden on a per-Service basis with a Service annotation.
