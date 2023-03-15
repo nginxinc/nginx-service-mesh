@@ -38,6 +38,10 @@ linker_flags = -s -w -extldflags "-fno-PIC -static" -X main.version=$(VERSION) -
 build: build-cli ## Build all Go binaries
 
 build-cli: output-dir ## Build the nginx-meshctl binary
+	@## check if version is set
+	@if [ -z "$(VERSION)" ]; then \
+	  echo '$@:WARNING: building the CLI with an empty version will break upgrade capability'; \
+	fi
 	CGO_ENABLED=0 go build -ldflags '$(linker_flags) -X main.pkgName=nginx-meshctl' -o $(OUTPUT_DIR)/$(GOOS)-$(GOARCH)/nginx-meshctl$(EXTENSION) cmd/nginx-meshctl/main.go
 
 .PHONY: test
