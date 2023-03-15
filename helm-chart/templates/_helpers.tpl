@@ -3,11 +3,11 @@
 {{- end }}
 
 {{- define "spire.image-server" -}}
-{{- if not .Values.registry.disablePublicImages }}gcr.io/spiffe-io{{ else }}{{ .Values.registry.server }}{{ end }}
+{{- if not .Values.registry.disablePublicImages }}ghcr.io/spiffe{{ else }}{{ .Values.registry.server }}{{ end }}
 {{- end }}
 
-{{- define "spiffe-csi.image-server" -}}
-{{- if not .Values.registry.disablePublicImages }}ghcr.io/spiffe{{ else }}{{ .Values.registry.server }}{{ end }}
+{{- define "workload-registrar.image-server" -}}
+{{- if not .Values.registry.disablePublicImages }}gcr.io/spiffe-io{{ else }}{{ .Values.registry.server }}{{ end }}
 {{- end }}
 
 {{- define "node-driver.image-server" -}}
@@ -24,6 +24,10 @@
 
 {{- define "curl.image-server" -}}
 {{- if not .Values.registry.disablePublicImages }}curlimages{{ else }}{{ .Values.registry.server }}{{ end }}
+{{- end }}
+
+{{- define "alpine.image-server" -}}
+{{- if not .Values.registry.disablePublicImages }}registry.hub.docker.com/library{{ else }}{{ .Values.registry.server }}{{ end }}
 {{- end }}
 
 {{- define "registry-key-name" -}}
