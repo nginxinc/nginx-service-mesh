@@ -183,11 +183,11 @@ metadata:
 webhooks:
 - name: nginx-mesh-api.sidecar.injector
   namespaceSelector:
-    matchLabels:
+    matchLables:
       injector.nsm.nginx.com/auto-inject: enabled
   objectSelector:
-    matchLabels:
-      injector.nsm.nginx.com/auto-inject: enabled
+      matchLables:
+       injector.nsm.nginx.com/auto-inject: enabled
   clientConfig:
     service:
       name: nginx-mesh-webhook
