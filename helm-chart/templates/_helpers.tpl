@@ -26,10 +26,6 @@
 {{- if not .Values.registry.disablePublicImages }}curlimages{{ else }}{{ .Values.registry.server }}{{ end }}
 {{- end }}
 
-{{- define "alpine.image-server" -}}
-{{- if not .Values.registry.disablePublicImages }}registry.hub.docker.com/library{{ else }}{{ .Values.registry.server }}{{ end }}
-{{- end }}
-
 {{- define "registry-key-name" -}}
 nginx-mesh-registry-key
 {{- end }}
