@@ -70,6 +70,7 @@ spec:
       initContainers:
       - name: init
         image: {{ include "curl.image-server" . }}/curl
+        imagePullPolicy: {{ .Values.registry.imagePullPolicy }}
         command:
         - /bin/sh
         - -c
@@ -79,7 +80,8 @@ spec:
             sleep 1
           done
       - name: chown-volume
-        image: {{ include "ubuntu.image-server" . }}ubuntu:22.04
+        image: {{ include "alpine.image-server" . }}alpine:3.17
+        imagePullPolicy: {{ .Values.registry.imagePullPolicy }}
         command: [ "sh", "-c", "chown -R 1000:1000 /run/spire/sockets" ]
         volumeMounts:
           - name: spire-agent-socket
