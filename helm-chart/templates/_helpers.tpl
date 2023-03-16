@@ -23,7 +23,7 @@
 {{- end }}
 
 {{- define "alpine.image-server" -}}
-{{- if not .Values.registry.disablePublicImages }}{{ else }}{{ .Values.registry.server }}{{ end }}
+{{- if not .Values.registry.disablePublicImages }}{{ else }}{{ .Values.registry.server }}/{{ end }}
 {{- end }}
 
 {{- define "registry-key-name" -}}
