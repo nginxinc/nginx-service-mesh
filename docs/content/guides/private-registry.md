@@ -42,7 +42,6 @@ See this [list]( {{< ref "/about/tech-specs.md#images" >}} ) for the images you 
  `nats:2.9-alpine` would become `your-registry/nats:2.9-alpine`
 
 When running `nginx-meshctl deploy`, use the `--disable-public-images` flag to instruct the mesh to use your `--registry-server` for all images. 
-For example:
 
 ```bash
 nginx-meshctl deploy --registry-server your-registry --disable-public-images ...
