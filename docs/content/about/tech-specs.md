@@ -57,7 +57,7 @@ NGINX Service Mesh also pulls the following publicly-accessible third-party cont
 |            | gcr.io/spiffe-io/k8s-workload-registrar                                | 1.5.4       |
 |            | ghcr.io/spiffe/spire-agent                                             | 1.6.1       |
 |            | curlimages/curl                                                        | latest      |
-|            | alpine                                                                 | 3.17        |
+|            | ubuntu                                                                 | 22.04       |
 |            | ghcr.io/spiffe/spiffe-csi-driver (OpenShift only)                      | 0.2.3       |
 |            | registry.k8s.io/sig-storage/csi-node-driver-registrar (OpenShift only) | v2.7.0      |
 | NATS       | nats                                                                   | 2.9-alpine  |

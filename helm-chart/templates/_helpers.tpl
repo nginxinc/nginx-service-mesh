@@ -22,7 +22,7 @@
 {{- if not .Values.registry.disablePublicImages }}curlimages{{ else }}{{ .Values.registry.server }}{{ end }}
 {{- end }}
 
-{{- define "alpine.image-server" -}}
+{{- define "ubuntu.image-server" -}}
 {{- if not .Values.registry.disablePublicImages }}{{ else }}{{ .Values.registry.server }}/{{ end }}
 {{- end }}
 
