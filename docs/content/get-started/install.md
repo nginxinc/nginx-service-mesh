@@ -133,7 +133,7 @@ Take the steps below to install the NGINX Service Mesh control plane.
 
    {{< note >}}
    We recommend deploying the mesh with auto-injection disabled globally, using the `--disable-auto-inject` flag. This ensures that Pods are not automatically injected without your consent, especially in system namespaces.
-   You can opt-in the namespaces where you would like auto-injection enabled using `--enabled-namespaces "namespace-1,namespace-2"` or by labeling a namespace with `injector.nsm.nginx.com/auto-inject=enabled`.
+   You can enable auto-injection in specific namespaces using  `--enabled-namespaces "namespace-1,namespace-2"` or by labeling a namespace with `injector.nsm.nginx.com/auto-inject=enabled`.
    {{< /note >}}
 
 2. Verify the pods are running.
