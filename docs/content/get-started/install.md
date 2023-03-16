@@ -106,32 +106,7 @@ The following sections describe how to install the CLI on Linux, macOS, and Wind
 
 ### Images
 
-NGINX Service Mesh distributes a number of images and pulls additional publicly-accessible third-party container images into your Kubernetes cluster in order to function. For a full list refer to the [Technical Specifications]( {{< ref "/about/tech-specs.md#images" >}} ).
-
-#### Manually Download and Push Images to Container Registry
-
-NGINX Service Mesh images are pulled in automatically when deploying the mesh. However, if desired, you can manually download and push them to your own container registry that your cluster can access.
-
-{{< important >}}
-To ensure compatibility, the image versions need to match the version of `nginx-meshctl` that you downloaded. If using Helm, the image versions need to match the chart's `version`.
-{{< /important >}}
-
-When deploying NGINX Service Mesh using `nginx-meshctl`, set the `--registry-server` flag to your registry. If using Helm, set the `registry.server` field to your registry.
-
-#### Air Gap Environment
-
-If your environment does not have access to public image repositories, then you will need to manually pull the images from this [list]( {{< ref "/about/tech-specs.md#images" >}} ), and push them to your [private registry]( {{< ref "/guides/private-registry.md" >}} ). The image names and tags must remain the same. For example:
-
- `gcr.io/spiffe-io/spire-agent:1.5.4` would become `your-registry/spire-agent:1.5.4`
- 
- `nats:2.9-alpine` would become `your-registry/nats:2.9-alpine`
-
-When running `nginx-meshctl deploy`, use the `--disable-public-images` flag to instruct the mesh to use your `--registry-server` for all images. 
-For example:
-
-```bash
-nginx-meshctl deploy --registry-server your-registry --disable-public-images ...
-```
+NGINX Service Mesh distributes a number of images and pulls additional publicly-accessible third-party container images into your Kubernetes cluster in order to function. For a full list refer to the [Technical Specifications]( {{< ref "/about/tech-specs.md#images" >}} ). If you require these images in a private repository, see our [private registry guide]( {{< ref "/guides/private-registry.md" >}} )
 
 ## Install the NGINX Service Mesh Control Plane
 

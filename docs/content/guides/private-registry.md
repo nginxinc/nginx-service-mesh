@@ -33,6 +33,21 @@ There are two methods of accessing a private registry:
 Using the `--registry-password` flag can expose your plain text password on the console and in the console history.
 {{< /warning >}}
 
+## Images
+
+See this [list]( {{< ref "/about/tech-specs.md#images" >}} ) for the images you need to copy to your private registry. The image names and tags must remain the same. For example:
+
+ `gcr.io/spiffe-io/spire-agent:1.5.4` would become `your-registry/spire-agent:1.5.4`
+ 
+ `nats:2.9-alpine` would become `your-registry/nats:2.9-alpine`
+
+When running `nginx-meshctl deploy`, use the `--disable-public-images` flag to instruct the mesh to use your `--registry-server` for all images. 
+For example:
+
+```bash
+nginx-meshctl deploy --registry-server your-registry --disable-public-images ...
+```
+
 ## Examples
 
 Deploying from a private registry using a username and password:
