@@ -136,7 +136,7 @@ Take the steps below to install the NGINX Service Mesh control plane.
    You can opt-in the namespaces where you would like auto-injection enabled using `--enabled-namespaces "namespace-1,namespace-2"` or by labeling a namespace with `injector.nsm.nginx.com/auto-inject=enabled`.
    {{< /note >}}
 
-2. Verify the pods are running with `kubectl get pods -n nginx-mesh`.
+2. Verify the pods are running.
 
     ```bash
     $ kubectl get pods -n nginx-mesh
