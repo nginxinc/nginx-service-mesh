@@ -59,7 +59,7 @@ The following sections describe how to install the CLI on Linux, macOS, and Wind
 1. Test the installation.
 
     ```bash
-    nginx-meshctl version
+    nginx-meshctl
     ```
 
 #### Install on macOS
@@ -87,7 +87,7 @@ The following sections describe how to install the CLI on Linux, macOS, and Wind
 1. Test the installation.
 
     ```bash
-    nginx-meshctl version
+    nginx-meshctl
     ```
 
 #### Install on Windows
@@ -96,12 +96,12 @@ The following sections describe how to install the CLI on Linux, macOS, and Wind
 
 1. Extract the binary, `nginx-meshctl.exe`, from the zip file.
 
-1. Add the binary to your PATH and rename.
+1. Add the binary to your PATH.
 
 1. Test the installation.
 
     ```bash
-    nginx-meshctl.exe version
+    nginx-meshctl
     ```
 
 ### Images
