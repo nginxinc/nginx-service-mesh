@@ -18,12 +18,12 @@
 {{- if not .Values.registry.disablePublicImages }}bitnami{{ else }}{{ .Values.registry.server }}{{ end }}
 {{- end }}
 
-{{- define "ubuntu.image-server" -}}
-{{- if not .Values.registry.disablePublicImages }}{{ else }}{{ .Values.registry.server }}/{{ end }}
-{{- end }}
-
 {{- define "curl.image-server" -}}
 {{- if not .Values.registry.disablePublicImages }}curlimages{{ else }}{{ .Values.registry.server }}{{ end }}
+{{- end }}
+
+{{- define "alpine.image-server" -}}
+{{- if not .Values.registry.disablePublicImages }}{{ else }}{{ .Values.registry.server }}{{ end }}
 {{- end }}
 
 {{- define "registry-key-name" -}}
