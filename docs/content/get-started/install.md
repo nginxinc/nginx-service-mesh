@@ -106,7 +106,7 @@ The following sections describe how to install the CLI on Linux, macOS, and Wind
 
 ### Images
 
-NGINX Service Mesh distributes a number of images and pulls additional publicly-accessible third-party container images into your Kubernetes cluster in order to function. For a full list refer to the [Technical Specifications]( {{< ref "/about/tech-specs.md#images" >}} ). If you require these images in a private repository, see our [private registry guide]( {{< ref "/guides/private-registry.md" >}} ).
+NGINX Service Mesh will pull multiple required images into your Kubernetes cluster in order to function, some of which are from publicly-accessible third parties. For a full list refer to the [Technical Specifications]( {{< ref "/about/tech-specs.md#images" >}} ). If you require these images in a private repository, see our [private registry guide]( {{< ref "/guides/private-registry.md" >}} ).
 
 ## Install the NGINX Service Mesh Control Plane
 
