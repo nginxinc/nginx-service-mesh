@@ -35,7 +35,7 @@ Using the `--registry-password` flag can expose your plain text password on the 
 
 ## Images
 
-See this [list]( {{< ref "/about/tech-specs.md#images" >}} ) for the images you need to copy to your private registry. The image names and tags must remain the same. For example:
+See this [list]( {{< ref "/about/tech-specs.md#images" >}} ) for the images you need to copy to your private registry. The image names and tags must remain the same. 
 
  `gcr.io/spiffe-io/spire-agent:1.5.4` would become `your-registry/spire-agent:1.5.4`
  
