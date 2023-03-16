@@ -106,7 +106,7 @@ The following sections describe how to install the CLI on Linux, macOS, and Wind
 
 ### Images
 
-NGINX Service Mesh distributes a number of images and pulls additional publicly-accessible third-party container images into your Kubernetes cluster in order to function. For a full list refer to the [Technical Specifications]( {{< ref "/about/tech-specs.md#images" >}} ). If you require these images in a private repository, see our [private registry guide]( {{< ref "/guides/private-registry.md" >}} )
+NGINX Service Mesh distributes a number of images and pulls additional publicly-accessible third-party container images into your Kubernetes cluster in order to function. For a full list refer to the [Technical Specifications]( {{< ref "/about/tech-specs.md#images" >}} ). If you require these images in a private repository, see our [private registry guide]( {{< ref "/guides/private-registry.md" >}} ).
 
 ## Install the NGINX Service Mesh Control Plane
 
@@ -136,18 +136,10 @@ Take the steps below to install the NGINX Service Mesh control plane.
    You can opt-in the namespaces where you would like auto-injection enabled using `--enabled-namespaces "namespace-1,namespace-2"` or by labeling a namespace with `injector.nsm.nginx.com/auto-inject=enabled`.
    {{< /note >}}
 
-    If you are using a private registry to store the NGINX Service Mesh images see the [Private Registry]( {{< ref "/guides/private-registry.md" >}} ) guide for instructions. 
-
-    For example, `nginx-meshctl deploy --registry-server "registry:5000/images" --image-tag X.Y.Z` will look for containers `registry:5000/images/nginx-mesh-api:X.Y.Z`, `registry:5000/images/nginx-mesh-sidecar:X.Y.Z`, and so on.
-
-
-
-2. Run the `kubectl get pods` command to verify that the Pods are up and running.
-
-    Be sure to specify the `nginx-mesh` namespace when running the command.
+2. Verify the pods are running with `kubectl get pods -n nginx-mesh`.
 
     ```bash
-    $ kubectl -n nginx-mesh get pods
+    $ kubectl get pods -n nginx-mesh
     NAME                                  READY   STATUS    RESTARTS   AGE
     nats-server-84f8b6f669-xszkc          1/1     Running   0          14m
     nginx-mesh-api-954467945-sc7qh        1/1     Running   0          14m
