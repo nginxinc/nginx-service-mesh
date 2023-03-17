@@ -22,6 +22,8 @@ apiVersion: security.openshift.io/v1
 kind: SecurityContextConstraints
 metadata:
   name: nginx-mesh-nats-permissions
+  labels:
+    app.kubernetes.io/part-of: nginx-service-mesh
 groups: []
 allowHostDirVolumePlugin: false
 allowHostIPC: false
@@ -39,7 +41,7 @@ fsGroup:
 priority: null
 readOnlyRootFilesystem: false
 requiredDropCapabilities:
-  - ALL
+- ALL
 runAsUser:
   type: MustRunAs
   uid: 2102
@@ -61,10 +63,10 @@ metadata:
   labels:
     app.kubernetes.io/part-of: nginx-service-mesh
 rules:
-  - apiGroups: ["security.openshift.io"]
-    resources: ["securitycontextconstraints"]
-    resourceNames: ["nginx-mesh-nats-permissions"]
-    verbs: ["use"]
+- apiGroups: ["security.openshift.io"]
+  resources: ["securitycontextconstraints"]
+  resourceNames: ["nginx-mesh-nats-permissions"]
+  verbs: ["use"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
@@ -77,9 +79,9 @@ roleRef:
   kind: ClusterRole
   name: system:openshift:scc:nginx-mesh-nats-permissions
 subjects:
-  - kind: ServiceAccount
-    name: nats
-    namespace: {{ .Release.Namespace }}
+- kind: ServiceAccount
+  name: nats
+  namespace: {{ .Release.Namespace }}
 {{- end }}
 ---
 apiVersion: v1
