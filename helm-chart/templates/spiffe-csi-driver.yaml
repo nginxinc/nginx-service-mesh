@@ -50,7 +50,7 @@ metadata:
     app.kubernetes.io/part-of: nginx-service-mesh
   annotations:
     "helm.sh/resource-policy": keep
-allowHostDirVolumePlugin: false
+allowHostDirVolumePlugin: true
 allowHostIPC: false
 allowHostPID: true
 allowHostNetwork: false
@@ -65,6 +65,7 @@ fsGroup:
   type: MustRunAs
 volumes:
 - hostPath
+- projected
 ---
 apiVersion: apps/v1
 kind: DaemonSet

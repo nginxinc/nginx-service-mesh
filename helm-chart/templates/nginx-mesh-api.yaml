@@ -387,10 +387,6 @@ runAsUser:
   type: MustRunAsNonRoot
 fsGroup:
   type: MustRunAs
-volumes:
-- configMap
-- csi
-- secret
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
@@ -443,10 +439,6 @@ requiredDropCapabilities:
 - ALL
 volumes:
 - configMap
-- downwardAPI
-- emptyDir
-- persistentVolumeClaim
-- projected
 - secret
 - csi
 {{- end }}

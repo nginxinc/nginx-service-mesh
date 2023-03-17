@@ -242,11 +242,9 @@ spec:
           mountPath: {{ include "ua-secret-mountpath" . }}
           readOnly: true
         {{- end }}
-        {{- if eq .Values.mtls.persistentStorage "on" }}
         - name: spire-data
           mountPath: /run/spire/data
           readOnly: false
-        {{- end }}
         - name: spire-server-socket
           mountPath: /run/spire/sockets
           readOnly: false
@@ -303,6 +301,10 @@ spec:
       - name: k8s-workload-registrar-config
         configMap:
           name: k8s-workload-registrar
+      {{- if eq .Values.mtls.persistentStorage "off" }}
+      - name: spire-data
+        emptyDir: { }
+      {{- end }}
   {{- if eq .Values.mtls.persistentStorage "on" }}
   volumeClaimTemplates:
   - metadata:
