@@ -98,7 +98,7 @@ spec:
           mountPath: /spire-agent-socket
       containers:
       - name: spiffe-csi-driver
-        image: {{ include "spire.image-server" . }}/spiffe-csi-driver:0.2.3
+        image: {{ include "spiffe-csi.image-server" . }}/spiffe-csi-driver:0.2.1
         imagePullPolicy: {{ .Values.registry.imagePullPolicy }}
         args: [
           "-workload-api-socket-dir", "/spire-agent-socket",
