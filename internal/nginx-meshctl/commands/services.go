@@ -127,6 +127,14 @@ func getEndpoints(ctx context.Context, k8sClient client.Client, svc v1.Service) 
 
 // isNamespaceInjectionEnabled returns whether a given namespace has injection enabled.
 func isNamespaceInjectionEnabled(ctx context.Context, k8sClient client.Client, ns string) (bool, error) {
+	// Never inject ignored namespaces.
+	for ignoredNS := range mesh.IgnoredNamespaces {
+		if ns == ignoredNS {
+			return false, nil
+		}
+	}
+
+	// Check if the namespace has the auto-injection label and it is set to "enabled".
 	nsObj := &v1.Namespace{}
 	if err := k8sClient.Get(ctx, client.ObjectKey{
 		Namespace: "",
@@ -135,5 +143,6 @@ func isNamespaceInjectionEnabled(ctx context.Context, k8sClient client.Client, n
 		fmt.Printf("error getting namespace: %v\n", err)
 		return false, err
 	}
+
 	return nsObj.GetLabels()[mesh.AutoInjectLabel] == mesh.AutoInjectionEnabled, nil
 }
