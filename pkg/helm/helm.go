@@ -28,7 +28,6 @@ type Values struct {
 	NGINXLBMethod      string     `yaml:"nginxLBMethod" json:"nginxLBMethod"`
 	NGINXLogFormat     string     `yaml:"nginxLogFormat" json:"nginxLogFormat"`
 	Registry           Registry   `yaml:"registry" json:"registry"`
-	EnabledNamespaces  []string   `yaml:"enabledNamespaces" json:"enabledNamespaces"`
 	EnableUDP          bool       `yaml:"enableUDP" json:"enableUDP"`
 }
 

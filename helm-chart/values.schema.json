@@ -446,14 +446,6 @@
       "description": "The address of a Prometheus server deployed in your Kubernetes cluster",
       "type": "string"
     },
-    "enabledNamespaces": {
-      "description": "Enable automatic sidecar injection for specific namespaces",
-      "type": "array",
-      "items": {
-        "type": "string"
-      },
-      "default": []
-    },
     "telemetry": {
       "description": "NGINX Service Mesh telemetry settings",
       "type": "object",
