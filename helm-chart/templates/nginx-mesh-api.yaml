@@ -439,10 +439,6 @@ requiredDropCapabilities:
 - ALL
 volumes:
 - configMap
-- downwardAPI
-- emptyDir
-- persistentVolumeClaim
-- projected
 - secret
 - csi
 {{- end }}

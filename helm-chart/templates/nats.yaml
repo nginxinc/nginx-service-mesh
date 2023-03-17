@@ -18,6 +18,7 @@ data:
   nats.conf: {{ .Files.Get "configs/nats.conf" | quote }}
 {{- if eq .Values.environment "openshift" }}
 ---
+apiVersion: security.openshift.io/v1
 kind: SecurityContextConstraints
 metadata:
   name: nginx-mesh-nats-permissions
@@ -30,9 +31,8 @@ allowHostPorts: false
 allowPrivilegeEscalation: false
 allowPrivilegedContainer: false
 allowedCapabilities:
-  - NET_ADMIN
-  - KILL
-apiVersion: security.openshift.io/v1
+- NET_ADMIN
+- KILL
 defaultAddCapabilities: null
 fsGroup:
   type: MustRunAs
@@ -49,10 +49,10 @@ supplementalGroups:
   type: MustRunAs
 users: []
 volumes:
-  - secret
-  - csi
-  - configMap
-  - emptyDir
+- secret
+- csi
+- configMap
+- emptyDir
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
@@ -60,8 +60,6 @@ metadata:
   name: system:openshift:scc:nginx-mesh-nats-permissions
   labels:
     app.kubernetes.io/part-of: nginx-service-mesh
-  annotations:
-    "helm.sh/resource-policy": keep
 rules:
   - apiGroups: ["security.openshift.io"]
     resources: ["securitycontextconstraints"]
@@ -74,8 +72,6 @@ metadata:
   name: system:openshift:scc:nginx-mesh-nats-permissions
   labels:
     app.kubernetes.io/part-of: nginx-service-mesh
-  annotations:
-    "helm.sh/resource-policy": keep
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
