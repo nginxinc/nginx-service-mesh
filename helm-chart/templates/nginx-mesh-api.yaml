@@ -176,17 +176,39 @@ spec:
 apiVersion: admissionregistration.k8s.io/v1
 kind: MutatingWebhookConfiguration
 metadata:
-  name: sidecar-injector-webhook-cfg.internal.builtin.nsm.nginx
+  name: sidecar-injector-webhook-ns.internal.builtin.nsm.nginx
   labels:
     app.kubernetes.io/part-of: nginx-service-mesh
     spiffe.io/webhook: "true"
 webhooks:
 - name: nginx-mesh-api.sidecar.injector
   namespaceSelector:
-    matchLables:
+    matchLabels:
       injector.nsm.nginx.com/auto-inject: enabled
+  clientConfig:
+    service:
+      name: nginx-mesh-webhook
+      namespace: {{ .Release.Namespace }}
+      path: /inject
+  sideEffects: None
+  admissionReviewVersions: ["v1"]
+  rules:
+  - apiGroups: [""]
+    apiVersions: ["v1"]
+    operations: ["CREATE"]
+    resources: ["pods"]
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: MutatingWebhookConfiguration
+metadata:
+  name: sidecar-injector-webhook-cfg-obj.internal.builtin.nsm.nginx
+  labels:
+    app.kubernetes.io/part-of: nginx-service-mesh
+    spiffe.io/webhook: "true"
+webhooks:
+- name: nginx-mesh-api.sidecar.injector
   objectSelector:
-      matchLables:
+      matchLabels:
        injector.nsm.nginx.com/auto-inject: enabled
   clientConfig:
     service:
