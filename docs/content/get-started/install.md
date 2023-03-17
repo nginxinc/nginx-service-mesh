@@ -59,7 +59,7 @@ The following sections describe how to install the CLI on Linux, macOS, and Wind
 1. Test the installation.
 
     ```bash
-    nginx-meshctl version
+    nginx-meshctl
     ```
 
 #### Install on macOS
@@ -87,7 +87,7 @@ The following sections describe how to install the CLI on Linux, macOS, and Wind
 1. Test the installation.
 
     ```bash
-    nginx-meshctl version
+    nginx-meshctl
     ```
 
 #### Install on Windows
@@ -96,42 +96,17 @@ The following sections describe how to install the CLI on Linux, macOS, and Wind
 
 1. Extract the binary, `nginx-meshctl.exe`, from the zip file.
 
-1. Add the binary to your PATH and rename.
+1. Add the binary to your PATH.
 
 1. Test the installation.
 
     ```bash
-    nginx-meshctl.exe version
+    nginx-meshctl
     ```
 
-### Images
+### Air Gap Environment
 
-NGINX Service Mesh distributes a number of images and pulls additional publicly-accessible third-party container images into your Kubernetes cluster in order to function. For a full list refer to the [Technical Specifications]( {{< ref "/about/tech-specs.md#images" >}} ).
-
-#### Manually Download and Push Images to Container Registry
-
-NGINX Service Mesh images are pulled in automatically when deploying the mesh. However, if desired, you can manually download and push them to your own container registry that your cluster can access.
-
-{{< important >}}
-To ensure compatibility, the image versions need to match the version of `nginx-meshctl` that you downloaded. If using Helm, the image versions need to match the chart's `version`.
-{{< /important >}}
-
-When deploying NGINX Service Mesh using `nginx-meshctl`, set the `--registry-server` flag to your registry. If using Helm, set the `registry.server` field to your registry.
-
-#### Air Gap Environment
-
-If your environment does not have access to public image repositories, then you will need to manually pull the images from this [list]( {{< ref "/about/tech-specs.md#images" >}} ), and push them to your [private registry]( {{< ref "/guides/private-registry.md" >}} ). The image names and tags must remain the same. For example:
-
- `gcr.io/spiffe-io/spire-agent:1.6.1` would become `your-registry/spire-agent:1.6.1`
- 
- `nats:2.9-alpine` would become `your-registry/nats:2.9-alpine`
-
-When running `nginx-meshctl deploy`, use the `--disable-public-images` flag to instruct the mesh to use your `--registry-server` for all images. 
-For example:
-
-```bash
-nginx-meshctl deploy --registry-server your-registry --disable-public-images ...
-```
+NGINX Service Mesh will pull multiple required images into your Kubernetes cluster in order to function, some of which are from publicly-accessible third parties. For a full list refer to the [Technical Specifications]( {{< ref "/about/tech-specs.md#images" >}} ). If you require these images in a private repository, see our [private registry guide]( {{< ref "/guides/private-registry.md" >}} ).
 
 ## Install the NGINX Service Mesh Control Plane
 
@@ -158,21 +133,13 @@ Take the steps below to install the NGINX Service Mesh control plane.
 
    {{< note >}}
    We recommend deploying the mesh with auto-injection disabled globally, using the `--disable-auto-inject` flag. This ensures that Pods are not automatically injected without your consent, especially in system namespaces.
-   You can opt-in the namespaces where you would like auto-injection enabled using `--enabled-namespaces "namespace-1,namespace-2"` or by labeling a namespace with `injector.nsm.nginx.com/auto-inject=enabled`.
+   You can enable auto-injection in specific namespaces using  `--enabled-namespaces "namespace-1,namespace-2"` or by labeling a namespace with `injector.nsm.nginx.com/auto-inject=enabled`.
    {{< /note >}}
 
-    If you are using a private registry to store the NGINX Service Mesh images see the [Private Registry]( {{< ref "/guides/private-registry.md" >}} ) guide for instructions. 
-
-    For example, `nginx-meshctl deploy --registry-server "registry:5000/images" --image-tag X.Y.Z` will look for containers `registry:5000/images/nginx-mesh-api:X.Y.Z`, `registry:5000/images/nginx-mesh-sidecar:X.Y.Z`, and so on.
-
-
-
-2. Run the `kubectl get pods` command to verify that the Pods are up and running.
-
-    Be sure to specify the `nginx-mesh` namespace when running the command.
+2. Verify the pods are running.
 
     ```bash
-    $ kubectl -n nginx-mesh get pods
+    $ kubectl get pods -n nginx-mesh
     NAME                                  READY   STATUS    RESTARTS   AGE
     nats-server-84f8b6f669-xszkc          1/1     Running   0          14m
     nginx-mesh-api-954467945-sc7qh        1/1     Running   0          14m
