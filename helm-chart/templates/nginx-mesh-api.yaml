@@ -181,7 +181,7 @@ metadata:
     app.kubernetes.io/part-of: nginx-service-mesh
     spiffe.io/webhook: "true"
 webhooks:
-  {{- /* Case 1: Namespace is labeled for injection and not in denylist, Pod does not disable injection */}}
+  {{- /* Case 1: Namespace is labeled for injection and not in denylist, Pod is not already injected and does not disable injection */}}
 - name: nginx-mesh-api-ns.sidecar.injector
   namespaceSelector:
     matchExpressions:
@@ -198,6 +198,10 @@ webhooks:
       operator: NotIn
       values:
       - disabled
+    - key: injector.nsm.nginx.com/status
+      operator: NotIn
+      values:
+      - injected
   clientConfig:
     service:
       name: nginx-mesh-webhook
@@ -211,7 +215,7 @@ webhooks:
     operations: ["CREATE"]
     resources: ["pods"]
 
-  {{- /* Case 2: Pod is labeled for injection, namespace is not in denylist */}} 
+  {{- /* Case 2: Pod is labeled for injection, not already injected, and namespace is not in denylist */}} 
 - name: nginx-mesh-api-obj.sidecar.injector
   namespaceSelector:
     matchExpressions:
@@ -221,8 +225,13 @@ webhooks:
       - kube-system
       - {{ .Release.Namespace }}
   objectSelector:
-      matchLabels:
-       injector.nsm.nginx.com/auto-inject: enabled
+    matchLabels:
+      injector.nsm.nginx.com/auto-inject: enabled
+    matchExpressions:
+    - key: injector.nsm.nginx.com/status
+      operator: NotIn
+      values:
+      - injected
   clientConfig:
     service:
       name: nginx-mesh-webhook
