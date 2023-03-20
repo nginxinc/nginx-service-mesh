@@ -181,6 +181,7 @@ metadata:
     app.kubernetes.io/part-of: nginx-service-mesh
     spiffe.io/webhook: "true"
 webhooks:
+  {{- /* Case 1: Namespace is labeled for injection and not in denylist, Pod does not disable injection */}}
 - name: nginx-mesh-api-ns.sidecar.injector
   namespaceSelector:
     matchExpressions:
@@ -191,6 +192,12 @@ webhooks:
       - {{ .Release.Namespace }}
     matchLabels:
       injector.nsm.nginx.com/auto-inject: enabled
+  objectSelector:
+    matchExpressions:
+    - key: injector.nsm.nginx.com/auto-inject
+      operator: NotIn
+      values:
+      - disabled
   clientConfig:
     service:
       name: nginx-mesh-webhook
@@ -203,6 +210,8 @@ webhooks:
     apiVersions: ["v1"]
     operations: ["CREATE"]
     resources: ["pods"]
+
+  {{- /* Case 2: Pod is labeled for injection, namespace is not in denylist */}} 
 - name: nginx-mesh-api-obj.sidecar.injector
   namespaceSelector:
     matchExpressions:
@@ -226,14 +235,9 @@ webhooks:
     apiVersions: ["v1"]
     operations: ["CREATE"]
     resources: ["pods"]
+    
+  {{- /* Case 3: Pod is labeled for ingress */}} 
 - name: nginx-mesh-api-ingress.sidecar.injector
-  namespaceSelector:
-    matchExpressions:
-    - key: kubernetes.io/metadata.name
-      operator: NotIn
-      values:
-      - kube-system
-      - {{ .Release.Namespace }}
   objectSelector:
     matchLabels:
       nsm.nginx.com/enable-ingress: "true"
@@ -249,14 +253,9 @@ webhooks:
     apiVersions: ["v1"]
     operations: ["CREATE"]
     resources: ["pods"]
+
+  {{- /* Case 4: Pod is labeled for egress */}}     
 - name: nginx-mesh-api-egress.sidecar.injector
-  namespaceSelector:
-    matchExpressions:
-    - key: kubernetes.io/metadata.name
-      operator: NotIn
-      values:
-      - kube-system
-      - {{ .Release.Namespace }}
   objectSelector:
     matchLabels:
       nsm.nginx.com/enable-egress: "true"
