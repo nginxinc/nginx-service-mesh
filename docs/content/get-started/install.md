@@ -106,7 +106,7 @@ The following sections describe how to install the CLI on Linux, macOS, and Wind
 
 ### Air Gap Environment
 
-NGINX Service Mesh will pull multiple required images into your Kubernetes cluster in order to function, some of which are from publicly-accessible third parties. For a full list refer to the [Technical Specifications]( {{< ref "/about/tech-specs.md#images" >}} ). If you require these images in a private repository, see our [private registry guide]( {{< ref "/guides/private-registry.md" >}} ).
+NGINX Service Mesh will pull multiple required images into your Kubernetes cluster in order to function, some of which are from publicly-accessible third parties. For a full list refer to the [Technical Specifications]( {{< ref "/about/tech-specs.md#images" >}} ). If you are using a private registry, see our [private registry guide]( {{< ref "/guides/private-registry.md" >}} ).
 
 ## Install the NGINX Service Mesh Control Plane
 
