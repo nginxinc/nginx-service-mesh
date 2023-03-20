@@ -8,7 +8,6 @@ import (
 
 	v1 "k8s.io/api/core/v1"
 	discoveryv1beta1 "k8s.io/api/discovery/v1beta1"
-	"k8s.io/utils/strings/slices"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/spf13/cobra"
@@ -128,10 +127,14 @@ func getEndpoints(ctx context.Context, k8sClient client.Client, svc v1.Service) 
 
 // isNamespaceInjectionEnabled returns whether a given namespace has injection enabled.
 func isNamespaceInjectionEnabled(ctx context.Context, k8sClient client.Client, ns string) (bool, error) {
-	meshConfig, confErr := getMeshConfig()
-	if confErr != nil {
-		return false, confErr
+	// Never inject ignored namespaces.
+	for ignoredNS := range mesh.IgnoredNamespaces {
+		if ns == ignoredNS {
+			return false, nil
+		}
 	}
+
+	// Check if the namespace has the auto-injection label and it is set to "enabled".
 	nsObj := &v1.Namespace{}
 	if err := k8sClient.Get(ctx, client.ObjectKey{
 		Namespace: "",
@@ -140,18 +143,6 @@ func isNamespaceInjectionEnabled(ctx context.Context, k8sClient client.Client, n
 		fmt.Printf("error getting namespace: %v\n", err)
 		return false, err
 	}
-	return slices.Contains(*meshConfig.EnabledNamespaces, ns) || nsObj.GetLabels()[mesh.AutoInjectLabel] == mesh.AutoInjectionEnabled, nil
-}
 
-// getMeshConfig fetches the mesh.MeshConfig of the mesh using the mesh.MeshClient.
-func getMeshConfig() (*mesh.MeshConfig, error) {
-	meshClient, err := mesh.NewMeshClient(initK8sClient.Config(), meshTimeout)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get mesh client: %w", err)
-	}
-	meshConfig, err := GetMeshConfig(meshClient)
-	if err != nil {
-		return nil, fmt.Errorf("unable to get mesh config: %w", err)
-	}
-	return meshConfig, nil
+	return nsObj.GetLabels()[mesh.AutoInjectLabel] == mesh.AutoInjectionEnabled, nil
 }

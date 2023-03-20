@@ -47,7 +47,6 @@ func createMeshConfigMap(client kubernetes.Interface, namespace string) {
 		"name": "should-not-change",
 		"image": "nginx-mesh-init:old"
 	},
-	"enabledNamespaces": [],
 	"loadBalancingMethod": "round_robin",
 	"accessControlMode": "deny",
 	"nginxErrorLogLevel": "warn",

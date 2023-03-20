@@ -60,10 +60,6 @@ This command installs the following resources into your Kubernetes cluster by de
 
       nginx-meshctl deploy ... --mtls-mode off
 
-  - Deploy the Service Mesh with automatic injection enabled for my-namespace-1 and my-namespace-2:
-
-      nginx-meshctl deploy ... --enabled-namespaces "my-namespace-1,my-namespace-2"
-
   - Deploy the Service Mesh and enable telemetry traces to be exported to your OTLP gRPC collector running in your Kubernetes cluster:
       
       nginx-meshctl deploy ... --telemetry-exporters "type=otlp,host=otel-collector.my-namespace.svc.cluster.local,port=4317"
@@ -203,12 +199,6 @@ func Deploy() *cobra.Command {
 	if err != nil {
 		fmt.Println("error marking flag as hidden: ", err)
 	}
-	cmd.Flags().StringSliceVar(
-		&values.EnabledNamespaces,
-		"enabled-namespaces",
-		defaultValues.EnabledNamespaces,
-		"enable automatic sidecar injection for specific namespaces",
-	)
 	cmd.Flags().StringVar(
 		&values.PrometheusAddress,
 		"prometheus-address",
