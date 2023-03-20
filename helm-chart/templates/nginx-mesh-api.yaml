@@ -264,7 +264,7 @@ webhooks:
     resources: ["pods"]
 
   {{- /* Case 4: Pod is labeled for egress */}}     
-- name: nginx-mesh-api-egress.sidecar.injector
+- name: nginx-mesh-api.egress.injector
   objectSelector:
     matchLabels:
       nsm.nginx.com/enable-egress: "true"
