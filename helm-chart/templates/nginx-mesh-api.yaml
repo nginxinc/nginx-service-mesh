@@ -246,7 +246,7 @@ webhooks:
     resources: ["pods"]
     
   {{- /* Case 3: Pod is labeled for ingress */}} 
-- name: nginx-mesh-api-ingress.sidecar.injector
+- name: nginx-mesh-api.ingress.injector
   objectSelector:
     matchLabels:
       nsm.nginx.com/enable-ingress: "true"
