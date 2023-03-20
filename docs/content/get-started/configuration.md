@@ -132,21 +132,10 @@ NGINX Service Mesh works by injecting a sidecar proxy into Kubernetes resources.
 - [Automatic Injection]( {{< ref "/guides/inject-sidecar-proxy.md#automatic-proxy-injection" >}} )
 - [Manual Injection]( {{< ref "/guides/inject-sidecar-proxy.md#manual-proxy-injection" >}} )
 
-Automatic injection is the default option. This means that any time a user creates a Kubernetes Pod resource, NGINX Service Mesh automatically injects the sidecar proxy into the Pod. 
-
-{{< important >}}
-Automatic injection applies to all namespaces in your Kubernetes cluster. The list of namespaces that you want to use automatic injection for can be updated by using either the NGINX Service Mesh CLI or the REST API. See the [Sidecar Proxy Injection]({{< ref "/guides/inject-sidecar-proxy.md" >}}) topic for more information.
-{{< /important >}}
-
 ## Supported Labels and Annotations
 
 NGINX Service Mesh supports the use of the labels and annotations listed in the tables below.
-
-{{< note >}}
-Each of the labels and annotations listed below are described in more detail in the relevant sections of the NGINX Service Mesh documentation.
-
 If not specified, then the global defaults will be used.
-{{< /note >}}
 
 ### Namespace Labels
 

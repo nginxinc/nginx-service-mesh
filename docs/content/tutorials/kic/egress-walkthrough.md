@@ -40,14 +40,14 @@ If you want to view metrics for NGINX Ingress Controller, ensure that you have d
 
 1. Follow the installation [instructions]( {{< ref "/get-started/install.md" >}} ) to install NGINX Service Mesh on your Kubernetes cluster.
     
-    - When deploying the mesh set the [mTLS mode]( {{< ref "/guides/secure-traffic-mtls.md" >}} ) to `strict`  and [disable global auto-injection]( {{< ref "/guides/inject-sidecar-proxy.md#enable-or-disable-automatic-proxy-injection-by-namespace">}} ). Make sure not to add the `legacy` namespace as an enabled namespace.
+    - When deploying the mesh set the [mTLS mode]( {{< ref "/guides/secure-traffic-mtls.md" >}} ) to `strict`.
     - Your deploy command should contain the following flags:
     
       ```bash
-      nginx-meshctl deploy ... --mtls-mode=strict --disable-auto-inject --enabled-namespaces "default"
+      nginx-meshctl deploy ... --mtls-mode=strict
       ```
 
-1. Get the config of the mesh and verify that `mtls.mode` is `strict` and `enabledNamespaces` does not contain the `legacy` namespace:
+1. Get the config of the mesh and verify that `mtls.mode` is `strict`:
 
     ```bash
     nginx-meshctl config 
@@ -83,7 +83,8 @@ The `target` application is a basic NGINX server listening on port 80. It return
 
 ### Send traffic to the target application
 
-1. Create the `sender` application in the default namespace:
+1. Enable [automatic sidecar injection]( {{< ref "/guides/inject-sidecar-proxy.md#automatic-proxy-injection" >}} ) for the `default` namespace.
+1. Create the `sender` application in the `default` namespace:
 
     ```bash
     kubectl apply -f egress-driver.yaml

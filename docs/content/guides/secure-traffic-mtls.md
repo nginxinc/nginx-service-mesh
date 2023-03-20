@@ -249,19 +249,20 @@ We'll use the [Istio `bookinfo`](https://istio.io/docs/examples/bookinfo/) examp
 
 - {{< fa "download" >}} {{< link "/examples/bookinfo.yaml" "`bookinfo.yaml`" >}}
 
-1. First, deploy the `bookinfo` application:
+1. Enable [automatic sidecar injection]( {{< ref "/guides/inject-sidecar-proxy.md#automatic-proxy-injection" >}} ) for the `default` namespace.
+1. Deploy the `bookinfo` application:
 
     ```bash
     kubectl apply -f bookinfo.yaml
     ```
 
-2. To access `bookinfo`, set up port-forwarding:
+1. To access `bookinfo`, set up port-forwarding:
 
     ```bash
     kubectl port-forward svc/productpage 9080
     ```
 
-3. Finally, navigate to `http://localhost:9080` in a browser. On the front side, it uses clear text. All of the service-to-service calls will be SSL-encrypted.
+1. Finally, navigate to `http://localhost:9080` in a browser. On the front side, it uses clear text. All of the service-to-service calls will be SSL-encrypted.
 
 
 ### Debug mTLS Issues

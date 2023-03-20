@@ -187,45 +187,12 @@ You can PATCH the configuration of NGINX Service Mesh by sending a request to th
 
 - REST API endpoint: `/apis/nsm.nginx.com/v1alpha1/config`
 
-The supported patch operations are:
+The supported patch operation is:
 
-- `add`
-- `remove`
 - `replace`
 
-There are a subset of fields and objects supported for add, remove, and replace. Refer to the PATCH config schema described above for the full reference, the following examples can be referred to for a quick start.
-
-#### Example: Disable Automatic injection in All Namespaces
-
-The payload shown below disables automatic injection of the sidecar proxy for all namespaces and enables it for only the "prod" and "staging" namespaces.
-
-```json
-[
-    {
-        "op": "replace",
-        "field": {
-            "isAutoInjectEnabled": false
-        }
-    },
-    {
-        "op": "add",
-        "field": {
-            "enabledNamespaces": ["prod", "staging"]
-        }
-    }
-]
-```
-
-To `remove` all values from a list of strings, define the value as an empty list (using `replace` with an empty list will have the same effect). For example:
-
-```json
-{
-    "op": "remove",
-    "field": {
-        "enabledNamespaces": []
-    }
-}
-```
+There are a subset of fields and objects supported for replacement.
+Refer to the PATCH config schema described above for details.
   
 ### Internal Configuration API Endpoints
 

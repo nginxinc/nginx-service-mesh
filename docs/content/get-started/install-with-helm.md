@@ -53,28 +53,24 @@ helm repo update
 
 ## Installing the Chart
 
-NGINX Service Mesh requires a dedicated namespace for the control plane. You can create this namespace yourself, or allow Helm to create it for you via the `--create-namespace` flag when installing.
+NGINX Service Mesh requires a dedicated namespace for the control plane.
+You can create this namespace yourself, or allow Helm to create it for you via the `--create-namespace` flag when installing.
 
 For information on the container images that NGINX Service Mesh uses, see this section on [Images]( {{< ref "/about/tech-specs.md#images" >}} ).
-
-{{< note >}}
-NGINX Service Mesh control plane Pods may take some time to become Ready once installed. Some Pods may display error logs during the startup process. This typically occurs as the Pods attempt to connect to each other.
-
-Ensure all control plane Pods are in a Ready state before deploying your applications.
-{{< /note >}}
 
 {{< note >}}
 If [Persistent Storage]({{< ref "/get-started/kubernetes-platform/persistent-storage.md" >}}) is not configured in your cluster, set the `mTLS.persistentStorage` field to `off`.
 {{< /note >}}
 
-{{< note >}}
-We recommend deploying the mesh with auto-injection disabled globally, using the `--set disableAutoInjection=true` flag. This ensures that Pods are not automatically injected without your consent, especially in system namespaces.
-You can opt-in the namespaces where you would like auto-injection enabled using the `--set enabledNamespaces={namespace1,namespace2}` flag or by labeling a namespace with `injector.nsm.nginx.com/auto-inject=enabled`.
-{{< /note >}}
+NGINX Service Mesh control plane Pods may take some time to become Ready once installed.
+Some Pods may display error logs during the startup process.
+This typically occurs as the Pods attempt to connect to each other.
 
-{{< note >}}
-OpenShift users: You may see error events related to security contexts while the NGINX Service Mesh control plane is installing. These should resolve themselves as each component becomes ready.
-{{< /note >}}
+OpenShift user may see error events related to security contexts while the NGINX Service Mesh control plane is installing.
+These should resolve themselves as each component becomes ready.
+
+Ensure all control plane Pods are in a Ready state before deploying your applications.
+You can opt-in the namespaces where you would like auto-injection enabled by labeling the namespace with `injector.nsm.nginx.com/auto-inject=enabled`.
 
 ### Install via Repository
 
@@ -173,13 +169,10 @@ After uninstalling, [remove the sidecar proxy from deployments]( {{< ref "/guide
 
 ## Configuration Options
 
-The [values.yaml](https://github.com/nginxinc/nginx-service-mesh/blob/main/helm-chart/values.yaml) file within the `nginx-service-mesh` Helm chart contains the deployment configuration for NGINX Service Mesh. These configuration fields map directly to the `nginx-meshctl deploy` command-line options mentioned throughout our documentation. More details about these options can be found in the [Configuration]( {{< ref "/get-started/configuration.md" >}} ) guide. You can update these fields directly in the `values.yaml` file, or by specifying the `--set` flag when running `helm install`.
-
-{{< note >}}
-Helm uses `{}` to denote array values.
-
-Example: `--set enabledNamespaces={namespace1,namespace2}`
-{{< /note >}}
+The [values.yaml](https://github.com/nginxinc/nginx-service-mesh/blob/main/helm-chart/values.yaml) file within the `nginx-service-mesh` Helm chart contains the deployment configuration for NGINX Service Mesh.
+These configuration fields map directly to the `nginx-meshctl deploy` command-line options mentioned throughout our documentation.
+More details about these options can be found in the [Configuration]( {{< ref "/get-started/configuration.md" >}} ) guide.
+You can update these fields directly in the `values.yaml` file, or by specifying the `--set` flag when running `helm install`.
 
 The following table lists the configurable parameters of the NGINX Service Mesh chart and their default values.
 
@@ -200,8 +193,6 @@ The following table lists the configurable parameters of the NGINX Service Mesh 
 | `nginxLogFormat` | NGINX log format. | default |
 | `nginxLBMethod` | NGINX load balancing method. | least_time |
 | `clientMaxBodySize` | NGINX client max body size. Setting to "0" disables checking of client request body size. | 1m |
-| `disableAutoInjection` | Globally disable automatic sidecar injection upon resource creation. Use either "enabledNamespaces" or a namespace label to enable automatic injection. | false |
-| `enabledNamespaces` | Enable automatic sidecar injection for specific namespaces. Must be used with `disable`. | [] |
 | `prometheusAddress` | The address of a Prometheus server deployed in your Kubernetes cluster. Address should be in the format `<service-name>.<namespace>:<service-port>`. | "" |
 | `telemetry.samplerRatio` | The percentage of traces that are processed and exported to the telemetry backend. Float between 0 and 1. | 0.01 |
 | `telemetry.exporters` | The configuration of exporters to send telemetry data to. | |

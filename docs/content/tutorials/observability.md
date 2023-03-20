@@ -27,7 +27,7 @@ Deploy the components:
 kubectl apply -f prometheus.yaml -f grafana.yaml -f otel-collector.yaml -f jaeger.yaml
 ```
 
-This command creates the `nsm-monitoring` namespace and deploys all of the components in that namespace.
+This command creates the `nsm-monitoring` namespace and deploys all of the components in that namespace. This namespace does not have the auto-inject label because we do not want to inject the sidecar into the observability deployments.
 
 ## Install NGINX Service Mesh
 
@@ -36,7 +36,7 @@ Install NGINX Service Mesh and configure it to integrate with the observability 
 Using the CLI:
 
 ```bash
-nginx-meshctl deploy --prometheus-address "prometheus.nsm-monitoring.svc:9090" --telemetry-exporters "type=otlp,host=otel-collector.nsm-monitoring.svc,port=4317" --telemetry-sampler-ratio 1 --disable-auto-inject --enabled-namespaces "default"
+nginx-meshctl deploy --prometheus-address "prometheus.nsm-monitoring.svc:9090" --telemetry-exporters "type=otlp,host=otel-collector.nsm-monitoring.svc,port=4317" --telemetry-sampler-ratio 1
 ```
 
 Using Helm:
@@ -45,7 +45,7 @@ Using Helm:
 helm repo add nginx-stable https://helm.nginx.com/stable
 helm repo update
 
-helm install nsm nginx-stable/nginx-service-mesh --namespace nginx-mesh --create-namespace --wait --set prometheusAddress=prometheus.nsm-monitoring.svc:9090 --set telemetry.exporters.otlp.host=otel-collector.nsm-monitoring.svc --set telemetry.exporters.otlp.port=4317 --set telemetry.samplerRatio=1  --set disableAutoInjection=true --set enabledNamespaces={"default"}
+helm install nsm nginx-stable/nginx-service-mesh --namespace nginx-mesh --create-namespace --wait --set prometheusAddress=prometheus.nsm-monitoring.svc:9090 --set telemetry.exporters.otlp.host=otel-collector.nsm-monitoring.svc --set telemetry.exporters.otlp.port=4317 --set telemetry.samplerRatio=1
 ```
 
 {{< note >}}
