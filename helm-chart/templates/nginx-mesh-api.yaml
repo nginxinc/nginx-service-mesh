@@ -181,7 +181,8 @@ metadata:
     app.kubernetes.io/part-of: nginx-service-mesh
     spiffe.io/webhook: "true"
 webhooks:
-- name: nginx-mesh-api.sidecar.injector
+  {{- /* Case 1: Namespace is labeled for injection and not in denylist, Pod is not already injected and does not disable injection */}}
+- name: nginx-mesh-api-ns.sidecar.injector
   namespaceSelector:
     matchExpressions:
     - key: kubernetes.io/metadata.name
@@ -189,6 +190,84 @@ webhooks:
       values:
       - kube-system
       - {{ .Release.Namespace }}
+    matchLabels:
+      injector.nsm.nginx.com/auto-inject: enabled
+  objectSelector:
+    matchExpressions:
+    - key: injector.nsm.nginx.com/auto-inject
+      operator: NotIn
+      values:
+      - disabled
+    - key: injector.nsm.nginx.com/status
+      operator: NotIn
+      values:
+      - injected
+  clientConfig:
+    service:
+      name: nginx-mesh-webhook
+      namespace: {{ .Release.Namespace }}
+      path: /inject
+  sideEffects: None
+  admissionReviewVersions: ["v1"]
+  rules:
+  - apiGroups: [""]
+    apiVersions: ["v1"]
+    operations: ["CREATE"]
+    resources: ["pods"]
+
+  {{- /* Case 2: Pod is labeled for injection, not already injected, and namespace is not in denylist */}} 
+- name: nginx-mesh-api-obj.sidecar.injector
+  namespaceSelector:
+    matchExpressions:
+    - key: kubernetes.io/metadata.name
+      operator: NotIn
+      values:
+      - kube-system
+      - {{ .Release.Namespace }}
+  objectSelector:
+    matchLabels:
+      injector.nsm.nginx.com/auto-inject: enabled
+    matchExpressions:
+    - key: injector.nsm.nginx.com/status
+      operator: NotIn
+      values:
+      - injected
+  clientConfig:
+    service:
+      name: nginx-mesh-webhook
+      namespace: {{ .Release.Namespace }}
+      path: /inject
+  sideEffects: None
+  admissionReviewVersions: ["v1"]
+  rules:
+  - apiGroups: [""]
+    apiVersions: ["v1"]
+    operations: ["CREATE"]
+    resources: ["pods"]
+    
+  {{- /* Case 3: Pod is labeled for ingress */}} 
+- name: nginx-mesh-api.ingress.injector
+  objectSelector:
+    matchLabels:
+      nsm.nginx.com/enable-ingress: "true"
+  clientConfig:
+    service:
+      name: nginx-mesh-webhook
+      namespace: {{ .Release.Namespace }}
+      path: /inject
+  sideEffects: None
+  admissionReviewVersions: ["v1"]
+  rules:
+  - apiGroups: [""]
+    apiVersions: ["v1"]
+    operations: ["CREATE"]
+    resources: ["pods"]
+
+  {{- /* Case 4: Pod is labeled for egress */}}     
+- name: nginx-mesh-api.egress.injector
+  objectSelector:
+    matchLabels:
+      nsm.nginx.com/enable-egress: "true"
   clientConfig:
     service:
       name: nginx-mesh-webhook
