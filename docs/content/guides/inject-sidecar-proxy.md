@@ -11,23 +11,15 @@ docs: "DOCS-692"
 ## Overview
 
 NGINX Service Mesh works by injecting a sidecar proxy into Kubernetes resources. 
-You can choose to inject the sidecar proxy into the YAML or JSON definitions for your Kubernetes resources in the following ways:
 
-- [Automatic Injection](#automatic-proxy-injection)
-- [Manual Injection](#manual-proxy-injection)
+A couple important things to note about injected Pods:
 
-{{< note >}}
-When you inject the sidecar proxy into a Kubernetes resource, the injected config uses the global mTLS setting. 
-You can define the global setting when you deploy NGINX Service Mesh, or use the default setting.
+- The sidecar proxy will not be injected into Pods that define multiple container ports with the same port number or for container ports with the SCTP protocol.
+  UDP and TCP are an exception to this, and may be specified on the same port.
+- When you inject the sidecar proxy into a Kubernetes resource, the injected config uses the global mTLS setting. 
+  You can define the global setting when you deploy NGINX Service Mesh, or use the default setting.
+  Refer to [Secure Mesh Traffic using mTLS]({{< ref "/guides/secure-traffic-mtls.md" >}}) for more information.
 
-Refer to [Secure Mesh Traffic using mTLS]({{< ref "/guides/secure-traffic-mtls.md" >}}) for more information.
-{{< /note >}}
-
-{{< important >}}
-The sidecar proxy will not be injected into Pods that define multiple container ports with the same port number or for container ports with the SCTP protocol.
-
-UDP and TCP is an exception to this, and may be specified on the same port.
-{{< /important >}}
 
 The mesh supports the following Kubernetes resources and API versions for injection:
 
@@ -43,48 +35,27 @@ The mesh supports the following Kubernetes resources and API versions for inject
 | Job                   | batch/v1    |
 {{% /table %}}
 
+You can choose to inject the sidecar proxy into the YAML or JSON definitions for your Kubernetes resources in the following ways:
+
+- [Automatic Injection](#automatic-proxy-injection)
+- [Manual Injection](#manual-proxy-injection)
+
 ## Automatic Proxy Injection
 
-NGINX Service Mesh uses automatic injection by default. This means that any time a user creates a Kubernetes Pod resource, the NGINX Service Mesh automatically injects the sidecar proxy into the Pod. Automatic injection applies to all namespaces in your Kubernetes cluster.
-
-### Enable or Disable Automatic Proxy Injection by Namespace
-
-By default, NGINX Service Mesh can access resources in all Kubernetes namespaces.
-
-To disable this setting, deploy the mesh using the `--disable-auto-inject` flag:
+To enable automatic sidecar injection for all Pods in a namespace, add the `injector.nsm.nginx.com/auto-inject=enabled` label to the namespace.
 
 ```bash
-nginx-meshctl deploy ... --disable-auto-inject
+kubectl label namespaces <namespace name> injector.nsm.nginx.com/auto-inject=enabled
 ```
 
-To enable injection for a specific namespace, add the `injector.nsm.nginx.com/auto-inject=enabled` label. This will only work if the mesh is deployed with global automatic sidecar injection disabled.
+For more granular control, you can enable or disable automatic sidecar injection on a per-resource basis.
+To do so, add the following label to the resource's **PodTemplateSpec**: `injector.nsm.nginx.com/auto-inject: "enabled|disabled"`.
+Pod labels take precedence over namespace labels.
 
-{{< note >}}
-If you add this label to a namespace where Pods already exist you will need to restart those Pods for the sidecar to be injected.
-By the same token if you remove this label from a namespace where Pods exist and have the sidecar injected, you will need to restart them to remove the sidecar.
-{{< /note >}}
+If you add the auto-inject label to existing resources, you will need to restart the affected Pods in order for the sidecar to be injected.
+By the same token if you remove the label or set the Pod label to `disabled`, you will need to restart them to remove the sidecar.
 
-You can also enable injection by adding the `--enabled-namespaces` flag to your deploy command.
-
-For example, to disable automatic injection in all namespaces and enable it only in the namespaces "prod" and "staging", you would run the following command:
-
-```bash
-nginx-meshctl deploy ... --disable-auto-inject --enabled-namespaces="prod,staging"
-```
-
-{{< note >}}
-If you need to [modify the auto injection settings]( {{< ref "api-usage.md#modify-the-mesh-state-by-using-the-rest-api" >}} ) after you've deployed NGINX Service Mesh, you can do so by using the REST API.
-{{< /note >}}
-
-### Enable or Disable Automatic Proxy Injection on a Resource
-
-For more granular control, you can override the global automatic injection setting on a per-resource basis. To do so, add the following label to the resource's **PodTemplateSpec**:
-
-`injector.nsm.nginx.com/auto-inject: "enabled|disabled"`
-
-### Injecting Sidecar into Existing Resources
-
-To inject the sidecar into existing resources you must re-roll those resources after installing NGINX Service Mesh.
+Use `kubectl rollout restart` to restart your Pods:
 
 ```bash
 kubectl rollout restart <resource type>/<resource name>
@@ -96,11 +67,9 @@ For example:
 kubectl rollout restart deployment/frontend
 ```
 
-{{< note >}}
-Refer to [NGINX Service Mesh Labels and Annotations]( {{< ref "/get-started/configuration.md#supported-labels-and-annotations" >}}) for more information.
-{{< /note >}}
-
 {{< see-also >}}
+See [NGINX Service Mesh Labels and Annotations]( {{< ref "/get-started/configuration.md#supported-labels-and-annotations" >}}) for more information on available labels and annotations.
+
 Refer to the Kubernetes [`kubectl` Cheat Sheet](https://kubernetes.io/docs/reference/kubectl/cheatsheet/#updating-resources) documentation for more information about rolling resources.
 {{< /see-also >}}
 

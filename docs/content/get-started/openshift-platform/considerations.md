@@ -20,10 +20,8 @@ Using a CSI Driver comes with some considerations for the user on installation a
 
 The NGINX Service Mesh deployment experience is the exact same as in other environments. Simply add the `--environment openshift` flag when deploying the mesh, and the CSI Driver and security context constraints will be set up for you.
 
-To avoid conflicting with regular OpenShift operations and operators running in other environments, we recommended limiting NGINX Service Mesh injection to Pods running in a designated project or set of projects:
-
 ```bash
-nginx-meshctl deploy ... --environment openshift --disable-auto-inject --enabled-namespaces="<your-project1>,<your-project2>"
+nginx-meshctl deploy ... --environment openshift"
 ```
 
 ### Remove

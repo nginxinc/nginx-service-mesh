@@ -131,11 +131,6 @@ Take the steps below to install the NGINX Service Mesh control plane.
     nginx-meshctl deploy
     ```
 
-   {{< note >}}
-   We recommend deploying the mesh with auto-injection disabled globally, using the `--disable-auto-inject` flag. This ensures that Pods are not automatically injected without your consent, especially in system namespaces.
-   You can enable auto-injection in specific namespaces using  `--enabled-namespaces "namespace-1,namespace-2"` or by labeling a namespace with `injector.nsm.nginx.com/auto-inject=enabled`.
-   {{< /note >}}
-
 2. Verify the pods are running.
 
     ```bash
@@ -154,10 +149,10 @@ Take the steps below to install the NGINX Service Mesh control plane.
 
 ## UDP MTU Sizing
 
-{{< note >}}
 UDP traffic proxying is turned off by default. You can activate it at deploy time using the `--enable-udp` flag. Linux kernel 4.18 or greater is required.
-{{< /note >}}
 
-NGINX Service Mesh automatically detects and adjusts the `eth0` interface to support the 32 bytes of space required for PROXY Protocol V2. See the [UDP and eBPF architecture]({{< ref "architecture.md#udp-and-ebpf" >}}) section for more information.
+NGINX Service Mesh automatically detects and adjusts the `eth0` interface to support the 32 bytes of space required for PROXY Protocol V2.
+See the [UDP and eBPF architecture]({{< ref "architecture.md#udp-and-ebpf" >}}) section for more information.
 
-NGINX Service Mesh does not detect changes made to the MTU in the pod at runtime. If adding a CNI changes the MTU of the `eth0` interface of running pods, you should re-roll the affected pods to ensure those changes take place.
+NGINX Service Mesh does not detect changes made to the MTU in the pod at runtime.
+If adding a CNI changes the MTU of the `eth0` interface of running pods, you should re-roll the affected pods to ensure those changes take place.

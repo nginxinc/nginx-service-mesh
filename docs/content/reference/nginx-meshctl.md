@@ -100,12 +100,8 @@ Flags:
       --access-control-mode string        default access control mode for service-to-service communication
                                           		Valid values: allow, deny (default "allow")
       --client-max-body-size string       NGINX client max body size (default "1m")
-      --disable-auto-inject               disable automatic sidecar injection upon resource creation
-                                          		Use the --enabled-namespaces flag to enable automatic injection in select namespaces
       --disable-public-images             don't pull third party images from public repositories
       --enable-udp                        enable UDP traffic proxying (beta); Linux kernel 4.18 or greater is required
-      --enabled-namespaces strings        enable automatic sidecar injection for specific namespaces
-                                          		Must be used with --disable-auto-inject
       --environment string                environment to deploy the mesh into
                                           		Valid values: kubernetes, openshift (default "kubernetes")
   -h, --help                              help for deploy
@@ -163,13 +159,9 @@ Most of the examples below show shortened commands for convenience. The '...' in
 
     `nginx-meshctl deploy ... --namespace my-namespace`
 
-- Deploy the Service Mesh with mTLS and automatic injection turned off:
+- Deploy the Service Mesh with mTLS turned off:
 
-    `nginx-meshctl deploy ... --mtls-mode off --disable-auto-inject`
-
-- Deploy the Service Mesh and only allow automatic injection in namespace "my-namespace":
-
-    `nginx-meshctl deploy ... --disable-auto-inject --enabled-namespaces="my-namespace"`
+    `nginx-meshctl deploy ... --mtls-mode off`
 
 - Deploy the Service Mesh and enable telemetry traces to be exported to your OTLP gRPC collector running in your Kubernetes cluster:
      
