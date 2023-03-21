@@ -160,17 +160,26 @@ The sidecar proxy will route egress traffic to the NGINX Ingress Controller's Po
 
 ### Create an internal route to the legacy target service
 
-To create an internal route from the NGINX Ingress Controller to the legacy `target` Service, we need to create
-an Ingress resource with the annotation `nsm.nginx.com/internal-route: "true"`.
+To create an internal route from the NGINX Ingress Controller to the legacy `target` Service, we need to create either:
+
+- an Ingress resource with the annotation `nsm.nginx.com/internal-route: "true"`.
+- a VirtualServer resource with the following field added to the custom resource definition:
+
+   ```yaml
+   spec:
+     internalRoute: true
+   ```
 
 {{< tip >}}
-For this tutorial, the legacy Service is deployed in Kubernetes so the host name of the Ingress resource is the Kubernetes
+For this tutorial, the legacy Service is deployed in Kubernetes so the host name of the Ingress/VirtualServer resource is the Kubernetes
 DNS name. 
 
 To create internal routes to services outside of the cluster, refer to [creating internal routes]( {{< ref "/tutorials/kic/deploy-with-kic.md#create-internal-routes-for-non-meshed-services" >}} ).
 {{< /tip >}}
 
-Either copy and apply the Ingress resource shown below, or download and apply the `target-internal-route.yaml` file.
+Either copy and apply the Ingress or VirtualServer resource shown below, or download and apply the linked file.
+
+Ingress:
 
 {{< important >}}
 If using Kubernetes v1.18.0 or greater you must use `ingressClassName` in your Ingress resources. Uncomment line 9 in the resource below or the downloaded file, `target-internal-route.yaml`.
@@ -202,27 +211,40 @@ spec:
               number: 80
 ```
 
-Verify the Ingress resource has been created
+VirtualServer:
+
+- {{< fa "download" >}} {{< link "/examples/nginx-ingress-controller/target-vs-internal-route.yaml" "nginx-ingress-controller/target-vs-internal-route.yaml" >}}
+
+```yaml
+apiVersion: k8s.nginx.org/v1
+kind: VirtualServer
+metadata:
+   name: target-vs-internal-route
+   namespace: legacy
+spec:
+   internalRoute: true
+   ingressClassName: nginx
+   host: target-v1-0.legacy
+   upstreams:
+      - name: legacy
+        tls:
+           enable: false
+        service: target-v1-0
+        port: 80
+   routes:
+      - path: /
+        action:
+           pass: legacy
+```
+
+Verify the Ingress or VirtualServer resource has been created:
 
 ```bash
 kubectl -n legacy describe ingress target-internal-route
+```
 
-Name:             target-internal-route
-Namespace:        legacy
-Address:
-Default backend:  default-http-backend:80 (10.2.2.2:8080)
-Rules:
-  Host                Path  Backends
-  ----                ----  --------
-  target-v1-0.legacy
-                      /     target-v1-0:80 (10.0.0.0:80)
-Annotations:          nsm.nginx.com/internal-route: true
-Events:
-  Type     Reason          Age                             From                      Message
-  ----     ------          ----                            ----                      -------
-  Normal   ADD             <invalid>                       loadbalancer-controller   legacy/target-internal-route
-  Normal   AddedOrUpdated  <invalid> (x2 over <invalid>)   nginx-ingress-controller  Configuration for legacy/target-internal-route was added or updated
-  Warning  Translate       <invalid> (x11 over <invalid>)  loadbalancer-controller   error while evaluating the ingress spec: service "legacy/target-v1-0" is type "ClusterIP", expected "NodePort" or "LoadBalancer"
+```bash
+kubectl -n legacy describe virtualserver target-vs-internal-route
 ```
 
 ### Allow the egress-driver application to route egress traffic to NGINX Ingress Controller
