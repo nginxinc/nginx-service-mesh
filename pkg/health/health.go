@@ -16,7 +16,7 @@ import (
 func TestMeshControllerConnection(k8sClient client.Client, namespace string, retries int) error {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	
+
 	var err error
 	for i := 0; i < retries; i++ {
 		if i > 0 {
@@ -24,7 +24,7 @@ func TestMeshControllerConnection(k8sClient client.Client, namespace string, ret
 		}
 
 		var ctlr appsv1.Deployment
-		if err = k8sClient.Get(ctx, client.ObjectKey{Namespace: namespace, Name: mesh.MeshAPI}, &ctlr); err != nil {
+		if err = k8sClient.Get(ctx, client.ObjectKey{Namespace: namespace, Name: mesh.MeshController}, &ctlr); err != nil {
 			continue
 		}
 
