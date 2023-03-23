@@ -417,7 +417,6 @@ metadata:
   labels:
     app.kubernetes.io/part-of: nginx-service-mesh
 spec:
-<<<<<<< HEAD:helm-chart/templates/nginx-mesh-api.yaml
   controllerName: nsm.nginx.com/nginx-mesh-controller
 ---
 apiVersion: nsm.nginx.com/v1alpha2
@@ -446,16 +445,6 @@ spec:
         port: {{ .Values.telemetry.exporters.otlp.port }}
     samplerRatio: {{ .Values.telemetry.samplerRatio }}
   {{ else }}{}{{ end }}
-=======
-  group: nsm.nginx.com
-  groupPriorityMinimum: 100
-  service:
-    name: nginx-mesh-controller
-    namespace: {{ .Release.Namespace}}
-    port: 443
-  version: v1alpha1
-  versionPriority: 100
->>>>>>> 9f0d812 (rename mesh api -> mesh controller):helm-chart/templates/nginx-mesh-controller.yaml
 {{- if eq .Values.environment "openshift" }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1

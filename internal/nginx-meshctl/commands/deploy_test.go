@@ -130,13 +130,8 @@ var _ = Describe("Deploy", func() {
 		}
 
 		subImages(images, files)
-<<<<<<< HEAD
-		Expect(string(files[0].Data)).To(Equal("\"mesh-api-image\""))
-		Expect(string(files[1].Data)).To(Equal("\"sidecar-image\""))
-=======
 		Expect(string(files[0].Data)).To(Equal("mesh-controller-image"))
 		Expect(string(files[1].Data)).To(Equal("sidecar-image"))
->>>>>>> 9f0d812 (rename mesh api -> mesh controller)
 		Expect(string(files[2].Data)).To(Equal("{{ .Values.registry.server }}/nginx-mesh-metrics:{{ .Values.registry.imageTag }}"))
 	})
 	It("can validate an exporter config", func() {
