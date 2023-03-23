@@ -24,9 +24,9 @@ The control plane comprises multiple subsystems, each of which is explained belo
 
 Kubernetes resources and container names:
 
-- Container: nginx-mesh-api
-- Deployment: deployment/nginx-mesh-api
-- Service: service/nginx-mesh-api
+- Container: nginx-mesh-controller
+- Deployment: deployment/nginx-mesh-controller
+- Service: service/nginx-mesh-controller
 
 NGINX Service Mesh employs the controller pattern to enforce desired states across managed application(s). Controllers are event loops that actuate and enforce configuration inputs. The controllers in the NGINX Service Mesh control plane watch a set of native Kubernetes resources (Services, Endpoints, and Pods). The controllers also watch a collection of custom resources defined by the [Service Mesh Interface specification](https://github.com/servicemeshinterface/smi-spec) and individual resources specific to NGINX Service Mesh (see [Traffic Policies](https://docs.nginx.com/nginx-service-mesh/guides/smi-traffic-policies/)).
 

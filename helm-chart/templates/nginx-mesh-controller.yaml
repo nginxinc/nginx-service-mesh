@@ -220,7 +220,7 @@ webhooks:
     resources: ["pods"]
 
   {{- /* Case 2: Pod is labeled for injection, not already injected, and namespace is not in denylist */}} 
-- name: nginx-mesh-api-obj.sidecar.injector
+- name: nginx-mesh-controller-obj.sidecar.injector
   namespaceSelector:
     matchExpressions:
     - key: kubernetes.io/metadata.name
@@ -250,7 +250,7 @@ webhooks:
     resources: ["pods"]
     
   {{- /* Case 3: Pod is labeled for ingress */}} 
-- name: nginx-mesh-api.ingress.injector
+- name: nginx-mesh-controller.ingress.injector
   objectSelector:
     matchLabels:
       nsm.nginx.com/enable-ingress: "true"
@@ -268,7 +268,7 @@ webhooks:
     resources: ["pods"]
 
   {{- /* Case 4: Pod is labeled for egress */}}     
-- name: nginx-mesh-api.egress.injector
+- name: nginx-mesh-controller.egress.injector
   objectSelector:
     matchLabels:
       nsm.nginx.com/enable-egress: "true"
@@ -456,7 +456,7 @@ metadata:
 rules:
 - apiGroups: ["security.openshift.io"]
   resources: ["securitycontextconstraints"]
-  resourceNames: ["nginx-mesh-api-permissions"]
+  resourceNames: ["nginx-mesh-controller-permissions"]
   verbs: ["use"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1

@@ -55,8 +55,8 @@ const (
 	NatsAgentConfigChannel = "nginx.nsm.agent.config"
 	// NatsAgentSubChannel sends a subscription and version notice from agent to mesh-controller.
 	NatsAgentSubChannel = "nginx.nsm.agent.subscription"
-	// NatsAPIPingChannel sends a ping from mesh-api to agent on restart.
-	NatsAPIPingChannel = "nginx.nsm.api.ping"
+	// NatsControllerPingChannel sends a ping from mesh-controller to agent on restart.
+	NatsControllerPingChannel = "nginx.nsm.controller.ping"
 )
 
 // k8s static resource names.
