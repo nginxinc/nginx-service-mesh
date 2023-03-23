@@ -12,7 +12,7 @@ docs: "DOCS-679"
 This document provides an overview of the various options you can configure when deploying NGINX Service Mesh. We strongly recommended that you review all of the available options discussed in this document *before* deploying NGINX Service Mesh.
 
 {{< tip >}}
-If you need to manage your config after deploying, you can use the NGINX Service Mesh API. 
+To manage your configuration after deployment, you can use the NGINX Service Mesh API. 
 
 Refer to the [API Usage Guide]( {{< ref "api-usage.md" >}} ) for more information.
 {{< /tip >}}

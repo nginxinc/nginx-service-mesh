@@ -45,7 +45,7 @@ To use NGINX Service Mesh with your Prometheus deployment:
       You can use the [NGINX Service Mesh API]({{< ref "api-usage.md#modifying-the-global-mesh-configuration" >}})
       to update the Prometheus address that the control plane uses to get metrics.
 
-      For example, update the `meshconfig` resource with:
+      The example below demonstrates how to update the `meshconfig` resource:
 
       ```yaml
       spec:
@@ -93,7 +93,7 @@ Tracing relies on the trace headers passed through each microservice in an appli
 
    You can use the [NGINX Service Mesh API]({{< ref "api-usage.md#modifying-the-global-mesh-configuration" >}}) to update the telemetry configuration.
 
-   For example, update the `meshconfig` resource with:
+   The example below demonstrates how to update the `meshconfig` resource:
 
    ```yaml
    telemetry:

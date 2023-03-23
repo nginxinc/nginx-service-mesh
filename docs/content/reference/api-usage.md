@@ -1,6 +1,6 @@
 ---
 title: NGINX Service Mesh API
-description: "Instructions for using the NGINX Service Mesh API."
+description: "Instructions for interacting with the NGINX Service Mesh API."
 toc: true
 tags: ["api"]
 weight: 200
@@ -10,7 +10,7 @@ docs: "DOCS-702"
 
 ## Overview
 
-The NGINX Service Mesh API lives in a Kubernetes Custom Resource which allows a way to manage the global mesh configuration. This resource is created when the mesh is deployed, and can be updated at runtime via the Kubernetes API.
+The NGINX Service Mesh API exists within a Kubernetes Custom Resource, and can be used to manage the global mesh configuration. This resource is created when the mesh is deployed, and can be updated at runtime using the Kubernetes API.
 
 ## Modifying the global mesh configuration
 
@@ -20,7 +20,7 @@ To update the global mesh configuration, use `kubectl` to edit the `meshconfig` 
 kubectl edit meshconfig nginx-mesh-config -n nginx-mesh
 ```
 
-This will open your editor and allow for changes. To see the configurable fields, download the custom resource definition:
+This will open your default text editor to make changes. To see the configurable fields, download the custom resource definition:
 
 {{< fa "download" >}} {{< link "crds/meshconfig.yaml" "`meshconfig-schema.yaml`" >}}
 
@@ -30,7 +30,7 @@ If the `meshconfig` resource is deleted, or the `spec.meshConfigClassName` field
 
 ## Viewing the global mesh configuration
 
-The `meshconfig` custom resource only contains configuration fields that can be changed at runtime. However, to view the full state of the mesh configuration, including fields that were set at installation, you can use the `nginx-meshctl` command line tool.
+The `meshconfig` custom resource only contains configuration fields that can be changed at runtime. To view the full state of the mesh configuration, including fields that were set at installation, you can use the `nginx-meshctl` command line tool.
 
 - View the full configuration of the mesh:
 
