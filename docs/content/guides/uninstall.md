@@ -25,29 +25,6 @@ The `nginx-meshctl` command-line utility prints a list of resources that contain
 
 ## Uninstall the Control Plane
 
-Before uninstalling the Service Mesh control plane, make sure your Kubernetes user has the permissions to access the [internal NGINX Service Mesh API endpoints]({{< ref "/reference/api/api-usage.md#internal-configuration-api-endpoints" >}}). 
-Below is an example of a `ClusterRole` with the necessary remove permissions:
-
-```yaml
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRole
-metadata:
-  name: nsm-remove
-rules:
-- apiGroups:
-  - nsm.nginx.com
-  resources:
-  - resources
-  verbs:
-  - list
-```
-
-Having these permissions ensures that `nginx-meshctl` can inform you about your remaining workloads that contain sidecars at the time of removal.
-
-{{< note >}}
-If your Kubernetes user account has the `ClusterAdmin` role, then no additional permissions are necessary to run the remove command.
-{{< /note >}}
-
 To uninstall the Service Mesh control plane using the `nginx-meshctl` command-line utility, run the command shown below.
 
 ```bash

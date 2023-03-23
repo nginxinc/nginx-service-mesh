@@ -42,18 +42,14 @@ To use NGINX Service Mesh with your Prometheus deployment:
 
    - *At runtime*:
 
-      You can use the [NGINX Service Mesh API]({{< ref "reference/api/api-usage.md" >}})
+      You can use the [NGINX Service Mesh API]({{< ref "api-usage.md#modifying-the-global-mesh-configuration" >}})
       to update the Prometheus address that the control plane uses to get metrics.
 
-      For example, send the following payload via `PATCH` to the NGINX Service Mesh API:
+      The example below demonstrates how to update the `meshconfig` resource:
 
-      ```json
-      {
-         "op": "replace",
-         "field": {
-            "prometheusAddress": "my-prometheus.example-namespace:9090"
-         }
-      }
+      ```yaml
+      spec:
+         prometheusAddress: my-prometheus.example-namespace:9090
       ```
 
 1. Add the `nginx-mesh-sidecars` scrape config to your Prometheus configuration.
@@ -95,25 +91,17 @@ Tracing relies on the trace headers passed through each microservice in an appli
 
 - *At runtime*:
 
-   You can use the [NGINX Service Mesh API]({{< ref "reference/api/api-usage.md" >}}) to update the telemetry configuration.
+   You can use the [NGINX Service Mesh API]({{< ref "api-usage.md#modifying-the-global-mesh-configuration" >}}) to update the telemetry configuration.
 
-   For example, send the following payload via `PATCH` to the NGINX Service Mesh API:
+   The example below demonstrates how to update the `meshconfig` resource:
 
-   ```json
-   {
-      "op": "replace",
-      "field": {
-         "telemetry": {
-            "exporters": {
-               "otlp": {
-                  "host": "otel-collector.example-namespace.svc",
-                  "port": 4317
-               }
-            },
-            "samplerRatio": 0.1
-         }
-      }
-   }
+   ```yaml
+   telemetry:
+      exporters:
+         otlp:
+            host: otel-collector.example-namespace.svc
+            port: 4317
+      samplerRatio: 0.1
    ```
 
 If configured correctly, tracing data that is generated or propagated by the NGINX Service Mesh sidecar will be exported to the OTEL Collector, and then exported to the upstream collector(s), as shown in the following example diagram:

@@ -12,9 +12,9 @@ docs: "DOCS-679"
 This document provides an overview of the various options you can configure when deploying NGINX Service Mesh. We strongly recommended that you review all of the available options discussed in this document *before* deploying NGINX Service Mesh.
 
 {{< tip >}}
-If you need to manage your config after deploying, you can use the NGINX Service Mesh REST API. 
+To manage your configuration after deployment, you can use the NGINX Service Mesh API. 
 
-Refer to the [API Usage Guide]( {{< ref "api-usage.md#modify-the-mesh-state-by-using-the-rest-api" >}} ) for more information.
+Refer to the [API Usage Guide]( {{< ref "api-usage.md" >}} ) for more information.
 {{< /tip >}}
 
 {{< note >}}
@@ -35,7 +35,7 @@ To change this to a closed global policy and only allow traffic to flow between 
 nginx-meshctl deploy ... --access-control-mode deny
 ```
 
-If you need to [modify the global access control mode]( {{< ref "api-usage.md#modify-the-mesh-state-by-using-the-rest-api" >}} ) after you've deployed NGINX Service Mesh, you can do so by using the REST API.
+If you need to [modify the global access control mode]( {{< ref "api-usage.md#modifying-the-global-mesh-configuration" >}} ) after you've deployed NGINX Service Mesh, you can do so by using the API.
 
 ## Client Max Body Size
 
@@ -51,7 +51,7 @@ Setting the value to "0" allows for an unlimited request body size.
 
 To configure the client max body size for a specific Pod, add the `config.nsm.nginx.com/client-max-body-size: <size>` annotation to the *PodTemplateSpec* of your Deployment, StatefulSet, and so on.
 
-If you need to [modify the global client max body size]( {{< ref "api-usage.md#modify-the-mesh-state-by-using-the-rest-api" >}} ) after you've deployed NGINX Service Mesh, you can do so by using the REST API.
+If you need to [modify the global client max body size]( {{< ref "api-usage.md#modifying-the-global-mesh-configuration" >}} ) after you've deployed NGINX Service Mesh, you can do so by using the API.
 
 {{< see-also >}}
 [NGINX core module documentation](http://nginx.org/en/docs/http/ngx_http_core_module.html#client_max_body_size) for `client_max_body_size`.
@@ -86,7 +86,7 @@ To set the NGINX sidecar logging format, use the `--nginx-log-format` flag when 
 nginx-meshctl deploy ... --nginx-log-format json
 ```
 
-If you need to [modify the log level or log format]( {{< ref "api-usage.md#modify-the-mesh-state-by-using-the-rest-api" >}} ) after you've deployed NGINX Service Mesh, you can do so by using the REST API.
+If you need to [modify the log level or log format]( {{< ref "api-usage.md#modifying-the-global-mesh-configuration" >}} ) after you've deployed NGINX Service Mesh, you can do so by using the API.
 
 ## Load Balancing
 

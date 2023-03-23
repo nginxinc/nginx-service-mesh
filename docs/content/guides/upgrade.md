@@ -59,7 +59,7 @@ This upgrade method is the most disruptive, as it involves fully removing the ex
 If breaking changes are introduced between versions, or you wish to change the [deployment configuration]( {{< ref "nginx-meshctl.md#deploy" >}} ), then a manual upgrade strategy is necessary.
 
 {{< note >}}
-Some deployment configuration fields can be updated after the mesh has already been deployed, and therefore a manual upgrade strategy is unnecessary. Those fields are discussed in the [API reference]( {{< ref "api-usage.md#modify-the-mesh-state-by-using-the-rest-api" >}} ) guide.
+Some deployment configuration fields can be updated after the mesh has already been deployed, avoiding the need for manual upgrades. Those fields are discussed in the [API reference]( {{< ref "api-usage.md#modifying-the-global-mesh-configuration" >}} ) guide.
 {{< /note >}}
 
 Before downloading the newer version of `nginx-meshctl`, you will need to remove NGINX Service Mesh using your existing version of `nginx-meshctl`. See the following steps.
