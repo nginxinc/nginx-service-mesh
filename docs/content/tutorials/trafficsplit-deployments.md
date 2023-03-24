@@ -221,7 +221,7 @@ For this version of the target app, let's try using a canary deployment strategy
    **Command:**
 
    ```bash
-   kubectl delete -f target-v2.1-successful.yaml
+   kubectl delete -f target-v2.0-failing.yaml
    ```
 
 ### Deploy a New Version of the Target App using a Blue-Green Deployment
