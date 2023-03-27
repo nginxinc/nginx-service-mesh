@@ -24,7 +24,7 @@ jobs:
     if: ${{ github.event.repository.fork == false }}
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@24cb9080177205b6e8c946b17badbe402adc938f # v3.4.0
+        uses: actions/checkout@8f4b7f84864484a7bf31766abe9204da3cbe65b3 # v3.5.0
       - name: Scan
         uses: TheAxZim/Whitesource-Scan-Action@ae848d3fc813c97f7e466da97ccd2b12b4bad9b8
         with:
