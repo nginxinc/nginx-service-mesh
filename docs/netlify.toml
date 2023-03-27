@@ -2,7 +2,6 @@
   base = "docs/"
   publish = "public"
   command = "./scripts/copy-docs.sh && hugo --gc"
-  ignore = "git diff --quiet $COMMIT_REF $CACHED_COMMIT_REF -- ./"
 
 [build.environment]
   HUGO_VERSION = "0.80.0"
