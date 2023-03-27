@@ -67,7 +67,7 @@ const (
 	MeshConfigFileName = "meshconfig.json"
 	// NatsServer is the name of the nats-server service.
 	NatsServer = "nats-server"
-	// MeshController is the name of the mesh api.
+	// MeshController is the name of the mesh controller.
 	MeshController = "nginx-mesh-controller"
 	// MeshCertReloader is the name of the mesh cert reloader image.
 	MeshCertReloader = "nginx-mesh-cert-reloader"

@@ -21,7 +21,7 @@ var ErrMeshStatus = errors.New("mesh controller unavailable")
 // ErrNotFound is returned when a 404 is returned by mesh API or mesh API is not running.
 var ErrNotFound = errors.New("not found")
 
-// ErrMeshControllerResponse is returned when the mesh API returns an error.
+// ErrMeshControllerResponse is returned when the mesh controller returns an error.
 var ErrMeshControllerResponse = errors.New("mesh Controller returned error")
 
 // ErrK8sAPIResponse is returned when the k8s API returns an error.

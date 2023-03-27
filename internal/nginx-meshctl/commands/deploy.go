@@ -30,7 +30,7 @@ import (
 )
 
 const (
-	meshControllerConnectionFailedInstructions = `Connection to NGINX Service Mesh API Server failed.
+	meshControllerConnectionFailedInstructions = `Connection to NGINX Service Mesh failed.
 	Check the logs of the nginx-mesh-controller container in namespace %s for more details.`
 
 	deployMeshControllerRetries = 60

@@ -144,7 +144,7 @@ Flags:
 Global Flags:
   -k, --kubeconfig string   path to kubectl config file (default "/Users/<user>/.kube/config")
   -n, --namespace string    NGINX Service Mesh control plane namespace (default "nginx-mesh")
-  -t, --timeout duration    timeout when communicating with NGINX Service Mesh controller Server (default 5s)
+  -t, --timeout duration    timeout when communicating with NGINX Service Mesh (default 5s)
 ```
 
 ### Deploy Examples

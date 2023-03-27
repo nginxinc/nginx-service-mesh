@@ -149,12 +149,12 @@ Simply type nginx-meshctl help [path to command] for full details.`,
 	return cmd
 }
 
-// NewStatusCmd creates a status command to connect to the mesh-controller.
+// NewStatusCmd creates a status command to connect to the mesh.
 func NewStatusCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "status",
-		Short: "Check connection to NGINX Service Mesh Controller",
-		Long:  `Check connection to NGINX Service Mesh Controller.`,
+		Short: "Check connection to NGINX Service Mesh",
+		Long:  `Check connection to NGINX Service Mesh.`,
 	}
 
 	cmd.PersistentPreRunE = defaultPreRunFunc()
@@ -162,7 +162,7 @@ func NewStatusCmd() *cobra.Command {
 		fmt.Println("Checking NGINX Service Mesh setup....")
 		err := health.TestMeshControllerConnection(initK8sClient.Client(), initK8sClient.Namespace(), 1)
 		if err == nil {
-			fmt.Println("Connection to NGINX Service Mesh Controller was successful.")
+			fmt.Println("Connection to NGINX Service Mesh was successful.")
 		}
 
 		return err
