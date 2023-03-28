@@ -14,7 +14,7 @@ The big three hosted Kubernetes environments (Elastic Kubernetes Service (EKS), 
 {{< important >}}
 **EKS Users:** in Kubernetes v1.23+ the in-tree to container storage interface (CSI) volume migration feature is enabled for EKS.
 This means the Amazon EBS CSI driver must be installed in your cluster in order for persistent storage to work.
-If the CSI driver is not installed prior to installing NGINX Service Mesh, the `PersistentVolumeClaim` required by SPIRE Server get stuck in a pending state and the mesh will fail to install.
+If the CSI driver is not installed prior to installing NGINX Service Mesh, the `PersistentVolumeClaim` required by SPIRE Server gets stuck in a pending state and the mesh will fail to install.
 
 See the [AWS documentation](https://docs.aws.amazon.com/eks/latest/userguide/ebs-csi.html) for instructions on how to install the EBS CSI driver on your EKS cluster.
 If you are unable to install the CSI driver you can disable persistent storage, although this is not recommended for production environments.
