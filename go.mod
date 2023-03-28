@@ -5,7 +5,7 @@ go 1.19
 replace github.com/chzyer/logex v1.1.10 => github.com/chzyer/logex v1.2.0
 
 require (
-	github.com/golang/glog v1.1.1
+	github.com/golang/glog v1.1.0
 	github.com/maxbrunsfeld/counterfeiter/v6 v6.6.1
 	github.com/nats-io/nats-server/v2 v2.9.15
 	github.com/nats-io/nats.go v1.24.0
