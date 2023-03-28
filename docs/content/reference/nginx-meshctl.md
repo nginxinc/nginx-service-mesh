@@ -36,7 +36,7 @@ Flags:
   -h, --help                help for nginx-meshctl
   -k, --kubeconfig string   path to kubectl config file (default "/Users/<user>/.kube/config")
   -n, --namespace string    NGINX Service Mesh control plane namespace (default "nginx-mesh")
-  -t, --timeout duration    timeout when communicating with NGINX Service Mesh API Server (default 5s)
+  -t, --timeout duration    timeout when communicating with NGINX Service Mesh (default 5s)
 ```
 
 ## Completion
@@ -60,7 +60,7 @@ Flags:
 Global Flags:
   -k, --kubeconfig string   path to kubectl config file (default "/Users/<user>/.kube/config")
   -n, --namespace string    NGINX Service Mesh control plane namespace (default "nginx-mesh")
-  -t, --timeout duration    timeout when communicating with NGINX Service Mesh API Server (default 5s)
+  -t, --timeout duration    timeout when communicating with NGINX Service Mesh (default 5s)
 ```
 
 ## Config
@@ -77,7 +77,7 @@ Flags:
 Global Flags:
   -k, --kubeconfig string   path to kubectl config file (default "/Users/<user>/.kube/config")
   -n, --namespace string    NGINX Service Mesh control plane namespace (default "nginx-mesh")
-  -t, --timeout duration    timeout when communicating with NGINX Service Mesh API Server (default 5s)
+  -t, --timeout duration    timeout when communicating with NGINX Service Mesh (default 5s)
 ```
 
 ## Deploy
@@ -194,7 +194,7 @@ Flags:
 Global Flags:
   -k, --kubeconfig string   path to kubectl config file (default "/Users/<user>/.kube/config")
   -n, --namespace string    NGINX Service Mesh control plane namespace (default "nginx-mesh")
-  -t, --timeout duration    timeout when communicating with NGINX Service Mesh API Server (default 5s)
+  -t, --timeout duration    timeout when communicating with NGINX Service Mesh (default 5s)
 ```
 
 ### Inject Examples
@@ -237,7 +237,7 @@ Flags:
 Global Flags:
   -k, --kubeconfig string   path to kubectl config file (default "/Users/<user>/.kube/config")
   -n, --namespace string    NGINX Service Mesh control plane namespace (default "nginx-mesh")
-  -t, --timeout duration    timeout when communicating with NGINX Service Mesh API Server (default 5s)
+  -t, --timeout duration    timeout when communicating with NGINX Service Mesh (default 5s)
 ```
 
 ### Remove Examples
@@ -273,7 +273,7 @@ Flags:
 Global Flags:
   -k, --kubeconfig string   path to kubectl config file (default "/Users/<user>/.kube/config")
   -n, --namespace string    NGINX Service Mesh control plane namespace (default "nginx-mesh")
-  -t, --timeout duration    timeout when communicating with NGINX Service Mesh API Server (default 5s)
+  -t, --timeout duration    timeout when communicating with NGINX Service Mesh (default 5s)
 ```
 
 ## Status
@@ -290,7 +290,7 @@ Flags:
 Global Flags:
   -k, --kubeconfig string   path to kubectl config file (default "/Users/<user>/.kube/config")
   -n, --namespace string    NGINX Service Mesh control plane namespace (default "nginx-mesh")
-  -t, --timeout duration    timeout when communicating with NGINX Service Mesh API Server (default 5s)
+  -t, --timeout duration    timeout when communicating with NGINX Service Mesh (default 5s)
 ```
 
 ## Supportpkg
@@ -309,7 +309,7 @@ Flags:
 Global Flags:
   -k, --kubeconfig string   path to kubectl config file (default "/Users/<user>/.kube/config")
   -n, --namespace string    NGINX Service Mesh control plane namespace (default "nginx-mesh")
-  -t, --timeout duration    timeout when communicating with NGINX Service Mesh API Server (default 5s)
+  -t, --timeout duration    timeout when communicating with NGINX Service Mesh (default 5s)
 ```
 
 ## Top
@@ -379,5 +379,5 @@ Flags:
 Global Flags:
   -k, --kubeconfig string   path to kubectl config file (default "/Users/<user>/.kube/config")
   -n, --namespace string    NGINX Service Mesh control plane namespace (default "nginx-mesh")
-  -t, --timeout duration    timeout when communicating with NGINX Service Mesh API Server (default 5s)
+  -t, --timeout duration    timeout when communicating with NGINX Service Mesh (default 5s)
 ```

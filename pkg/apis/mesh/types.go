@@ -56,7 +56,7 @@ const (
 	// NatsAgentSubChannel sends a subscription and version notice from agent to mesh-controller.
 	NatsAgentSubChannel = "nginx.nsm.agent.subscription"
 	// NatsAPIPingChannel sends a ping from mesh-controller to agent on restart.
-	// TODO: after 2.0 release this can be removed
+	// TODO: after 2.0 release this can be removed.
 	NatsAPIPingChannel = "nginx.nsm.api.ping"
 	// NatsCtlrPingChannel sends a ping from mesh-controller to agent on restart.
 	NatsCtlrPingChannel = "nginx.nsm.ctlr.ping"

@@ -100,7 +100,7 @@ Requires a connection to a Kubernetes cluster via a kubeconfig.`,
 		&meshTimeout,
 		"timeout",
 		"t",
-		meshTimeout, "timeout when communicating with NGINX Service Mesh API Server")
+		meshTimeout, "timeout when communicating with NGINX Service Mesh")
 
 	cmd.PersistentFlags().BoolVarP(
 		&debug,
