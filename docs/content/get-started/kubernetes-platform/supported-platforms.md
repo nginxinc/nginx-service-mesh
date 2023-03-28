@@ -12,7 +12,7 @@ docs: "DOCS-688"
 The Kubernetes platforms listed below will work with NGINX Service Mesh using the Kubernetes versions listed in the [Technical Specifications]({{< ref "/about/tech-specs.md#supported-versions" >}}). Additional Kubernetes platforms may work, although they have not been validated.
 
 - Azure Kubernetes Service (AKS)
-- Elastic Kubernetes Service (EKS)
+- Elastic Kubernetes Service (EKS) -- [Additional setup required]( {{< ref "persistent-storage.md" >}} )
 - Google Kubernetes Engine (GKE) -- [Additional setup required]( {{< ref "gke.md" >}} )
 - Rancher Kubernetes Engine (RKE) -- [Additional setup required]( {{< ref "rke.md" >}} )
 - Kubeadm -- [Additional setup required]( {{< ref "kubeadm.md" >}} )
