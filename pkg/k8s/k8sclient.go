@@ -184,6 +184,7 @@ var meshCRDs = map[string]struct{}{
 	"circuitbreakers.specs.smi.nginx.com": {},
 	"meshconfigclasses.nsm.nginx.com":     {},
 	"meshconfigs.nsm.nginx.com":           {},
+	"retrytimeoutconfig.nsm.nginx.com":    {},
 }
 
 var errCRDAlreadyExists = errors.New("CRD already exists")
