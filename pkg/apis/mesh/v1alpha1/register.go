@@ -42,6 +42,7 @@ var (
 func addKnownTypes(scheme *runtime.Scheme) error {
 	scheme.AddKnownTypes(SchemeGroupVersion,
 		&RetryTimeoutConfig{},
+		&RetryTimeoutConfigList{},
 	)
 	metav1.AddToGroupVersion(scheme, SchemeGroupVersion)
 

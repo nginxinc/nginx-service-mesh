@@ -11,14 +11,14 @@ import (
 
 // RetryTimeoutConfig creates a timeout and/or retry policy for a target.
 type RetryTimeoutConfig struct {
+	// Spec defines the retry and timeout spec for requests to a target.
+	Spec RetryTimeoutConfigSpec `json:"spec"`
+
 	metav1.TypeMeta `json:",inline"`
 	// Standard object's metadata.
 	// More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#metadata
 	// +optional
 	metav1.ObjectMeta `json:"metadata,omitempty"`
-
-	// Spec defines the retry and timeout spec for requests to a target.
-	Spec RetryTimeoutConfigSpec `json:"spec"`
 }
 
 // RetryTimeoutConfigSpec defines the retry and timeout configuration for a target.
@@ -35,11 +35,12 @@ type RetryTimeoutConfigSpec struct {
 // TargetRef defines the resource a policy is applied to.
 // TargetRef embeds v1.ObjectReference and adds the "Port" field.
 type TargetRefSpec struct {
-	v1.ObjectReference
-
 	// Port is the port of a resource a policy is applied to if the
 	// resource has multiple ports defined.
-	Port int `json:"port,omitempty"`
+	// +optional
+	Port *int `json:"port,omitempty"`
+
+	v1.ObjectReference
 }
 
 // RetryTimeoutDefaultSpec contains the retry and timeout specifications.
@@ -48,19 +49,24 @@ type RetryTimeoutDefaultSpec struct {
 	// aborting the request and returning an error.
 	// Valid timeouts are integers followed immediately by "m", "s", or "ms" to
 	// specify if the timeouts are minutes, seconds or milliseconds. Example: "500ms"
+	// +optional
 	Timeout string `json:"timeout,omitempty"`
 
 	// Retry is the configuration for retrying failed requests to the targetRef.
+	// +optional
 	Retry RetrySpec `json:"retry,omitempty"`
 }
 
 // RetrySpec is the configuration for retrying failed requests to the targetRef.
 type RetrySpec struct {
-	// Backoff is the configuration for exponentionally backing off between retries.
-	Backoff BackoffSpec `json:"backoff,omitempty"`
-
 	// Count is the number of times to retry a failed request before giving up.
-	Count int `json:"count"`
+	// Defaults to 500ms delay between retries if backoff is not specified.
+	// +optional
+	Count *int `json:"count,omitempty"`
+
+	// Backoff is the configuration for exponentionally backing off between retries.
+	// +optional
+	Backoff BackoffSpec `json:"backoff,omitempty"`
 }
 
 // BackoffSpec is the configuration for exponentionally backing off between retries.
@@ -68,12 +74,14 @@ type BackoffSpec struct {
 	// InitialInterval is the time between the original request and the first retry.
 	// Subsequent retries will be delayed exponentially based on the initial interval.
 	// Example: with InitialInterval=1s, first retry is 1s, second, is 2s, third is 4s, etc.
-	InitialInterval string `json:"initialInterval"`
+	// +optional
+	InitialInterval string `json:"initialInterval,omitempty"`
 
 	// MaxInterval is the maximum delay between retries.
 	// Once the max interval is reached by exponentionally backing off
 	// all subsequent retries delay for the max interval.
-	MaxInterval string `json:"maxInterval"`
+	// +optional
+	MaxInterval string `json:"maxInterval,omitempty"`
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
