@@ -46,8 +46,8 @@ type TargetRefSpec struct {
 type RetryTimeoutDefaultSpec struct {
 	// Timeout is the time to wait for requests to the targetRef to finish before
 	// aborting the request and returning an error.
-	// Valid timeouts are integers followed immediately by "s" or "ms" to
-	// specify if the timeouts are seconds or milliseconds. Examples: "10s" or "500ms"
+	// Valid timeouts are integers followed immediately by "m", "s", or "ms" to
+	// specify if the timeouts are minutes, seconds or milliseconds. Example: "500ms"
 	Timeout string `json:"timeout,omitempty"`
 
 	// Retry is the configuration for retrying failed requests to the targetRef.

@@ -59,7 +59,7 @@ spec:
                     timeout:
                       description: Time to wait for a request before aborting and returning an error.
                       type: string
-                      pattern: "^[1-9][0-9]*(s|ms)$"
+                      pattern: "^[1-9][0-9]*(m|s|ms)$"
                     retry:
                       description: Number of times to retry a failing request.
                       type: object
@@ -71,7 +71,7 @@ spec:
                           properties:
                             initialInterval:
                               type: string
-                              pattern: "^[1-9][0-9]*(s|ms)$"
+                              pattern: "^[1-9][0-9]*(m|s|ms)$"
                             maxInterval:
                               type: string
-                              pattern: "^[1-9][0-9]*(s|ms)$"
+                              pattern: "^[1-9][0-9]*(m|s|ms)$"
