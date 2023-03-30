@@ -78,7 +78,9 @@ spec:
                     pattern: "^[1-9][0-9]*(m|s|ms)$"
                     default: 60s
                   retry:
-                    description: Configuration for retrying a failed request.
+                    description: 'Configuration for retrying a failed request.
+                      Retry default values are only considered if the retry block has been defined.
+                      If retry is not set, no operation is performed.'
                     type: object
                     properties:
                       count:
