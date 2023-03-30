@@ -51,12 +51,15 @@ const (
 
 // NATS channel names.
 const (
-	// NatsAgentConfigChannel sends the mesh config from mesh-api to agent.
+	// NatsAgentConfigChannel sends the mesh config from mesh-controller to agent.
 	NatsAgentConfigChannel = "nginx.nsm.agent.config"
-	// NatsAgentSubChannel sends a subscription and version notice from agent to mesh-api.
+	// NatsAgentSubChannel sends a subscription and version notice from agent to mesh-controller.
 	NatsAgentSubChannel = "nginx.nsm.agent.subscription"
-	// NatsAPIPingChannel sends a ping from mesh-api to agent on restart.
+	// NatsAPIPingChannel sends a ping from mesh-controller to agent on restart.
+	// TODO: after 2.0 release this can be removed.
 	NatsAPIPingChannel = "nginx.nsm.api.ping"
+	// NatsCtlrPingChannel sends a ping from mesh-controller to agent on restart.
+	NatsCtlrPingChannel = "nginx.nsm.ctlr.ping"
 )
 
 // k8s static resource names.
@@ -67,8 +70,8 @@ const (
 	MeshConfigFileName = "meshconfig.json"
 	// NatsServer is the name of the nats-server service.
 	NatsServer = "nats-server"
-	// MeshAPI is the name of the mesh api.
-	MeshAPI = "nginx-mesh-api"
+	// MeshController is the name of the mesh controller.
+	MeshController = "nginx-mesh-controller"
 	// MeshCertReloader is the name of the mesh cert reloader image.
 	MeshCertReloader = "nginx-mesh-cert-reloader"
 	// MeshSidecar is the name of the mesh sidecar.

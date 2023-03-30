@@ -41,7 +41,7 @@ The following tables list the software versions NGINX Service Mesh supports and 
 ### Images
 #### Distributed Images
 
-- `docker-registry.nginx.com/nsm/nginx-mesh-api`: NGINX Service Mesh API Server.
+- `docker-registry.nginx.com/nsm/nginx-mesh-controller`: NGINX Service Mesh Controller.
 - `docker-registry.nginx.com/nsm/nginx-mesh-metrics`: Gets Pod (and other Kubernetes resources) metrics. Refer to [SMI Metrics on GitHub](https://github.com/servicemeshinterface/smi-metrics) and `nginx-meshctl help top` for more information.
 - `docker-registry.nginx.com/nsm/nginx-mesh-sidecar`: NGINX Service Mesh sidecar.
 - `docker-registry.nginx.com/nsm/nginx-mesh-init`: NGINX Service Mesh sidecar init container. Sets up `iptables` for the sidecar.

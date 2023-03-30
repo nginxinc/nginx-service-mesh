@@ -135,14 +135,14 @@ Take the steps below to install the NGINX Service Mesh control plane.
 
     ```bash
     $ kubectl get pods -n nginx-mesh
-    NAME                                  READY   STATUS    RESTARTS   AGE
-    nats-server-84f8b6f669-xszkc          1/1     Running   0          14m
-    nginx-mesh-api-954467945-sc7qh        1/1     Running   0          14m
-    nginx-mesh-metrics-57464df46d-qskd2   1/1     Running   0          14m
-    spire-agent-92ktv                     1/1     Running   0          15m
-    spire-agent-9dbn6                     1/1     Running   0          15m
-    spire-agent-z5cq6                     1/1     Running   0          15m
-    spire-server-0                        2/2     Running   0          15m
+    NAME                                   READY   STATUS    RESTARTS   AGE
+    nats-server-84f8b6f669-xszkc           1/1     Running   0          14m
+    nginx-mesh-controller-954467945-sc7qh  1/1     Running   0          14m
+    nginx-mesh-metrics-57464df46d-qskd2    1/1     Running   0          14m
+    spire-agent-92ktv                      1/1     Running   0          15m
+    spire-agent-9dbn6                      1/1     Running   0          15m
+    spire-agent-z5cq6                      1/1     Running   0          15m
+    spire-server-0                         2/2     Running   0          15m
     ```
 
     {{< note >}} If running in OpenShift, you will see two pods per Spire Agent container. {{< /note >}}
