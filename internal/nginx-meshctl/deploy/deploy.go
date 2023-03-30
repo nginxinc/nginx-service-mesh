@@ -55,7 +55,9 @@ func (d *Deployer) Deploy() (string, error) {
 
 		return "", fmt.Errorf("%v: %w", meshErrors.ErrCheckingExistence, existsErr) //nolint:errorlint // only one %w allowed
 	}
-	fmt.Println("Deploying NGINX Service Mesh...")
+	if !d.DryRun {
+		fmt.Println("Deploying NGINX Service Mesh...")
+	}
 
 	actionConfig, err := d.k8sClient.HelmAction(d.k8sClient.Namespace())
 	if err != nil {
@@ -67,6 +69,13 @@ func (d *Deployer) Deploy() (string, error) {
 	installer.CreateNamespace = true
 	installer.ReleaseName = "nginx-service-mesh"
 	installer.DryRun = d.DryRun
+
+	if d.DryRun {
+		installer.ClientOnly = true
+		installer.Replace = true
+		installer.IncludeCRDs = true
+		chart.Metadata.KubeVersion = ""
+	}
 
 	rel, err := installer.Run(chart, valuesMap)
 	if err != nil {
