@@ -238,8 +238,8 @@ There is no workaround at this time, but the configuration can be changed dynami
 
 To fix the issue, take one or more of the following actions:
 
-- All load balancing annotations (config.nsm.nginx.com/lb-method) should be removed or updated to another supported algorithm (see [Configuration Options for NGINX Service Mesh]({{< relref "/get-started/configuration/_index.md" >}})).
-- The global load balancing algorithm should be set to another supported algorithm (see [Configuration Options for NGINX Service Mesh]({{< relref "/get-started/configuration/_index.md" >}})) .
+- All load balancing annotations (config.nsm.nginx.com/lb-method) should be removed or updated to another supported algorithm (see [Configuration Options for NGINX Service Mesh]({{< relref "/get-started/install/configuration.md" >}})).
+- The global load balancing algorithm should be set to another supported algorithm (see [Configuration Options for NGINX Service Mesh]({{< relref "/get-started/install/configuration.md" >}})) .
  <br/><br/>
 
 **Kubernetes reports warnings on versions >=1.19 (22721)**

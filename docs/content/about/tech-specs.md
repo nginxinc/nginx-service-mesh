@@ -127,7 +127,7 @@ Metrics were gathered using the Kubernetes Metrics API. CPU is calculated in ter
 
 #### Disk Usage
 
-Spire uses a persistent volume to make restarts more seamless. NGINX Service Mesh automatically allocates 1 GB persistent volume in supported environments (see [Persistent Storage]({{< ref "/get-started/kubernetes-platform/persistent-storage.md" >}}) setup page for environment requirements). Below is the information on the disk usage within that volume. Disk usage scales directly with the number of Pods in the mesh.
+Spire uses a persistent volume to make restarts more seamless. NGINX Service Mesh automatically allocates 1 GB persistent volume in supported environments (see [Persistent Storage]({{< ref "/get-started/platform-setup/persistent-storage.md" >}}) setup page for environment requirements). Below is the information on the disk usage within that volume. Disk usage scales directly with the number of Pods in the mesh.
 
 {{% table %}}
 | Num Pods | Disk Usage |
