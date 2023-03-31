@@ -1,6 +1,6 @@
 module github.com/nginxinc/nginx-service-mesh
 
-go 1.19
+go 1.20
 
 replace github.com/chzyer/logex v1.1.10 => github.com/chzyer/logex v1.2.0
 
