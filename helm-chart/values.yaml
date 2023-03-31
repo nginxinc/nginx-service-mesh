@@ -1,11 +1,11 @@
 # NGINX Service Mesh image registry settings.
 registry:
   # Hostname:port (if needed) for registry and path to images. 
-  # Affects: nginx-mesh-api, nginx-mesh-cert-reloader, nginx-mesh-init, nginx-mesh-metrics, nginx-mesh-sidecar
+  # Affects: nginx-mesh-controller, nginx-mesh-cert-reloader, nginx-mesh-init, nginx-mesh-metrics, nginx-mesh-sidecar
   server: "docker-registry.nginx.com/nsm"
 
   # Tag used for pulling images from registry
-  # Affects: nginx-mesh-api, nginx-mesh-cert-reloader, nginx-mesh-init, nginx-mesh-metrics, nginx-mesh-sidecar
+  # Affects: nginx-mesh-controller, nginx-mesh-cert-reloader, nginx-mesh-init, nginx-mesh-metrics, nginx-mesh-sidecar
   imageTag: "2.0.0"
 
   # Note: Currently only works with Google Cloud registry.

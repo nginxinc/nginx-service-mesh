@@ -2,7 +2,7 @@
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: nginx-mesh-api
+  name: nginx-mesh-controller
   labels:
     app.kubernetes.io/part-of: nginx-service-mesh
 imagePullSecrets:
@@ -11,7 +11,7 @@ imagePullSecrets:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: nginx-mesh-api.internal.builtin.nsm.nginx
+  name: nginx-mesh-controller.internal.builtin.nsm.nginx
   labels:
     app.kubernetes.io/part-of: nginx-service-mesh
 rules:
@@ -63,22 +63,22 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: nginx-mesh-api.internal.builtin.nsm.nginx
+  name: nginx-mesh-controller.internal.builtin.nsm.nginx
   labels:
     app.kubernetes.io/part-of: nginx-service-mesh
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: nginx-mesh-api.internal.builtin.nsm.nginx
+  name: nginx-mesh-controller.internal.builtin.nsm.nginx
 subjects:
 - kind: ServiceAccount
-  name: nginx-mesh-api
+  name: nginx-mesh-controller
   namespace: {{ .Release.Namespace }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
-  name: nginx-mesh-api.internal.builtin.nsm.nginx
+  name: nginx-mesh-controller.internal.builtin.nsm.nginx
   labels:
     app.kubernetes.io/part-of: nginx-service-mesh
 rules:
@@ -94,22 +94,22 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  name: nginx-mesh-api.internal.builtin.nsm.nginx
+  name: nginx-mesh-controller.internal.builtin.nsm.nginx
   labels:
     app.kubernetes.io/part-of: nginx-service-mesh
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
-  name: nginx-mesh-api.internal.builtin.nsm.nginx
+  name: nginx-mesh-controller.internal.builtin.nsm.nginx
 subjects:
 - kind: ServiceAccount
-  name: nginx-mesh-api
+  name: nginx-mesh-controller
   namespace: {{ .Release.Namespace }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: nginx-mesh-api-svc.internal.builtin.nsm.nginx
+  name: nginx-mesh-controller-svc.internal.builtin.nsm.nginx
   labels:
     app.kubernetes.io/part-of: nginx-service-mesh
 roleRef:
@@ -118,13 +118,13 @@ roleRef:
   name: system:auth-delegator
 subjects:
   - kind: ServiceAccount
-    name: nginx-mesh-api
+    name: nginx-mesh-controller
     namespace: {{ .Release.Namespace }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  name: nginx-mesh-api-svc.internal.builtin.nsm.nginx
+  name: nginx-mesh-controller-svc.internal.builtin.nsm.nginx
   labels:
     app.kubernetes.io/part-of: nginx-service-mesh
 roleRef:
@@ -133,7 +133,7 @@ roleRef:
   name: extension-apiserver-authentication-reader
 subjects:
   - kind: ServiceAccount
-    name: nginx-mesh-api
+    name: nginx-mesh-controller
     namespace: {{ .Release.Namespace }}
 ---
 apiVersion: v1
@@ -149,7 +149,7 @@ data:
 apiVersion: v1
 kind: Service
 metadata:
-  name: nginx-mesh-api
+  name: nginx-mesh-controller
   labels:
     app.kubernetes.io/part-of: nginx-service-mesh
 spec:
@@ -157,7 +157,7 @@ spec:
   - name: version
     port: 8082
   selector:
-    app.kubernetes.io/name: nginx-mesh-api
+    app.kubernetes.io/name: nginx-mesh-controller
     app.kubernetes.io/part-of: nginx-service-mesh
 ---
 apiVersion: v1
@@ -165,7 +165,7 @@ kind: Service
 metadata:
   name: nginx-mesh-webhook
   labels:
-    app.kubernetes.io/name: nginx-mesh-api
+    app.kubernetes.io/name: nginx-mesh-controller
     app.kubernetes.io/part-of: nginx-service-mesh
 spec:
   ports:
@@ -174,7 +174,7 @@ spec:
     targetPort: 9443
     protocol: TCP
   selector:
-    app.kubernetes.io/name: nginx-mesh-api
+    app.kubernetes.io/name: nginx-mesh-controller
     app.kubernetes.io/part-of: nginx-service-mesh
 ---
 apiVersion: admissionregistration.k8s.io/v1
@@ -186,7 +186,7 @@ metadata:
     spiffe.io/webhook: "true"
 webhooks:
   {{- /* Case 1: Namespace is labeled for injection and not in denylist, Pod is not already injected and does not disable injection */}}
-- name: nginx-mesh-api-ns.sidecar.injector
+- name: nginx-mesh-controller.sidecar.injector
   namespaceSelector:
     matchExpressions:
     - key: kubernetes.io/metadata.name
@@ -220,7 +220,7 @@ webhooks:
     resources: ["pods"]
 
   {{- /* Case 2: Pod is labeled for injection, not already injected, and namespace is not in denylist */}} 
-- name: nginx-mesh-api-obj.sidecar.injector
+- name: nginx-mesh-controller-obj.sidecar.injector
   namespaceSelector:
     matchExpressions:
     - key: kubernetes.io/metadata.name
@@ -250,7 +250,7 @@ webhooks:
     resources: ["pods"]
     
   {{- /* Case 3: Pod is labeled for ingress */}} 
-- name: nginx-mesh-api.ingress.injector
+- name: nginx-mesh-controller.ingress.injector
   objectSelector:
     matchLabels:
       nsm.nginx.com/enable-ingress: "true"
@@ -268,7 +268,7 @@ webhooks:
     resources: ["pods"]
 
   {{- /* Case 4: Pod is labeled for egress */}}     
-- name: nginx-mesh-api.egress.injector
+- name: nginx-mesh-controller.egress.injector
   objectSelector:
     matchLabels:
       nsm.nginx.com/enable-egress: "true"
@@ -293,7 +293,7 @@ metadata:
     app.kubernetes.io/part-of: nginx-service-mesh
     spiffe.io/webhook: "true"
 webhooks:
-- name: nginx-mesh-api.policy.validator
+- name: nginx-mesh-controller.policy.validator
   clientConfig:
     service:
       name: nginx-mesh-webhook
@@ -322,27 +322,27 @@ webhooks:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: nginx-mesh-api
+  name: nginx-mesh-controller
   labels:
-    app.kubernetes.io/name: nginx-mesh-api
+    app.kubernetes.io/name: nginx-mesh-controller
     app.kubernetes.io/part-of: nginx-service-mesh
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app.kubernetes.io/name: nginx-mesh-api
+      app.kubernetes.io/name: nginx-mesh-controller
       app.kubernetes.io/part-of: nginx-service-mesh
   template:
     metadata:
       labels:
-        app.kubernetes.io/name: nginx-mesh-api
+        app.kubernetes.io/name: nginx-mesh-controller
         app.kubernetes.io/part-of: nginx-service-mesh
         spiffe.io/spiffeid: "true"
     spec:
-      serviceAccountName: nginx-mesh-api
+      serviceAccountName: nginx-mesh-controller
       containers:
-      - name: nginx-mesh-api
-        image: {{ .Values.registry.server }}/nginx-mesh-api:{{ .Values.registry.imageTag }}
+      - name: nginx-mesh-controller
+        image: {{ .Values.registry.server }}/nginx-mesh-controller:{{ .Values.registry.imageTag }}
         imagePullPolicy: {{ .Values.registry.imagePullPolicy }}
         args:
         - --meshconfig=/etc/config/meshconfig.json
@@ -450,34 +450,34 @@ spec:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: system:openshift:scc:nginx-mesh-api-permissions
+  name: system:openshift:scc:nginx-mesh-controller-permissions
   labels:
     app.kubernetes.io/part-of: nginx-service-mesh
 rules:
 - apiGroups: ["security.openshift.io"]
   resources: ["securitycontextconstraints"]
-  resourceNames: ["nginx-mesh-api-permissions"]
+  resourceNames: ["nginx-mesh-controller-permissions"]
   verbs: ["use"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  name: system:openshift:scc:nginx-mesh-api-permissions
+  name: system:openshift:scc:nginx-mesh-controller-permissions
   labels:
     app.kubernetes.io/part-of: nginx-service-mesh
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: system:openshift:scc:nginx-mesh-api-permissions
+  name: system:openshift:scc:nginx-mesh-controller-permissions
 subjects:
 - kind: ServiceAccount
-  name: nginx-mesh-api
+  name: nginx-mesh-controller
   namespace: {{ .Release.Namespace }}
 ---
 apiVersion: security.openshift.io/v1
 kind: SecurityContextConstraints
 metadata:
-  name: nginx-mesh-api-permissions
+  name: nginx-mesh-controller-permissions
   labels:
     app.kubernetes.io/part-of: nginx-service-mesh
 allowHostDirVolumePlugin: false
