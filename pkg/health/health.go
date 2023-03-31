@@ -12,8 +12,8 @@ import (
 	meshErrors "github.com/nginxinc/nginx-service-mesh/pkg/errors"
 )
 
-// TestMeshConnection checks that the controller is available and ready for use.
-func TestMeshConnection(k8sClient client.Client, namespace string, retries int) error {
+// TestMeshControllerConnection checks that the controller is available and ready for use.
+func TestMeshControllerConnection(k8sClient client.Client, namespace string, retries int) error {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
@@ -24,7 +24,7 @@ func TestMeshConnection(k8sClient client.Client, namespace string, retries int) 
 		}
 
 		var ctlr appsv1.Deployment
-		if err = k8sClient.Get(ctx, client.ObjectKey{Namespace: namespace, Name: mesh.MeshAPI}, &ctlr); err != nil {
+		if err = k8sClient.Get(ctx, client.ObjectKey{Namespace: namespace, Name: mesh.MeshController}, &ctlr); err != nil {
 			continue
 		}
 

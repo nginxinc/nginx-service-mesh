@@ -209,7 +209,7 @@ func createFileFromSTDIN() ([]byte, *os.File, error) {
 		return nil, nil, fmt.Errorf("error reading file contents: %w", err)
 	}
 
-	f, err := os.CreateTemp("", "nginx-mesh-api-temp-file.txt")
+	f, err := os.CreateTemp("", "nginx-mesh-controller-temp-file.txt")
 	if err != nil {
 		return nil, nil, fmt.Errorf("error creating temporary file: %w", err)
 	}
