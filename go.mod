@@ -14,7 +14,7 @@ require (
 	github.com/servicemeshinterface/smi-controller-sdk v0.0.0-20230308185107-6a7dfd7d25c7
 	github.com/servicemeshinterface/smi-sdk-go v0.5.0
 	github.com/spf13/cobra v1.6.1
-	github.com/spiffe/go-spiffe/v2 v2.1.3
+	github.com/spiffe/go-spiffe/v2 v2.1.4
 	github.com/xeipuuv/gojsonschema v1.2.0
 	golang.org/x/text v0.8.0
 	google.golang.org/grpc v1.54.0
