@@ -10,7 +10,7 @@ require (
 	github.com/nats-io/nats-server/v2 v2.9.15
 	github.com/nats-io/nats.go v1.24.0
 	github.com/onsi/ginkgo/v2 v2.9.2
-	github.com/onsi/gomega v1.27.5
+	github.com/onsi/gomega v1.27.6
 	github.com/servicemeshinterface/smi-controller-sdk v0.0.0-20230308185107-6a7dfd7d25c7
 	github.com/servicemeshinterface/smi-sdk-go v0.5.0
 	github.com/spf13/cobra v1.6.1
