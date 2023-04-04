@@ -2,6 +2,7 @@
 package sidecar
 
 import (
+	"github.com/nginxinc/nginx-service-mesh/pkg/apis/mesh/v1alpha1"
 	split "github.com/servicemeshinterface/smi-controller-sdk/apis/split/v1alpha3"
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
@@ -214,6 +215,9 @@ func NewAgentLimit() AgentLimit {
 
 // AgentBreaker is a map of destination names to their associated circuit breaker specs.
 type AgentBreaker map[string]specs.CircuitBreakerSpec
+
+// AgentRetryTimeout is a map of destination names to their associated retry/timeout specs.
+type AgentRetryTimeout map[string]v1alpha1.RetryTimeoutConfigSpec
 
 // Egress ports.
 const (
