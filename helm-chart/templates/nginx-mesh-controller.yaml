@@ -59,6 +59,9 @@ rules:
 - apiGroups: ["nsm.nginx.com"]
   resources: ["meshconfigclasses", "meshconfigs"]
   verbs: ["get", "list", "watch"]
+- apiGroups: ["nsm.nginx.com"]
+  resources: ["retrytimeoutconfigs"]
+  verbs: ["get", "list", "watch"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
