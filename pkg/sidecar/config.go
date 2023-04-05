@@ -2,12 +2,12 @@
 package sidecar
 
 import (
-	"github.com/nginxinc/nginx-service-mesh/pkg/apis/mesh/v1alpha1"
 	split "github.com/servicemeshinterface/smi-controller-sdk/apis/split/v1alpha3"
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
 
 	"github.com/nginxinc/nginx-service-mesh/pkg/apis/mesh"
+	"github.com/nginxinc/nginx-service-mesh/pkg/apis/mesh/v1alpha1"
 	specs "github.com/nginxinc/nginx-service-mesh/pkg/apis/specs/v1alpha1"
 )
 
