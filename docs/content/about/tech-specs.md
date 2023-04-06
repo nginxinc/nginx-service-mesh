@@ -35,7 +35,7 @@ The following tables list the software versions NGINX Service Mesh supports and 
 | NGINX Service Mesh | NGINX Plus (sidecar) | SPIRE   | NATS                  |
 |--------------------|----------------------|---------|-----------------------|
 | v2.0.0+            | R28                  | 1.6.2   | nats:2.9-alpine       |
-| v1.7.0+            | R28                  | 1.5.4   | nats:2.9-alpine       |
+| v1.7.0             | R28                  | 1.5.4   | nats:2.9-alpine       |
 | v1.6.0             | R27                  | 1.4.4   | nats:2.9.3-alpine3.16 |
 {{% /table %}}
 
