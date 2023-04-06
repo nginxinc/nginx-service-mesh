@@ -141,8 +141,10 @@ Simply type nginx-meshctl help [path to command] for full details.`,
 				cmd.InitDefaultHelpFlag() // make possible 'help' flag to be shown
 				err = cmd.Help()
 			}
-
-			return fmt.Errorf("error running Help command: %w", err)
+			if err != nil {
+				return fmt.Errorf("error running Help command: %w", err)
+			}
+			return nil
 		},
 	}
 
