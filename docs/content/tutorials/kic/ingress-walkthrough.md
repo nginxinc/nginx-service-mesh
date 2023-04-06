@@ -115,14 +115,14 @@ kind: Ingress
 metadata:
   name: bookinfo-ingress
 spec:
-  # ingressClassName: nginx # use only with k8s version >= 1.18.0
+  ingressClassName: nginx # use only with k8s version >= 1.18.0
   tls:
   rules:
   - host: bookinfo.example.com
     http:
       paths:
       - path: /
-        pathType: Exact
+        pathType: Prefix
         backend:
           service:
             name: productpage
