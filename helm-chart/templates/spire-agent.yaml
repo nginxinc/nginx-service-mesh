@@ -67,10 +67,15 @@ spec:
       dnsPolicy: ClusterFirstWithHostNet
       securityContext:
         fsGroup: 1000 #spire
+        runAsUser: 1000 #spire
+        runAsNonRoot: true
       initContainers:
       - name: init
         image: {{ include "curl.image-server" . }}/curl
         imagePullPolicy: {{ .Values.registry.imagePullPolicy }}
+        securityContext:
+          allowPrivilegeEscalation: false
+          privileged: false
         command:
         - /bin/sh
         - -c
@@ -84,17 +89,15 @@ spec:
         imagePullPolicy: {{ .Values.registry.imagePullPolicy }}
         command: [ "sh", "-c", "chown -R 1000:1000 /run/spire/sockets" ]
         volumeMounts:
-          - name: spire-agent-socket
-            mountPath: /run/spire/sockets
+        - name: spire-agent-socket
+          mountPath: /run/spire/sockets
       containers:
       - name: spire-agent
-        image: {{ include "spire.image-server" . }}/spire-agent:1.6.1
+        image: {{ include "spire.image-server" . }}/spire-agent:1.6.2
         imagePullPolicy: {{ .Values.registry.imagePullPolicy }}
         securityContext:
           allowPrivilegeEscalation: false
           privileged: false
-          runAsUser: 1000 #spire
-          runAsNonRoot: true
         args:
         - -config
         - /run/spire/config/agent.conf

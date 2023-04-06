@@ -220,7 +220,7 @@ spec:
         runAsUser: 1000 #spire
       containers:
       - name: spire-server
-        image: {{ include "spire.image-server" . }}/spire-server:1.6.1
+        image: {{ include "spire.image-server" . }}/spire-server:1.6.2
         imagePullPolicy: {{ .Values.registry.imagePullPolicy }}
         securityContext:
           allowPrivilegeEscalation: false
