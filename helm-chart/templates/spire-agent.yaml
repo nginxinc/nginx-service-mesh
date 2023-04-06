@@ -87,6 +87,9 @@ spec:
       - name: chown-volume
         image: {{ include "ubuntu.image-server" . }}ubuntu:22.04
         imagePullPolicy: {{ .Values.registry.imagePullPolicy }}
+        securityContext:
+          allowPrivilegeEscalation: false
+          privileged: false
         command: [ "sh", "-c", "chown -R 1000:1000 /run/spire/sockets" ]
         volumeMounts:
         - name: spire-agent-socket
