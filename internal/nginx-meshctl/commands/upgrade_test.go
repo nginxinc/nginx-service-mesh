@@ -3,6 +3,7 @@ package commands
 import (
 	"context"
 	"encoding/json"
+	"github.com/nginxinc/nginx-service-mesh/pkg/helm"
 	"os"
 	"time"
 
@@ -66,7 +67,9 @@ var _ = Describe("Upgrade", func() {
 	BeforeEach(func() {
 		var err error
 		fakeK8s = fake.NewFakeK8s(v1.NamespaceDefault, shouldSkipRelease)
-		upg, err = newUpgrader(fakeK8s, true)
+		files, values, err := helm.GetBufferedFilesAndValues()
+		Expect(err).ToNot(HaveOccurred())
+		upg, err = newUpgrader(files, values, fakeK8s, true)
 		Expect(err).ToNot(HaveOccurred())
 	})
 
@@ -74,7 +77,7 @@ var _ = Describe("Upgrade", func() {
 		It("upgrades the mesh using telemetry config", func() {
 			createMeshConfigMap(fakeK8s.ClientSet(), fakeK8s.Namespace())
 
-			Expect(upg.upgrade("x.x.x")).To(Succeed())
+			Expect(upg.upgrade("x.x.x", "")).To(Succeed())
 			// check some values
 			Expect(upg.values.Registry.ImageTag).To(Equal("x.x.x"))
 			Expect(upg.values.AccessControlMode).To(Equal("deny"))
