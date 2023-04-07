@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"strings"
 	"time"
 
@@ -38,6 +39,12 @@ var upgradeTimeout = 5 * time.Minute
 func Upgrade(version string) *cobra.Command {
 	var dryRun bool
 
+	files, defaultValues, err := helm.GetBufferedFilesAndValues()
+	if err != nil {
+		log.Fatal(err)
+	}
+	values := &helm.Values{}
+
 	cmd := &cobra.Command{
 		Use:   "upgrade",
 		Short: "Upgrade NGINX Service Mesh",
@@ -59,7 +66,7 @@ func Upgrade(version string) *cobra.Command {
 		}
 		fmt.Printf("Upgrading NGINX Service Mesh in namespace \"%s\".\n", namespace)
 
-		upgrader, err := newUpgrader(initK8sClient, dryRun)
+		upgrader, err := newUpgrader(files, values, initK8sClient, dryRun)
 		if err != nil {
 			return fmt.Errorf("error initializing upgrader: %w", err)
 		}
@@ -105,6 +112,18 @@ func Upgrade(version string) *cobra.Command {
 		false,
 		`render the upgrade manifest and print to stdout
 		Doesn't perform the upgrade`,
+	)
+	cmd.Flags().StringVar(
+		&values.Registry.Server,
+		"registry-server",
+		defaultValues.Registry.Server, `hostname:port (if needed) for registry and path to images
+		Affects: `+formatValues(registryServerImages),
+	)
+	cmd.Flags().StringVar(
+		&values.Registry.ImageTag,
+		"image-tag",
+		defaultValues.Registry.ImageTag, `tag used for pulling images from registry
+		Affects: `+formatValues(registryServerImages),
 	)
 	if err := cmd.Flags().MarkHidden("dry-run"); err != nil {
 		fmt.Println("error marking flag as hidden: ", err)
@@ -169,16 +188,16 @@ type upgrader struct {
 }
 
 // newUpgrader returns a new upgrader object.
-func newUpgrader(k8sClient k8s.Client, dryRun bool) (*upgrader, error) {
-	files, defaultValues, err := helm.GetBufferedFilesAndValues()
-	if err != nil {
-		return nil, fmt.Errorf("error getting helm files and values: %w", err)
-	}
-
+func newUpgrader(
+	files []*loader.BufferedFile,
+	defaultValues *helm.Values,
+	k8sClient k8s.Client,
+	dryRun bool,
+) (*upgrader, error) {
 	return &upgrader{
-		k8sClient: k8sClient,
 		files:     files,
 		values:    defaultValues,
+		k8sClient: k8sClient,
 		dryRun:    dryRun,
 	}, nil
 }
