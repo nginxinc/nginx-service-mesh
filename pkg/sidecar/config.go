@@ -28,7 +28,7 @@ type Config struct {
 	TrafficSplits       map[string]AgentTrafficSplit
 	RateLimits          AgentLimit
 	CircuitBreakers     AgentBreaker
-	RetryTimeouts       map[string]AgentKeyval
+	RetryTimeouts       AgentKeyval
 	HTTPAccessControl   map[string]AgentKeyval
 	StreamAccessControl map[string]AgentKeyval
 	MeshConfig          mesh.FullMeshConfig
