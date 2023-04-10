@@ -7,7 +7,6 @@ import (
 	"k8s.io/apimachinery/pkg/util/intstr"
 
 	"github.com/nginxinc/nginx-service-mesh/pkg/apis/mesh"
-	"github.com/nginxinc/nginx-service-mesh/pkg/apis/mesh/v1alpha1"
 	specs "github.com/nginxinc/nginx-service-mesh/pkg/apis/specs/v1alpha1"
 )
 
@@ -216,9 +215,6 @@ func NewAgentLimit() AgentLimit {
 
 // AgentBreaker is a map of destination names to their associated circuit breaker specs.
 type AgentBreaker map[string]specs.CircuitBreakerSpec
-
-// AgentRetryTimeout is a map of destination names to their associated retry/timeout specs.
-type AgentRetryTimeout map[string]v1alpha1.RetryTimeoutConfigSpec
 
 // Egress ports.
 const (
