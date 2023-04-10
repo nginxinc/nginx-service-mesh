@@ -264,6 +264,7 @@ data:
               kubectl delete clusterrole system:openshift:scc:nginx-mesh-spiffe-csi-driver-permissions --ignore-not-found
               kubectl delete rolebinding system:openshift:scc:nginx-mesh-spiffe-csi-driver-permissions --ignore-not-found
               kubectl delete scc nginx-mesh-spiffe-csi-driver-permissions --ignore-not-found
+              kubectl delete scc nginx-mesh-sidecar-permissions --ignore-not-found
               kubectl delete secret {{ include "registry-key-name" . }} --ignore-not-found
               kubectl delete serviceaccount csi-driver-sentinel --ignore-not-found
               kubectl delete clusterrolebinding csi-driver-sentinel.builtin.nsm.nginx --ignore-not-found
@@ -317,6 +318,7 @@ spec:
             kubectl delete clusterrole system:openshift:scc:nginx-mesh-spiffe-csi-driver-permissions --ignore-not-found
             kubectl delete rolebinding system:openshift:scc:nginx-mesh-spiffe-csi-driver-permissions --ignore-not-found
             kubectl delete scc nginx-mesh-spiffe-csi-driver-permissions --ignore-not-found
+            kubectl delete scc nginx-mesh-sidecar-permissions --ignore-not-found
           else
             {{- if (include "docker-config-json" .) }}
             kubectl get secret {{ include "registry-key-name" . }}
