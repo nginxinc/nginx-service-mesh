@@ -16,7 +16,7 @@ require (
 	github.com/spf13/cobra v1.6.1
 	github.com/spiffe/go-spiffe/v2 v2.1.4
 	github.com/xeipuuv/gojsonschema v1.2.0
-	golang.org/x/text v0.8.0
+	golang.org/x/text v0.9.0
 	google.golang.org/grpc v1.54.0
 	gopkg.in/yaml.v2 v2.4.0
 	helm.sh/helm/v3 v3.11.2
