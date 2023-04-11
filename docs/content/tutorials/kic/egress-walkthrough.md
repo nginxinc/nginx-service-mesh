@@ -317,4 +317,4 @@ This request from the `egress-driver` application to `target-v1-0.legacy` was se
 
 1. Follow instructions to [uninstall NGINX Ingress Controller](https://docs.nginx.com/nginx-ingress-controller/installation/installation-with-manifests/#uninstall-the-ingress-controller).
 
-1. Follow instructions to [uninstall NGINX Service Mesh]( {{< ref "/guides/uninstall.md" >}} ).
+1. Follow instructions to [uninstall NGINX Service Mesh]( {{< ref "/get-started/install.md#uninstall" >}} ).
