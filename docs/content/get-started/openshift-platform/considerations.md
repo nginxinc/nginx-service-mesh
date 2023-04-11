@@ -24,7 +24,7 @@ The NGINX Service Mesh deployment experience is the exact same as in other envir
 nginx-meshctl deploy ... --environment openshift"
 ```
 
-When injecting sidecars into your worklods, OpenShift's default security policies do not allow the necessary permissions. To enable the proper permissions for sidecar injection, you can attach your workloads to the `nginx-mesh-sidecar-permissions` SecurityContextConstraint (SCC) by running:
+When injecting sidecars into your workloads, OpenShift's default security policies do not allow the necessary permissions. To enable the proper permissions for sidecar injection, you can attach your workloads to the `nginx-mesh-sidecar-permissions` SecurityContextConstraint (SCC) by running:
 
 ```bash
 oc adm policy add-scc-to-group nginx-mesh-sidecar-permissions system:serviceaccounts:<workload-namespace>
