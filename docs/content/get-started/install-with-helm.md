@@ -145,25 +145,42 @@ Otherwise, the application Pods need to be deleted and re-created.
 OpenShift users: Before uninstalling, read through the [OpenShift considerations]({{< ref "/get-started/openshift-platform/considerations.md#remove" >}}) guide to make sure you understand the implications.
 {{< /important >}}
 
-### Uninstalling the Release
-
-To uninstall/delete the release `nsm` in the `nginx-mesh` namespace:
+To uninstall the `nsm` release in the `nginx-mesh` namespace, run:
 
 ```bash
 helm uninstall nsm --namespace nginx-mesh
 ```
 
-This command removes all of the Kubernetes components associated with the NGINX Service Mesh release. The namespace is not deleted.
+This command removes most of the Kubernetes components associated with the NGINX Service Mesh release.
+Helm does **not** remove the following components:
 
-### Uninstalling the CRDs
+- CRDs
+- `nginx-mesh` namespace
+- Spire PersistentVolumeClaim in the `nginx-mesh` namespace
 
-Uninstalling the release does not remove the CRDs. To remove the CRDs, run the following command:
+Run this command to remove the CRDS:
 
 ```bash
-kubectl delete -f crds/
+kubectl delete crd -l app.kubernetes.io/part-of==nginx-service-mesh
 ```
 
-After uninstalling, [remove the sidecar proxy from deployments]( {{< ref "/guides/uninstall.md#remove-the-sidecar-proxy-from-deployments" >}} ).
+Deleting the namespace will also delete the PersistentVolumeClaim:
+
+```bash
+kubectl delete namespace nginx-mesh
+```
+
+After uninstalling, re-roll your injected Deployments, DaemonSets, and StatefulSets to remove the sidecar proxy from Pods.
+
+```bash
+kubectl rollout restart <resource type>/<resource name>
+```
+
+Example:
+
+```bash
+kubectl rollout restart deployment/frontend
+```
 
 ## Configuration Options
 
