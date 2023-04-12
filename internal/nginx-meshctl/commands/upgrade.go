@@ -59,12 +59,12 @@ func Upgrade(version string) *cobra.Command {
 	cmd.RunE = func(cmd *cobra.Command, args []string) error {
 		namespace := initK8sClient.Namespace()
 		// Verify mesh install exists
-		if _, err := verifyMeshInstall(initK8sClient); err != nil {
+		if _, err = verifyMeshInstall(initK8sClient); err != nil {
 			return err
 		}
 		if !yes {
 			msg := fmt.Sprintf("Preparing to upgrade NGINX Service Mesh in namespace \"%s\".\n%s\n", namespace, NSMv2UpgradeWarning)
-			if err := ReadYes(msg); err != nil {
+			if err = ReadYes(msg); err != nil {
 				return err
 			}
 		}
@@ -74,7 +74,7 @@ func Upgrade(version string) *cobra.Command {
 			version = tagOverride
 		}
 
-		upgrader, err := newUpgrader(files, values, initK8sClient, dryRun)
+		upgrader := newUpgrader(files, values, initK8sClient, dryRun)
 		if err != nil {
 			return fmt.Errorf("error initializing upgrader: %w", err)
 		}
@@ -201,13 +201,13 @@ func newUpgrader(
 	values *helm.Values,
 	k8sClient k8s.Client,
 	dryRun bool,
-) (*upgrader, error) {
+) *upgrader {
 	return &upgrader{
 		files:     files,
 		values:    values,
 		k8sClient: k8sClient,
 		dryRun:    dryRun,
-	}, nil
+	}
 }
 
 // upgrade the mesh by calling "helm upgrade".
@@ -260,8 +260,8 @@ func (u *upgrader) upgrade(version string, registry string) error {
 // - copy on top of the new release's deploy-time configuration
 // - get previous release's run-time configuration (mesh-config ConfigMap)
 // - copy on top of the new release's deploy-time configuration
-// - set new version.
-// - set new registry server if needed
+// - set new version
+// - set new registry server if needed.
 func (u *upgrader) buildValues(ctx context.Context, version string, registry string) (map[string]interface{}, error) {
 	// get the previous deployment configuration
 	_, oldValueBytes, err := helm.GetDeployValues(u.k8sClient, "nginx-service-mesh")

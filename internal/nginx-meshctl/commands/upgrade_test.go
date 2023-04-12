@@ -3,9 +3,10 @@ package commands
 import (
 	"context"
 	"encoding/json"
-	"github.com/nginxinc/nginx-service-mesh/pkg/helm"
 	"os"
 	"time"
+
+	"github.com/nginxinc/nginx-service-mesh/pkg/helm"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -69,8 +70,7 @@ var _ = Describe("Upgrade", func() {
 		fakeK8s = fake.NewFakeK8s(v1.NamespaceDefault, shouldSkipRelease)
 		files, values, err := helm.GetBufferedFilesAndValues()
 		Expect(err).ToNot(HaveOccurred())
-		upg, err = newUpgrader(files, values, fakeK8s, true)
-		Expect(err).ToNot(HaveOccurred())
+		upg = newUpgrader(files, values, fakeK8s, true)
 	})
 
 	Context("upgrades the mesh", func() {
