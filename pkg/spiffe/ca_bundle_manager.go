@@ -58,8 +58,7 @@ func (manager *CABundleManager) Write(svidResponse *workloadapi.X509Context) err
 		}
 
 		// we need copies of cert and key for NATS' sake
-		_, _, err = manager.CertKeyBytesFromSVIDResponse(svidResponse)
-		if err != nil {
+		if _, _, err = manager.CertKeyBytesFromSVIDResponse(svidResponse); err != nil {
 			return err
 		}
 	}

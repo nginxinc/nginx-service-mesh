@@ -184,8 +184,7 @@ func Deploy() *cobra.Command {
 		false,
 		"set imagePullPolicy to be 'always'",
 	)
-	err = cmd.Flags().MarkHidden("pull-always")
-	if err != nil {
+	if err = cmd.Flags().MarkHidden("pull-always"); err != nil {
 		fmt.Println("error marking flag as hidden: ", err)
 	}
 	cmd.Flags().BoolVar(
@@ -195,8 +194,7 @@ func Deploy() *cobra.Command {
 		`render the manifest and print to stdout
 		Doesn't deploy anything`,
 	)
-	err = cmd.Flags().MarkHidden("dry-run")
-	if err != nil {
+	if err = cmd.Flags().MarkHidden("dry-run"); err != nil {
 		fmt.Println("error marking flag as hidden: ", err)
 	}
 	cmd.Flags().StringVar(
@@ -210,40 +208,35 @@ func Deploy() *cobra.Command {
 		&imageMeshController,
 		"nginx-mesh-controller-image",
 		imageMeshController, "NGINX Service Mesh Controller image URI")
-	err = cmd.Flags().MarkHidden("nginx-mesh-controller-image")
-	if err != nil {
+	if err = cmd.Flags().MarkHidden("nginx-mesh-controller-image"); err != nil {
 		fmt.Println("error marking flag as hidden: ", err)
 	}
 	cmd.Flags().StringVar(
 		&imageMetricsAPI,
 		"nginx-mesh-metrics-image",
 		imageMetricsAPI, "NGINX Service Mesh metrics API image URI")
-	err = cmd.Flags().MarkHidden("nginx-mesh-metrics-image")
-	if err != nil {
+	if err = cmd.Flags().MarkHidden("nginx-mesh-metrics-image"); err != nil {
 		fmt.Println("error marking flag as hidden: ", err)
 	}
 	cmd.Flags().StringVar(
 		&imageSidecar,
 		"nginx-mesh-sidecar-image",
 		imageSidecar, "NGINX Service Mesh sidecar image URI")
-	err = cmd.Flags().MarkHidden("nginx-mesh-sidecar-image")
-	if err != nil {
+	if err = cmd.Flags().MarkHidden("nginx-mesh-sidecar-image"); err != nil {
 		fmt.Println("error marking flag as hidden: ", err)
 	}
 	cmd.Flags().StringVar(
 		&imageSidecarInit,
 		"nginx-mesh-init-image",
 		imageSidecarInit, "NGINX Service Mesh init image URI")
-	err = cmd.Flags().MarkHidden("nginx-mesh-init-image")
-	if err != nil {
+	if err = cmd.Flags().MarkHidden("nginx-mesh-init-image"); err != nil {
 		fmt.Println("error marking flag as hidden: ", err)
 	}
 	cmd.Flags().StringVar(
 		&imageMeshCertReloader,
 		"cert-reloader-image",
 		imageMeshCertReloader, "NGINX Service Mesh cert reloader image URI")
-	err = cmd.Flags().MarkHidden("cert-reloader-image")
-	if err != nil {
+	if err = cmd.Flags().MarkHidden("cert-reloader-image"); err != nil {
 		fmt.Println("error marking flag as hidden: ", err)
 	}
 	cmd.Flags().StringVar(
@@ -351,8 +344,7 @@ func Deploy() *cobra.Command {
 		`automatically remove Service Mesh pods if an error occurs during deployment
 		This is a hidden flag for development purposes`,
 	)
-	err = cmd.Flags().MarkHidden("cleanup-on-error")
-	if err != nil {
+	if err = cmd.Flags().MarkHidden("cleanup-on-error"); err != nil {
 		fmt.Println("error marking flag as hidden: ", err)
 	}
 	cmd.Flags().StringVar(
@@ -538,8 +530,7 @@ func startDeploy(k8sClient k8s.Client, deployer *deploy.Deployer, cleanupOnError
 			default:
 				// sleep briefly to prevent tight loop
 				time.Sleep(100 * time.Millisecond) //nolint:gomnd // not worth another global
-				err := checkImagePullErrors(k8sClient)
-				if err != nil {
+				if err := checkImagePullErrors(k8sClient); err != nil {
 					fmt.Println(err.Error())
 					if cleanupOnError {
 						cleanup(k8sClient)
@@ -551,8 +542,7 @@ func startDeploy(k8sClient k8s.Client, deployer *deploy.Deployer, cleanupOnError
 		}
 	}()
 
-	_, err := deployer.Deploy()
-	if err != nil {
+	if _, err := deployer.Deploy(); err != nil {
 		var alreadyExists meshErrors.AlreadyExistsError
 		if errors.Is(err, meshErrors.ErrInput) ||
 			errors.As(err, &alreadyExists) ||
@@ -584,8 +574,7 @@ func startDeploy(k8sClient k8s.Client, deployer *deploy.Deployer, cleanupOnError
 
 	fmt.Println("All resources created. Testing the connection to the Service Mesh control plane...")
 	// test connection
-	err = health.TestMeshControllerConnection(k8sClient.Client(), k8sClient.Namespace(), deployMeshControllerRetries)
-	if err != nil {
+	if err := health.TestMeshControllerConnection(k8sClient.Client(), k8sClient.Namespace(), deployMeshControllerRetries); err != nil {
 		return formatConnectionError(k8sClient, err)
 	}
 	done <- struct{}{}

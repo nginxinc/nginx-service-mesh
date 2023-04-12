@@ -112,8 +112,7 @@ Requires a connection to a Kubernetes cluster via a kubeconfig.`,
 	cmd.SetHelpCommand(Help())
 
 	// hide debug flag from user
-	err := cmd.PersistentFlags().MarkHidden("debug")
-	if err != nil {
+	if err := cmd.PersistentFlags().MarkHidden("debug"); err != nil {
 		fmt.Println("Failed to mark debug flag as hidden, error: ", err)
 	}
 
@@ -237,8 +236,7 @@ func getComponentVersions(config *rest.Config, namespace string, timeout time.Du
 		return "", err
 	}
 	defer func() {
-		closeErr := resp.Body.Close()
-		if closeErr != nil {
+		if closeErr := resp.Body.Close(); closeErr != nil {
 			fmt.Println(closeErr)
 		}
 	}()
@@ -248,8 +246,7 @@ func getComponentVersions(config *rest.Config, namespace string, timeout time.Du
 	}
 
 	versions := make(map[string][]string)
-	err = json.NewDecoder(resp.Body).Decode(&versions)
-	if err != nil {
+	if err = json.NewDecoder(resp.Body).Decode(&versions); err != nil {
 		return "", fmt.Errorf("error decoding API response: %w", err)
 	}
 

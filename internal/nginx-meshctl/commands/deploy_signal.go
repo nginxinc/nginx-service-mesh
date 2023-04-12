@@ -94,8 +94,7 @@ func (sh *deploySignalHandle) Check() {
 func cleanOnSignal(k8sClient k8s.Client, sig os.Signal, out io.Writer) {
 	_, _ = out.Write([]byte("Cleaning up NGINX Service Mesh after signal...\n"))
 	deleteNamespace := true
-	err := newRemover(k8sClient).remove("nginx-service-mesh", deleteNamespace)
-	if err != nil {
+	if err := newRemover(k8sClient).remove("nginx-service-mesh", deleteNamespace); err != nil {
 		s := fmt.Sprintf("Failed cleaning, manual intervention necessary: %s\n", err)
 		_, _ = out.Write([]byte(s))
 	}

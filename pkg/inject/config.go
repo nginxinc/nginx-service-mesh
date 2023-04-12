@@ -130,8 +130,7 @@ func CreateInjectionConfig(
 	}
 
 	// set port arguments
-	err := setPortArgs(containers, ignorePorts, &initContainer, &proxySidecar)
-	if err != nil {
+	if err := setPortArgs(containers, ignorePorts, &initContainer, &proxySidecar); err != nil {
 		return nil, err
 	}
 
@@ -166,8 +165,7 @@ func CreateInjectionConfig(
 
 	// if not set, agent will get it from NATS
 	if mtlsModeAnnotation != "" {
-		modeErr := ValidateMTLSAnnotation(mtlsModeAnnotation, meshConfig.Mtls.Mode)
-		if modeErr != nil {
+		if modeErr := ValidateMTLSAnnotation(mtlsModeAnnotation, meshConfig.Mtls.Mode); modeErr != nil {
 			return nil, fmt.Errorf("%w; mtls annotation for '%s' cannot conflict", modeErr, parentName)
 		}
 
@@ -319,8 +317,7 @@ func createRegistryKey(meshConfig mesh.FullMeshConfig, podNamespace string) (*v1
 	// Retrieve existing registry key for the NGINX Mesh namespace
 	secret := v1.Secret{}
 	key := client.ObjectKey{Namespace: meshConfig.Namespace, Name: meshConfig.Registry.RegistryKeyName}
-	err = k8sClient.Get(context.TODO(), key, &secret)
-	if err != nil {
+	if err = k8sClient.Get(context.TODO(), key, &secret); err != nil {
 		return nil, fmt.Errorf("error retrieving registry key from \"%s\" namespace: %w", meshConfig.Namespace, err)
 	}
 
