@@ -574,7 +574,8 @@ func startDeploy(k8sClient k8s.Client, deployer *deploy.Deployer, cleanupOnError
 
 	fmt.Println("All resources created. Testing the connection to the Service Mesh control plane...")
 	// test connection
-	if err := health.TestMeshControllerConnection(k8sClient.Client(), k8sClient.Namespace(), deployMeshControllerRetries); err != nil {
+	if err := health.TestMeshControllerConnection(
+		k8sClient.Client(), k8sClient.Namespace(), deployMeshControllerRetries); err != nil {
 		return formatConnectionError(k8sClient, err)
 	}
 	done <- struct{}{}
