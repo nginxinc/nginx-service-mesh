@@ -10,6 +10,8 @@ categories: ["reference"]
 
 ## NGINX Service Mesh Version 1.7.0
 
+14 Feb 2023 
+
 <!-- vale off -->
 
 These release notes provide general information and describe known issues for NGINX Service Mesh version 1.7.0, in the following categories:

@@ -11,6 +11,8 @@ docs: "DOCS-716"
 
 ## NGINX Service Mesh Version 1.3.0
 
+16 Nov 2021
+
 <!-- vale off -->
 
 These release notes provide general information and describe known issues for NGINX Service Mesh version 1.3.0, in the following categories:
