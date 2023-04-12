@@ -165,8 +165,8 @@ func CreateInjectionConfig(
 
 	// if not set, agent will get it from NATS
 	if mtlsModeAnnotation != "" {
-		if modeErr := ValidateMTLSAnnotation(mtlsModeAnnotation, meshConfig.Mtls.Mode); modeErr != nil {
-			return nil, fmt.Errorf("%w; mtls annotation for '%s' cannot conflict", modeErr, parentName)
+		if err := ValidateMTLSAnnotation(mtlsModeAnnotation, meshConfig.Mtls.Mode); err != nil {
+			return nil, fmt.Errorf("%w; mtls annotation for '%s' cannot conflict", err, parentName)
 		}
 
 		proxySidecar.Args = append(proxySidecar.Args, "--mtls-annotation", mtlsModeAnnotation)
