@@ -15,7 +15,7 @@ enableRobotsTXT = "true"
     maxAge = -1
 
 [[module.imports]]
-  path="gitlab.com/f5/nginx/controller/poc/f5-hugo"
+  path="github.com/nginxinc/nginx-hugo-theme"
 
 [markup]
   [markup.highlight]
