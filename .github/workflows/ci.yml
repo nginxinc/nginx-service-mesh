@@ -4,10 +4,6 @@ on:
   push:
   pull_request:
 
-defaults:
-  run:
-    shell: bash
-
 env:
   HELM_CHART_DIR: helm-chart
   GIT_NAME: NGINX Kubernetes Team
@@ -35,7 +31,7 @@ jobs:
           version: v1.52
           args: --timeout 10m
       - name: Lint Helm
-        run: helm lint ${{ env.HELM_CHART_DIR }} 
+        run: helm lint ${{ env.HELM_CHART_DIR }}
 
   unit-tests:
     name: Unit Tests
@@ -67,10 +63,6 @@ jobs:
         with:
           go-version-file: go.mod
           cache: true
-
-      - name: Download Syft
-        uses: anchore/sbom-action/download-syft@422cb34a0f8b599678c41b21163ea6088edb2624 # v0.14.1
-        if: startsWith(github.ref, 'refs/tags/')
 
       - name: Build binary
         uses: goreleaser/goreleaser-action@f82d6c1c344bcacabba2c841718984797f664a6b # v4.2.0
