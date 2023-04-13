@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
 	"strings"
 	"time"
 
@@ -43,12 +42,6 @@ func Upgrade(version string) *cobra.Command {
 		dryRun         bool
 	)
 
-	files, _, err := helm.GetBufferedFilesAndValues()
-	if err != nil {
-		log.Fatal(err)
-	}
-	values := &helm.Values{}
-
 	cmd := &cobra.Command{
 		Use:   "upgrade",
 		Short: "Upgrade NGINX Service Mesh",
@@ -59,12 +52,12 @@ func Upgrade(version string) *cobra.Command {
 	cmd.RunE = func(cmd *cobra.Command, args []string) error {
 		namespace := initK8sClient.Namespace()
 		// Verify mesh install exists
-		if _, err = verifyMeshInstall(initK8sClient); err != nil {
+		if _, err := verifyMeshInstall(initK8sClient); err != nil {
 			return err
 		}
 		if !yes {
 			msg := fmt.Sprintf("Preparing to upgrade NGINX Service Mesh in namespace \"%s\".\n%s\n", namespace, NSMv2UpgradeWarning)
-			if err = ReadYes(msg); err != nil {
+			if err := ReadYes(msg); err != nil {
 				return err
 			}
 		}
@@ -74,7 +67,7 @@ func Upgrade(version string) *cobra.Command {
 			version = tagOverride
 		}
 
-		upgrader := newUpgrader(files, values, initK8sClient, dryRun)
+		upgrader, err := newUpgrader(initK8sClient, dryRun)
 		if err != nil {
 			return fmt.Errorf("error initializing upgrader: %w", err)
 		}
@@ -196,18 +189,17 @@ type upgrader struct {
 }
 
 // newUpgrader returns a new upgrader object.
-func newUpgrader(
-	files []*loader.BufferedFile,
-	values *helm.Values,
-	k8sClient k8s.Client,
-	dryRun bool,
-) *upgrader {
+func newUpgrader(k8sClient k8s.Client, dryRun bool) (*upgrader, error) {
+	files, defaultValues, err := helm.GetBufferedFilesAndValues()
+	if err != nil {
+		return nil, fmt.Errorf("error getting helm files and values: %w", err)
+	}
 	return &upgrader{
 		files:     files,
-		values:    values,
+		values:    defaultValues,
 		k8sClient: k8sClient,
 		dryRun:    dryRun,
-	}
+	}, nil
 }
 
 // upgrade the mesh by calling "helm upgrade".
