@@ -10,6 +10,8 @@ categories: ["reference"]
 
 ## NGINX Service Mesh Version 1.6.0
 
+01 November 2022
+
 <!-- vale off -->
 
 These release notes provide general information and describe known issues for NGINX Service Mesh version 1.6.0, in the following categories:

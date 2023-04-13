@@ -10,6 +10,8 @@ categories: ["reference"]
 
 ## NGINX Service Mesh Version 1.4.1
 
+26 May 2022
+
 This hotfix release enhances previous versions as described below.
 
 **Egress upstream should be resilient**:

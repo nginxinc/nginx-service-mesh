@@ -11,6 +11,8 @@ docs: "DOCS-717"
 
 ## NGINX Service Mesh Version 1.3.1
 
+22 November 2021
+
 <!-- vale off -->
 
 This hotfix release resolves an issue affecting version 1.3.0 described below.
