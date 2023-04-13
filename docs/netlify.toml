@@ -1,21 +1,21 @@
 [build]
   base = "docs/"
-  command = "./scripts/copy-docs.sh && hugo --gc"
+  command = "make deploy-preview"
 
 [context.production]
-  command = "./scripts/copy-docs.sh && make all"
+  command = "make all"
 
 [context.docs-development]
-  command = "./scripts/copy-docs.sh && make all-dev"
+  command = "make all-dev"
 
 [context.docs-staging]
-  command = "./scripts/copy-docs.sh && make all-staging"
+  command = "make all-staging"
 
 [context.branch-deploy]
-  command = "./scripts/copy-docs.sh && hugo --gc -d public/nginx-service-mesh -b $DEPLOY_PRIME_URL/nginx-service-mesh"
+  command = "make deploy-preview"
 
 [context.deploy-preview]
-  command = "./scripts/copy-docs.sh && hugo --gc -d public/nginx-service-mesh -b $DEPLOY_PRIME_URL/nginx-service-mesh"
+  command = "make deploy-preview"
 
 [[headers]]
   for = "/*"

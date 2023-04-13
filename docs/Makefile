@@ -1,6 +1,7 @@
 THEME_MODULE = github.com/nginxinc/nginx-hugo-theme
 ## Pulls the current theme version from the Netlify settings
 THEME_VERSION = $(NGINX_THEME_VERSION)
+NETLIFY_DEPLOY_URL = ${DEPLOY_PRIME_URL}
 
 .PHONY: all all-staging all-dev clean hugo-mod build-production build-staging build-dev docs-drafts docs
 
@@ -44,3 +45,7 @@ docs-drafts:
 # Serves docs at localhost:1313
 docs:
 	hugo server --disableFastRender
+
+deploy-preview: hugo-mod
+	./scripts/copy-docs.sh 
+	hugo --gc -d public/nginx-service-mesh -b ${NETLIFY_DEPLOY_URL}/nginx-service-mesh
