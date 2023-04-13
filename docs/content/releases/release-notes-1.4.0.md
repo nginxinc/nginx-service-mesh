@@ -10,7 +10,7 @@ categories: ["reference"]
 
 ## NGINX Service Mesh Version 1.4.0
 
-23 Feb 2022
+23 February 2022
 
 <!-- vale off -->
 

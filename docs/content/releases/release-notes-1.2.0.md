@@ -11,7 +11,7 @@ docs: "DOCS-714"
 
 ## NGINX Service Mesh Version 1.2.0
 
-14 Sep 2021
+14 September 2021
 
 <!-- vale off -->
 
