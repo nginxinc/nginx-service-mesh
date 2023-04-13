@@ -1,0 +1,35 @@
+{{- if eq .Values.environment "openshift" }}
+---
+apiVersion: security.openshift.io/v1
+kind: SecurityContextConstraints
+metadata:
+  name: nginx-mesh-sidecar-permissions
+  labels:
+    app.kubernetes.io/part-of: nginx-service-mesh
+  annotations:
+    "helm.sh/resource-policy": keep
+allowHostDirVolumePlugin: false
+allowHostIPC: false
+allowHostPID: false
+allowHostNetwork: false
+allowHostPorts: false
+allowPrivilegeEscalation: false
+allowPrivilegedContainer: false
+allowedCapabilities:
+- NET_ADMIN
+- NET_RAW
+- SYS_ADMIN
+- SYS_RESOURCE
+seccompProfiles:
+- "*"
+seLinuxContext:
+  type: RunAsAny
+readOnlyRootFilesystem: false
+runAsUser:
+  type: RunAsAny
+requiredDropCapabilities:
+- ALL
+volumes:
+- csi
+- projected
+{{- end }}
