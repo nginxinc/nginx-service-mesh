@@ -24,6 +24,12 @@ The NGINX Service Mesh deployment experience is the exact same as in other envir
 nginx-meshctl deploy ... --environment openshift"
 ```
 
+When injecting sidecars into your workloads, OpenShift's default security policies do not allow the necessary permissions. To enable the proper permissions for sidecar injection, you can attach your workloads to the `nginx-mesh-sidecar-permissions` SecurityContextConstraint (SCC) by running:
+
+```bash
+oc adm policy add-scc-to-group nginx-mesh-sidecar-permissions system:serviceaccounts:<workload-namespace>
+```
+
 ### Remove
 
 When removing NGINX Service Mesh, the CSI Driver should be running until all injected Pods are either re-rolled to remove the sidecar proxy, or terminated. This is because the CSI Driver must unmount and service any injected Pods when they are terminated.

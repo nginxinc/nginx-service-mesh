@@ -11,6 +11,8 @@ docs: "DOCS-713"
 
 ## NGINX Service Mesh Version 1.1.0
 
+29 June 2021
+
 <!-- vale off -->
 
 These release notes provide general information and describe known issues for NGINX Service Mesh version 1.1.0, in the following categories:

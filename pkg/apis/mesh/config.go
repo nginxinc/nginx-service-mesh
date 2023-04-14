@@ -33,7 +33,7 @@ type FullMeshConfig struct { //nolint:govet // fieldalignment not desired
 	Registry Registry `yaml:"registry" json:"registry"`
 
 	// Telemetry is the configuration for telemetry.
-	Telemetry *Telemetry `yaml:"telemetry,omitempty" json:"telemetry,omitempty"`
+	Telemetry Telemetry `yaml:"telemetry" json:"telemetry"`
 
 	// EnableUDP traffic proxying (beta).
 	EnableUDP bool `yaml:"enableUDP" json:"enableUDP"`
@@ -111,23 +111,13 @@ type Registry struct { //nolint:govet // fieldalignment not desired
 // DeepCopyInto performs a deepcopy of the FullMeshConfig.
 func (in *FullMeshConfig) DeepCopyInto(out *FullMeshConfig) {
 	*out = *in
-	if in.Telemetry != nil {
-		in, out := &in.Telemetry, &out.Telemetry
-		*out = new(Telemetry)
-		(*in).DeepCopyInto(*out)
-	}
-}
-
-// DeepCopyInto performs a deepcopy of the Telemetry config.
-func (in *Telemetry) DeepCopyInto(out *Telemetry) {
-	*out = *in
-	if in.Exporters != nil {
-		in, out := &in.Exporters, &out.Exporters
+	if in.Telemetry.Exporters != nil {
+		in, out := &in.Telemetry.Exporters, &out.Telemetry.Exporters
 		*out = new(Exporters)
 		(*in).DeepCopyInto(*out)
 	}
-	if in.SamplerRatio != nil {
-		in, out := &in.SamplerRatio, &out.SamplerRatio
+	if in.Telemetry.SamplerRatio != nil {
+		in, out := &in.Telemetry.SamplerRatio, &out.Telemetry.SamplerRatio
 		*out = new(float32)
 		**out = **in
 	}
