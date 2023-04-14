@@ -254,7 +254,7 @@ func (u *upgrader) upgrade(version string, registry string) error {
 // - copy on top of the new release's deploy-time configuration
 // - set new version
 // - set new registry server if needed.
-func (u *upgrader) buildValues(ctx context.Context, version string, registry string) (map[string]interface{}, error) {
+func (u *upgrader) buildValues(ctx context.Context, version, registry string) (map[string]interface{}, error) {
 	// get the previous deployment configuration
 	_, oldValueBytes, err := helm.GetDeployValues(u.k8sClient, "nginx-service-mesh")
 	if err != nil {
