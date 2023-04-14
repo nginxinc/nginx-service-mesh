@@ -321,6 +321,10 @@ webhooks:
     apiVersions: ["*"]
     operations: ["CREATE", "UPDATE"]
     resources: ["meshconfigs"]
+  - apiGroups: ["nsm.nginx.com"]
+    apiVersions: ["*"]
+    operations: ["CREATE", "UPDATE", "DELETE"]
+    resources: ["retrytimeoutconfigs"]
 ---
 apiVersion: apps/v1
 kind: Deployment
