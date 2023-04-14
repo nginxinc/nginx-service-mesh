@@ -42,9 +42,9 @@ nginx-meshctl upgrade
 
 This will upgrade the NGINX Service Mesh control plane to the latest version. All user configuration (traffic policies, mesh configuration, deploy configuration) is preserved through the upgrade. New applications will not be injected during the upgrade and existing applications will not receive configuration updates. Existing applications may not function properly until updated. It is recommended that upgrades are only performed during a maintenance window due to the brief downtime.
 
-By default, the mesh will pull images from the registry the mesh was originally deployed with. If you would like to pull from a different registry, you can specify it with the `--registry-server` flag on the CLI.
+By default, the mesh will pull images from the registry that it was originally deployed with. If you would like to pull from a different registry, you can use the`--registry-server` flag.
 
-Additionally, if you would like to upgrade to a custom image tag you can use the `--image-tag` flag with the CLI.
+Additionally, if you would like to upgrade to a custom image tag you can use the `--image-tag` flag.
 
 Once the upgrade is complete, if your applications support rolling updates, re-roll using the following command:
 
