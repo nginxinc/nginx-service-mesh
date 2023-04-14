@@ -34,7 +34,7 @@ The following tables list the software versions NGINX Service Mesh supports and 
 {{% table %}}
 | NGINX Service Mesh | NGINX Plus (sidecar) | SPIRE   | NATS                  |
 |--------------------|----------------------|---------|-----------------------|
-| v2.0.0+            | R28                  | 1.6.2   | nats:2.9-alpine       |
+| v2.0.0+            | R28                  | 1.6.3   | nats:2.9-alpine       |
 | v1.7.0             | R28                  | 1.5.4   | nats:2.9-alpine       |
 | v1.6.0             | R27                  | 1.4.4   | nats:2.9.3-alpine3.16 |
 {{% /table %}}
@@ -54,9 +54,9 @@ NGINX Service Mesh also pulls the following publicly-accessible third-party cont
 {{% table %}}
 | Component  | Image path(s)                                                          | Version tag |
 |------------|------------------------------------------------------------------------|-------------|
-| SPIRE      | ghcr.io/spiffe/spire-server                                            | 1.6.2       |
+| SPIRE      | ghcr.io/spiffe/spire-server                                            | 1.6.3       |
 |            | gcr.io/spiffe-io/k8s-workload-registrar                                | 1.5.4       |
-|            | ghcr.io/spiffe/spire-agent                                             | 1.6.2       |
+|            | ghcr.io/spiffe/spire-agent                                             | 1.6.3       |
 |            | curlimages/curl                                                        | latest      |
 |            | ubuntu                                                                 | 22.04       |
 |            | ghcr.io/spiffe/spiffe-csi-driver (OpenShift only)                      | 0.2.3       |

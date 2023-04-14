@@ -91,7 +91,7 @@ spec:
           mountPath: /run/spire/sockets
       containers:
       - name: spire-agent
-        image: {{ include "spire.image-server" . }}/spire-agent:1.6.2
+        image: {{ include "spire.image-server" . }}/spire-agent:1.6.3
         imagePullPolicy: {{ .Values.registry.imagePullPolicy }}
         securityContext:
           allowPrivilegeEscalation: false
