@@ -32,10 +32,10 @@ To complete this tutorial, you must use either:
 
 If you want to view metrics for NGINX Ingress Controller, ensure that you have deployed Prometheus and Grafana and then configure NGINX Service Mesh to integrate with them when installing. Refer to the [Monitoring and Tracing]( {{< ref "/guides/monitoring-and-tracing.md" >}} ) guide for instructions.
 
-Follow the installation [instructions]( {{< ref "/get-started/install.md" >}} ) to install NGINX Service Mesh on your Kubernetes cluster.
+Follow the installation [instructions]( {{< ref "/get-started/install/install.md" >}} ) to install NGINX Service Mesh on your Kubernetes cluster.
 You can either deploy the Mesh with the default value for [mTLS mode]( {{< ref "/guides/secure-traffic-mtls.md" >}} ), which is `permissive`, or set it to `strict`.
 
-Before proceeding, verify that the mesh is running (Step 2 of the installation [instructions]( {{< ref "/get-started/install.md" >}} )).
+Before proceeding, verify that the mesh is running (Step 2 of the installation [instructions]( {{< ref "/get-started/install/install.md" >}} )).
 NGINX Ingress Controller will try to fetch certs from the Spire agent that gets deployed by NGINX Service Mesh on startup. If the mesh is not running, NGINX Ingress controller will fail to start.
 
 ### Install NGINX Ingress Controller

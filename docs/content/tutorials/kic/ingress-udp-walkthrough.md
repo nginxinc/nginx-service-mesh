@@ -30,10 +30,10 @@ To complete this tutorial, you must use either:
 
 ### Install NGINX Service Mesh
 
-Follow the installation [instructions]( {{< ref "/get-started/install.md" >}} ) to install NGINX Service Mesh on your Kubernetes cluster. UDP traffic proxying is disabled by default, so you will need to enable it using the `--enable-udp` flag when deploying. Linux kernel 4.18 or greater is required.
+Follow the installation [instructions]( {{< ref "/get-started/install/install.md" >}} ) to install NGINX Service Mesh on your Kubernetes cluster. UDP traffic proxying is disabled by default, so you will need to enable it using the `--enable-udp` flag when deploying. Linux kernel 4.18 or greater is required.
 
 {{< caution >}} 
-Before proceeding, verify that the mesh is running (Step 2 of the installation [instructions]( {{< ref "/get-started/install.md" >}} )).
+Before proceeding, verify that the mesh is running (Step 2 of the installation [instructions]( {{< ref "/get-started/install/install.md" >}} )).
 NGINX Ingress Controller will try to fetch certs from the Spire agent that gets deployed by NGINX Service Mesh on startup. If the mesh is not running, NGINX Ingress controller will fail to start.  
 {{< /caution >}}
 

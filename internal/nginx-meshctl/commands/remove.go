@@ -149,7 +149,7 @@ func Remove() *cobra.Command {
 			fmt.Printf("Once complete, the %[1]s namespace will need to be manually cleaned up by running:\n\n\t"+
 				"kubectl delete namespace %[1]s\n", namespace)
 			fmt.Println("\nFor more details, or if the 'csi-driver-sentinel' failed to deploy, " +
-				"see https://docs.nginx.com/nginx-service-mesh/get-started/openshift-platform/considerations/#remove")
+				"see https://docs.nginx.com/nginx-service-mesh/get-started/platform-setup/openshift.md/#remove")
 			fmt.Println()
 		}
 

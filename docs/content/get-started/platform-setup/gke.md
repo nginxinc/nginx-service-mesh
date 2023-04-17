@@ -18,6 +18,6 @@ To create a ClusterRole and ClusterRoleBinding for NGINX Service Mesh, run the `
 kubectl create clusterrolebinding cluster-admin-binding --clusterrole=cluster-admin --user=$(gcloud config  get-value core/account)
 ```
 
-Regardless of which Kubernetes version you are using, if you are installing NGINX Service Mesh v1.6 or greater, you'll also need to install the  [gke-gcloud-auth-plugin](https://cloud.google.com/blog/products/containers-kubernetes/kubectl-auth-changes-in-gke). This is because `nginx-meshctl` uses Kubernetes 1.25 libraries internally.
+Regardless of which Kubernetes version you are using, if you are installing NGINX Service Mesh v1.6 or greater, you'll also need to install the  [gke-gcloud-auth-plugin](https://cloud.google.com/blog/products/containers-kubernetes/kubectl-auth-changes-in-gke). This is because `nginx-meshctl` uses Kubernetes v1.25+ libraries internally.
 
 You can now deploy NGINX Service Mesh on your GKE cluster.

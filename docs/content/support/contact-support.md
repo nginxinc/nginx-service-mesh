@@ -14,8 +14,8 @@ Thank you for your interest in NGINX Service Mesh. NGINX Service Mesh can be ins
 ### Resources
 
 - [Product Details](https://www.nginx.com/products/nginx-service-mesh/)
-- [Install NGINX Service Mesh using nginx-meshctl]( {{< ref "/get-started/install.md" >}} )
-- [Install NGINX Service Mesh using Helm]( {{< ref "/get-started/install-with-helm.md" >}} )
+- [Install NGINX Service Mesh using nginx-meshctl]( {{< ref "/get-started/install/install.md" >}} )
+- [Install NGINX Service Mesh using Helm]( {{< ref "/get-started/install/install-with-helm.md" >}} )
 - [NGINX Plus Kubernetes Ingress Controller](https://www.nginx.com/products/nginx-ingress-controller/)
 - [NGINX Plus Product Details](https://www.nginx.com/products/nginx/)
 
@@ -39,10 +39,10 @@ nginx-meshctl supportpkg --disable-sidecar-logs
 
 The `supportpkg` command generates a tar file containing information about the state of your NGINX Service Mesh deployment. The package includes logs, component yaml files, events, Pod descriptions, and more. The README contained within the package describes its contents.
 
-### Git Issues
+### GitHub Issues
 
 {{< note >}}
-Paid customers of NGINX Service Mesh should use [Commercial Support](#commercial-support) instead of Git Issues.
+Paid customers of NGINX Service Mesh should use [Commercial Support](#commercial-support) instead of GitHub Issues.
 {{< /note >}}
 
 For NGINX Service Mesh support or issues not addressed by documentation, you can reach out via the Issues tab in the [NGINX Service Mesh GitHub repo](https://github.com/nginxinc/nginx-service-mesh/issues).

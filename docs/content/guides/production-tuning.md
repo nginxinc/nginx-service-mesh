@@ -37,7 +37,7 @@ We **highly** recommend pairing the `memory` key manager plugin with an upstream
 
 ##### Persistent Storage
 
-Persistent storage allows for optimized handling of Spire server restarts in case of a failure as data such as registration entities and selectors do not need to be rebuilt. This saves on resource utilization and removes traffic disruptions for workloads. For most environments, we deploy persistent storage by default and recommend using it. See our [Persistent Storage]( {{< ref "/get-started/kubernetes-platform/persistent-storage.md" >}} ) setup page for more information on configuring persistent storage in your environment.
+Persistent storage allows for optimized handling of Spire server restarts in case of a failure as data such as registration entities and selectors do not need to be rebuilt. This saves on resource utilization and removes traffic disruptions for workloads. For most environments, we deploy persistent storage by default and recommend using it. See our [Persistent Storage]( {{< ref "/get-started/platform-setup/persistent-storage.md" >}} ) setup page for more information on configuring persistent storage in your environment.
 
 ##### Certificate TTL
 
