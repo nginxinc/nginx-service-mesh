@@ -36,7 +36,11 @@ var upgradeTimeout = 5 * time.Minute
 
 // Upgrade handles a version upgrade of NGINX Service Mesh.
 func Upgrade(version string) *cobra.Command {
-	var dryRun bool
+	var (
+		tagOverride    string
+		serverOverride string
+		dryRun         bool
+	)
 
 	cmd := &cobra.Command{
 		Use:   "upgrade",
@@ -59,6 +63,10 @@ func Upgrade(version string) *cobra.Command {
 		}
 		fmt.Printf("Upgrading NGINX Service Mesh in namespace \"%s\".\n", namespace)
 
+		if tagOverride != "" {
+			version = tagOverride
+		}
+
 		upgrader, err := newUpgrader(initK8sClient, dryRun)
 		if err != nil {
 			return fmt.Errorf("error initializing upgrader: %w", err)
@@ -71,7 +79,7 @@ func Upgrade(version string) *cobra.Command {
 
 		go loopImageErrorCheck(initK8sClient, done)
 
-		if upgradeErr := upgrader.upgrade(version); upgradeErr != nil {
+		if upgradeErr := upgrader.upgrade(version, serverOverride); upgradeErr != nil {
 			fmt.Println() // newline to append to the "waiting" statement above
 
 			return upgradeErr
@@ -105,6 +113,18 @@ func Upgrade(version string) *cobra.Command {
 		false,
 		`render the upgrade manifest and print to stdout
 		Doesn't perform the upgrade`,
+	)
+	cmd.Flags().StringVar(
+		&serverOverride,
+		"registry-server",
+		serverOverride, `hostname:port (if needed) for registry and path to images
+		Affects: `+formatValues(registryServerImages),
+	)
+	cmd.Flags().StringVar(
+		&tagOverride,
+		"image-tag",
+		tagOverride, `tag used for pulling images from registry
+		Affects: `+formatValues(registryServerImages),
 	)
 	if err := cmd.Flags().MarkHidden("dry-run"); err != nil {
 		fmt.Println("error marking flag as hidden: ", err)
@@ -174,17 +194,16 @@ func newUpgrader(k8sClient k8s.Client, dryRun bool) (*upgrader, error) {
 	if err != nil {
 		return nil, fmt.Errorf("error getting helm files and values: %w", err)
 	}
-
 	return &upgrader{
-		k8sClient: k8sClient,
 		files:     files,
 		values:    defaultValues,
+		k8sClient: k8sClient,
 		dryRun:    dryRun,
 	}, nil
 }
 
 // upgrade the mesh by calling "helm upgrade".
-func (u *upgrader) upgrade(version string) error {
+func (u *upgrader) upgrade(version string, registry string) error {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
@@ -193,7 +212,7 @@ func (u *upgrader) upgrade(version string) error {
 	}
 
 	// initialize values and chart for new release
-	vals, err := u.buildValues(ctx, version)
+	vals, err := u.buildValues(ctx, version, registry)
 	if err != nil {
 		return err
 	}
@@ -233,8 +252,9 @@ func (u *upgrader) upgrade(version string) error {
 // - copy on top of the new release's deploy-time configuration
 // - get previous release's run-time configuration (mesh-config ConfigMap)
 // - copy on top of the new release's deploy-time configuration
-// - set new version.
-func (u *upgrader) buildValues(ctx context.Context, version string) (map[string]interface{}, error) {
+// - set new version
+// - set new registry server if needed.
+func (u *upgrader) buildValues(ctx context.Context, version, registry string) (map[string]interface{}, error) {
 	// get the previous deployment configuration
 	_, oldValueBytes, err := helm.GetDeployValues(u.k8sClient, "nginx-service-mesh")
 	if err != nil {
@@ -262,6 +282,9 @@ func (u *upgrader) buildValues(ctx context.Context, version string) (map[string]
 
 	// update to new version
 	u.values.Registry.ImageTag = version
+	if registry != "" {
+		u.values.Registry.Server = registry
+	}
 
 	vals, err := u.values.ConvertToMap()
 	if err != nil {
