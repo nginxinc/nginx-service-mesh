@@ -57,8 +57,7 @@ func NewCertManagerWithReloader(
 // reloads IFF reloader not nil.
 func (c *CertManager) reload() {
 	if c.reloader != nil {
-		err := c.reloader.Reload()
-		if err != nil {
+		if err := c.reloader.Reload(); err != nil {
 			c.ErrCh <- err
 		}
 	}
@@ -75,8 +74,7 @@ func (c *CertManager) Run(ctx context.Context) error {
 	// Wait for initial trust bundle
 	select {
 	case certs := <-certStream:
-		err = c.svidWriter.Write(certs)
-		if err != nil {
+		if err = c.svidWriter.Write(certs); err != nil {
 			return fmt.Errorf("error writing certificates: %w", err)
 		}
 		c.reload()
@@ -97,8 +95,7 @@ func (c *CertManager) Run(ctx context.Context) error {
 
 				return
 			case certs := <-certStream:
-				err := c.svidWriter.Write(certs)
-				if err != nil {
+				if err := c.svidWriter.Write(certs); err != nil {
 					c.ErrCh <- err
 
 					return

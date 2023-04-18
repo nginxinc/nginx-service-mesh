@@ -69,8 +69,7 @@ func Remove() *cobra.Command {
 		`environment the mesh is deployed in
 		Valid values: `+formatValues(mesh.Environments),
 	)
-	err := cmd.Flags().MarkDeprecated("environment", "and will be removed in a future release.")
-	if err != nil {
+	if err := cmd.Flags().MarkDeprecated("environment", "and will be removed in a future release."); err != nil {
 		fmt.Println("error marking flag as deprecated: ", err)
 	}
 
@@ -298,8 +297,8 @@ func printResources(writer *tabwriter.Writer, resources proxiedResources) error 
 // verifyMeshInstall verifies that the install namespace exists and that a helm release of NSM currently exists.
 func verifyMeshInstall(k8sClient k8s.Client) (string, error) {
 	namespace := k8sClient.Namespace()
-	_, err := k8sClient.ClientSet().CoreV1().Namespaces().Get(context.TODO(), namespace, metav1.GetOptions{})
-	if err != nil && k8sErrors.IsNotFound(err) {
+	if _, err := k8sClient.ClientSet().CoreV1().Namespaces().
+		Get(context.TODO(), namespace, metav1.GetOptions{}); err != nil && k8sErrors.IsNotFound(err) {
 		return "", meshErrors.NamespaceNotFoundError{Namespace: namespace}
 	}
 

@@ -32,8 +32,7 @@ func (b Block) MarshalJSON() ([]byte, error) {
 // UnmarshalJSON unmarshals a Block, to a Block enum.
 func (b *Block) UnmarshalJSON(blockBytes []byte) error {
 	var j string
-	err := json.Unmarshal(blockBytes, &j)
-	if err != nil {
+	if err := json.Unmarshal(blockBytes, &j); err != nil {
 		return err
 	}
 	*b = toBlock(j)

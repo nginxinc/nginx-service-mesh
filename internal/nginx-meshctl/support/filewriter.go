@@ -117,9 +117,6 @@ func (w *Writer) WriteTarFile(directory, filename string) error {
 	tarFile, err := os.Create(filename) //nolint:gosec // passed in via user input from cluster
 	// written to temp dir
 	if err != nil {
-		return err
-	}
-	if err != nil {
 		return fmt.Errorf("could not create tar file: %w", err)
 	}
 	defer func() {
