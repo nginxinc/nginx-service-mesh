@@ -69,8 +69,7 @@ func Remove() *cobra.Command {
 		`environment the mesh is deployed in
 		Valid values: `+formatValues(mesh.Environments),
 	)
-	err := cmd.Flags().MarkDeprecated("environment", "and will be removed in a future release.")
-	if err != nil {
+	if err := cmd.Flags().MarkDeprecated("environment", "and will be removed in a future release."); err != nil {
 		fmt.Println("error marking flag as deprecated: ", err)
 	}
 
@@ -149,7 +148,7 @@ func Remove() *cobra.Command {
 			fmt.Printf("Once complete, the %[1]s namespace will need to be manually cleaned up by running:\n\n\t"+
 				"kubectl delete namespace %[1]s\n", namespace)
 			fmt.Println("\nFor more details, or if the 'csi-driver-sentinel' failed to deploy, " +
-				"see https://docs.nginx.com/nginx-service-mesh/get-started/openshift-platform/considerations/#remove")
+				"see https://docs.nginx.com/nginx-service-mesh/get-started/platform-setup/openshift.md/#remove")
 			fmt.Println()
 		}
 
@@ -298,8 +297,8 @@ func printResources(writer *tabwriter.Writer, resources proxiedResources) error 
 // verifyMeshInstall verifies that the install namespace exists and that a helm release of NSM currently exists.
 func verifyMeshInstall(k8sClient k8s.Client) (string, error) {
 	namespace := k8sClient.Namespace()
-	_, err := k8sClient.ClientSet().CoreV1().Namespaces().Get(context.TODO(), namespace, metav1.GetOptions{})
-	if err != nil && k8sErrors.IsNotFound(err) {
+	if _, err := k8sClient.ClientSet().CoreV1().Namespaces().
+		Get(context.TODO(), namespace, metav1.GetOptions{}); err != nil && k8sErrors.IsNotFound(err) {
 		return "", meshErrors.NamespaceNotFoundError{Namespace: namespace}
 	}
 

@@ -68,7 +68,7 @@ kubectl rollout restart deployment/frontend
 ```
 
 {{< see-also >}}
-See [NGINX Service Mesh Labels and Annotations]( {{< ref "/get-started/configuration.md#supported-labels-and-annotations" >}}) for more information on available labels and annotations.
+See [NGINX Service Mesh Labels and Annotations]( {{< ref "/get-started/install/configuration.md#supported-labels-and-annotations" >}}) for more information on available labels and annotations.
 
 Refer to the Kubernetes [`kubectl` Cheat Sheet](https://kubernetes.io/docs/reference/kubectl/cheatsheet/#updating-resources) documentation for more information about rolling resources.
 {{< /see-also >}}
@@ -105,7 +105,7 @@ You can set the proxy to ignore ports for either incoming or outgoing traffic. T
     ```
   
 {{< note >}}
-Refer to [NGINX Service Mesh Annotations]( {{< ref "/get-started/configuration.md#pod-annotations" >}}) for more information around annotations.
+Refer to [NGINX Service Mesh Annotations]( {{< ref "/get-started/install/configuration.md#pod-annotations" >}}) for more information around annotations.
 {{< /note >}}
 
 ## Default Ignored Ports

@@ -77,8 +77,7 @@ func (tq *TaskQueue) worker() {
 			log.Printf("interface conversion: interface is %T, not task", currTask)
 		}
 		log.Printf("Dequeueing event: %s, key: %p", event.name, event.data)
-		err := tq.sync(event.name, event.data)
-		if err != nil {
+		if err := tq.sync(event.name, event.data); err != nil {
 			log.Printf("Error running callback for %s: %v", event.name, err)
 		}
 		tq.queue.Done(currTask)

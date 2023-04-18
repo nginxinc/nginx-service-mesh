@@ -111,8 +111,7 @@ func (c *X509CertFetcher) Start(ctx context.Context) (<-chan *workloadapi.X509Co
 				log.Println("error closing SPIFFE Workload API Client: ", err)
 			}
 		}()
-		err := c.client.WatchX509Context(ctx, watcher)
-		if err != nil && status.Code(err) != codes.Canceled {
+		if err := c.client.WatchX509Context(ctx, watcher); err != nil && status.Code(err) != codes.Canceled {
 			c.WatchErrCh <- err
 		}
 	}()

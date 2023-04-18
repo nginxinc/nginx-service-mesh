@@ -1,6 +1,6 @@
 --- 
-title: "Configuration Options for NGINX Service Mesh"
-weight: 200
+title: "Configuration Options"
+weight: 100
 description: "Learn about NGINX Service Mesh features and deployment options."
 categories: ["concepts"]
 toc: true
@@ -18,7 +18,7 @@ Refer to the [API Usage Guide]( {{< ref "api-usage.md" >}} ) for more informatio
 {{< /tip >}}
 
 {{< note >}}
-For Helm users, the `nginx-meshctl deploy` command-line options map directly to Helm values. Alongside this guide, check out the [Helm Configuration Options]( {{< ref "/get-started/install-with-helm.md#configuration-options" >}} ).
+For Helm users, the `nginx-meshctl deploy` command-line options map directly to Helm values. Alongside this guide, check out the [Helm Configuration Options]( {{< ref "/get-started/install/install-with-helm.md#configuration-options" >}} ).
 {{< /note >}}
 
 ## Mutual TLS
@@ -301,10 +301,20 @@ By default, NGINX Service Mesh deploys with the `kubernetes` configuration. If d
 nginx-meshctl deploy ... --environment "openshift"
 ```
 
-See [Considerations]({{< ref "/get-started/openshift-platform/considerations" >}}) for when you're deploying in an OpenShift cluster.
+See [Considerations]({{< ref "/get-started/platform-setup/openshift.md" >}}) for when you're deploying in an OpenShift cluster.
 
 ## Headless Services
 
 Avoid configuring traffic policies such as TrafficSplits, RateLimits, and CircuitBreakers for headless services. These policies will not work as expected because NGINX Service Mesh has no way to tie each pod IP address to its headless service.
 
 When using NGINX Service Mesh, it is necessary to declare the port in a headless service in order for it to be matched. Without this declaration, traffic will not be routed correctly.
+
+## UDP Proxying
+
+UDP traffic proxying is turned off by default. You can activate it at deploy time using the `--enable-udp` flag. Linux kernel 4.18 or greater is required.
+
+NGINX Service Mesh automatically detects and adjusts the `eth0` interface to support the 32 bytes of space required for PROXY Protocol V2.
+See the [UDP and eBPF architecture]({{< ref "architecture.md#udp-and-ebpf" >}}) section for more information.
+
+NGINX Service Mesh does not detect changes made to the MTU in the pod at runtime.
+If adding a CNI changes the MTU of the `eth0` interface of running pods, you should re-roll the affected pods to ensure those changes take place.

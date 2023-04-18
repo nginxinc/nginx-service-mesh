@@ -105,8 +105,7 @@ func Top() *cobra.Command {
 				return fmt.Errorf("failed to build resource from name: %v", argSlice[0]) //nolint:goerr113 // one-off error
 			}
 
-			err = top.BuildTopMetrics(tabWriter, ref)
-			if err != nil {
+			if err = top.BuildTopMetrics(tabWriter, ref); err != nil {
 				fmt.Println(genericTopErrorInfo)
 
 				return err
@@ -120,8 +119,7 @@ func Top() *cobra.Command {
 			for k, v := range resources {
 				ref.Kind = k
 				ref.DisplayName = v
-				err = top.BuildTopMetrics(tabWriter, ref)
-				if err != nil {
+				if err = top.BuildTopMetrics(tabWriter, ref); err != nil {
 					errCount++
 				}
 			}

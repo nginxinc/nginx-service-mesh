@@ -34,7 +34,8 @@ The following tables list the software versions NGINX Service Mesh supports and 
 {{% table %}}
 | NGINX Service Mesh | NGINX Plus (sidecar) | SPIRE   | NATS                  |
 |--------------------|----------------------|---------|-----------------------|
-| v1.7.0+            | R28                  | 1.5.4   | nats:2.9-alpine       |
+| v2.0.0+            | R28                  | 1.5.6   | nats:2.9-alpine       |
+| v1.7.0             | R28                  | 1.5.4   | nats:2.9-alpine       |
 | v1.6.0             | R27                  | 1.4.4   | nats:2.9.3-alpine3.16 |
 {{% /table %}}
 
@@ -53,9 +54,9 @@ NGINX Service Mesh also pulls the following publicly-accessible third-party cont
 {{% table %}}
 | Component  | Image path(s)                                                          | Version tag |
 |------------|------------------------------------------------------------------------|-------------|
-| SPIRE      | gcr.io/spiffe-io/spire-server                                          | 1.5.4       |
-|            | gcr.io/spiffe-io/k8s-workload-registrar                                | 1.5.4       |
-|            | gcr.io/spiffe-io/spire-agent                                           | 1.5.4       |
+| SPIRE      | gcr.io/spiffe-io/spire-server                                          | 1.5.6       |
+|            | gcr.io/spiffe-io/k8s-workload-registrar                                | 1.5.6       |
+|            | gcr.io/spiffe-io/spire-agent                                           | 1.5.6       |
 |            | curlimages/curl                                                        | latest      |
 |            | ubuntu (OpenShift only)                                                | 22.04       |
 |            | ghcr.io/spiffe/spiffe-csi-driver (OpenShift only)                      | 0.2.1       |
@@ -127,7 +128,7 @@ Metrics were gathered using the Kubernetes Metrics API. CPU is calculated in ter
 
 #### Disk Usage
 
-Spire uses a persistent volume to make restarts more seamless. NGINX Service Mesh automatically allocates 1 GB persistent volume in supported environments (see [Persistent Storage]({{< ref "/get-started/kubernetes-platform/persistent-storage.md" >}}) setup page for environment requirements). Below is the information on the disk usage within that volume. Disk usage scales directly with the number of Pods in the mesh.
+Spire uses a persistent volume to make restarts more seamless. NGINX Service Mesh automatically allocates 1 GB persistent volume in supported environments (see [Persistent Storage]({{< ref "/get-started/platform-setup/persistent-storage.md" >}}) setup page for environment requirements). Below is the information on the disk usage within that volume. Disk usage scales directly with the number of Pods in the mesh.
 
 {{% table %}}
 | Num Pods | Disk Usage |

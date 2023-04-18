@@ -21,7 +21,7 @@ This tutorial shows you how to set up rate limiting policies between your worklo
 ## Before You Begin
 
 1. Install [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/).
-1. [Deploy NGINX Service Mesh]({{< ref "/get-started/install.md" >}}) in your Kubernetes cluster.
+1. [Deploy NGINX Service Mesh]({{< ref "/get-started/install/install.md" >}}) in your Kubernetes cluster.
 1. Enable [automatic sidecar injection]( {{< ref "/guides/inject-sidecar-proxy.md#automatic-proxy-injection" >}} ) for the `default` namespace.
 1. Download all of the example files:
 

@@ -38,7 +38,7 @@ to a non-meshed service.
 If you want to view metrics for NGINX Ingress Controller, ensure that you have deployed Prometheus and Grafana and then configure NGINX Service Mesh to integrate with them when installing. Refer to the [Monitoring and Tracing]( {{< ref "/guides/monitoring-and-tracing.md" >}} ) guide for instructions.
 {{< /note >}}
 
-1. Follow the installation [instructions]( {{< ref "/get-started/install.md" >}} ) to install NGINX Service Mesh on your Kubernetes cluster.
+1. Follow the installation [instructions]( {{< ref "/get-started/install/install.md" >}} ) to install NGINX Service Mesh on your Kubernetes cluster.
     
     - When deploying the mesh set the [mTLS mode]( {{< ref "/guides/secure-traffic-mtls.md" >}} ) to `strict`.
     - Your deploy command should contain the following flags:
@@ -317,4 +317,4 @@ This request from the `egress-driver` application to `target-v1-0.legacy` was se
 
 1. Follow instructions to [uninstall NGINX Ingress Controller](https://docs.nginx.com/nginx-ingress-controller/installation/installation-with-manifests/#uninstall-the-ingress-controller).
 
-1. Follow instructions to [uninstall NGINX Service Mesh]( {{< ref "/get-started/install.md#uninstall" >}} ).
+1. Follow instructions to [uninstall NGINX Service Mesh]( {{< ref "/get-started/install/install.md#uninstall" >}} ).

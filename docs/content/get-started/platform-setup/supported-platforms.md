@@ -1,13 +1,13 @@
 ---
 title: Supported Platforms
-description: Find out which Kubernetes platforms are supported for use with NGINX Service Mesh.
+description: Find out which platforms are supported for use with NGINX Service Mesh.
 date: 2020-08-17
 weight: 100
 toc: true
 docs: "DOCS-688"
 ---
 
-## Supported Platforms
+## Kubernetes
 
 The Kubernetes platforms listed below will work with NGINX Service Mesh using the Kubernetes versions listed in the [Technical Specifications]({{< ref "/about/tech-specs.md#supported-versions" >}}). Additional Kubernetes platforms may work, although they have not been validated.
 
@@ -17,3 +17,9 @@ The Kubernetes platforms listed below will work with NGINX Service Mesh using th
 - Rancher Kubernetes Engine (RKE) -- [Additional setup required]( {{< ref "rke.md" >}} )
 - Kubeadm -- [Additional setup required]( {{< ref "kubeadm.md" >}} )
 - Kubespray -- [Additional setup required]( {{< ref "kubespray.md" >}} )
+
+## OpenShift
+
+Any self-managed RedHat OpenShift environment running with the versions listed in the [Technical Specifications]({{< ref "/about/tech-specs.md#supported-versions" >}}) can be used with NGINX Service Mesh. Externally managed environments such as Azure Red Hat OpenShift and Red Hat OpenShift Service on AWS may work, although they have not been validated.
+
+Before deploying NGINX Service Mesh in OpenShift, see the [OpenShift]({{< ref "/get-started/platform-setup/openshift.md" >}}) page, which highlights runtime and deployment considerations when using NGINX Service Mesh in OpenShift.

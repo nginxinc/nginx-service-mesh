@@ -1,5 +1,5 @@
 ---
-title: Considerations
+title: OpenShift
 description: Learn what is different in OpenShift, and the considerations a user must make.
 categories: ["tasks"]
 toc: true

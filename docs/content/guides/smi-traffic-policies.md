@@ -365,7 +365,7 @@ The destination and fallback services must be in the same namespace. The fallbac
 {{< important >}}
 If Circuit Breakers are configured, the load balancing algorithm `random` cannot be used. Combining Circuit Breakers with `random` load balancing will cause sidecars to exit with an error. Data flow will be affected.
 
-To avoid this issue, use a different load balancing algorithm. See the [Configuration]({{< ref "/get-started/configuration.md" >}}) guide.
+To avoid this issue, use a different load balancing algorithm. See the [Configuration]({{< ref "/get-started/install/configuration.md" >}}) guide.
 {{< /important >}}
 
 {{< important >}}
