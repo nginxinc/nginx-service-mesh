@@ -84,8 +84,7 @@ func GetUpstreamAuthorityValues(file string) (*helm.UpstreamAuthority, error) {
 	}
 
 	var upstreamAuthority config
-	err = json.Unmarshal(b, &upstreamAuthority)
-	if err != nil {
+	if err = json.Unmarshal(b, &upstreamAuthority); err != nil {
 		return nil, fmt.Errorf("could not unmarshal upstream authority config: %w", err)
 	}
 
@@ -131,8 +130,7 @@ func readCertFiles(
 			return "", "", "", fmt.Errorf("error reading upstream certificate file: %w", err)
 		}
 
-		err = isPem(upstreamCertBytes, false, certificate)
-		if err != nil {
+		if err = isPem(upstreamCertBytes, false, certificate); err != nil {
 			return "", "", "", fmt.Errorf("invalid certificate: %w", err)
 		}
 		upstreamCert = string(upstreamCertBytes)
@@ -144,8 +142,7 @@ func readCertFiles(
 			return "", "", "", fmt.Errorf("error reading upstream certificate key file: %w", err)
 		}
 
-		err = isPem(upstreamKeyBytes, false, key)
-		if err != nil {
+		if err = isPem(upstreamKeyBytes, false, key); err != nil {
 			return "", "", "", fmt.Errorf("invalid private key: %w", err)
 		}
 		upstreamKey = string(upstreamKeyBytes)
@@ -157,8 +154,7 @@ func readCertFiles(
 			return "", "", "", fmt.Errorf("error reading upstream certificate bundle file: %w", err)
 		}
 
-		err = isPem(upstreamBundleBytes, true, certificate)
-		if err != nil {
+		if err = isPem(upstreamBundleBytes, true, certificate); err != nil {
 			return "", "", "", fmt.Errorf("invalid bundle: %w", err)
 		}
 		upstreamBundle = string(upstreamBundleBytes)

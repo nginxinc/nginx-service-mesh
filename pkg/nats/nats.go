@@ -289,8 +289,7 @@ func VerifyServerCertificate(conf SecurableConfig, certificates [][]byte) error 
 	for _, cert := range certs[1:] {
 		opts.Intermediates.AddCert(cert)
 	}
-	_, err = certs[0].Verify(opts)
-	if err != nil {
+	if _, err = certs[0].Verify(opts); err != nil {
 		return err
 	}
 

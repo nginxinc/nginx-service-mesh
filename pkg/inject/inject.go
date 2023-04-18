@@ -86,8 +86,7 @@ func IntoFile(
 
 	if isJSON {
 		var resList metav1.List
-		err := json.Unmarshal(injectConfig.Resources, &resList)
-		if err != nil {
+		if err := json.Unmarshal(injectConfig.Resources, &resList); err != nil {
 			return "", fmt.Errorf("could not parse JSON document(s): %w", err)
 		}
 
@@ -269,8 +268,7 @@ func writeResource(
 	var buff bytes.Buffer
 
 	if encode {
-		err := serializer.Encode(obj, &buff)
-		if err != nil {
+		if err := serializer.Encode(obj, &buff); err != nil {
 			glog.Errorf("skipping document. error encoding resource: %v", err)
 			output += string(doc)
 		} else {
@@ -304,8 +302,7 @@ func constructOutput(args injectTemplateArgs) (string, error) {
 		return "", fmt.Errorf("failed parsing inject template: %w", err)
 	}
 	var strBuilder strings.Builder
-	err = tmpl.Execute(&strBuilder, args)
-	if err != nil {
+	if err = tmpl.Execute(&strBuilder, args); err != nil {
 		return "", fmt.Errorf("failed executing inject template: %w", err)
 	}
 
@@ -335,8 +332,7 @@ func IsNamespaceInjectable(ctx context.Context, k8sClient client.Client, namespa
 		Namespace: "",
 		Name:      namespace,
 	}
-	err := k8sClient.Get(ctx, key, eventNamespace)
-	if err != nil {
+	if err := k8sClient.Get(ctx, key, eventNamespace); err != nil {
 		return false, err
 	}
 

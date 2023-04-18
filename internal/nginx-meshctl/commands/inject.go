@@ -166,8 +166,7 @@ func readFileOrURL(filename string) ([]byte, error) {
 			_ = resp.Body.Close()
 		}()
 
-		err = checkResponse(resp)
-		if err != nil {
+		if err = checkResponse(resp); err != nil {
 			return nil, err
 		}
 

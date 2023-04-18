@@ -119,26 +119,22 @@ func createDiskUA(config testDiskConfig) *diskConfig {
 
 func deleteDiskConfigFiles(uaFile string, config *diskConfig) error {
 	if uaFile != "" {
-		err := os.Remove(uaFile)
-		if err != nil {
+		if err := os.Remove(uaFile); err != nil {
 			return err
 		}
 	}
 	if config.CertFilePath != "" {
-		err := os.Remove(config.CertFilePath)
-		if err != nil {
+		if err := os.Remove(config.CertFilePath); err != nil {
 			return err
 		}
 	}
 	if config.KeyFilePath != "" {
-		err := os.Remove(config.KeyFilePath)
-		if err != nil {
+		if err := os.Remove(config.KeyFilePath); err != nil {
 			return err
 		}
 	}
 	if config.BundleFilePath != "" {
-		err := os.Remove(config.BundleFilePath)
-		if err != nil {
+		if err := os.Remove(config.BundleFilePath); err != nil {
 			return err
 		}
 	}
@@ -166,26 +162,22 @@ func createVaultCertAuthUA() *vaultConfig {
 
 func deleteVaultConfigFiles(uaFile string, config *vaultConfig) error {
 	if uaFile != "" {
-		err := os.Remove(uaFile)
-		if err != nil {
+		if err := os.Remove(uaFile); err != nil {
 			return err
 		}
 	}
 	if config.CACertPath != "" {
-		err := os.Remove(config.CACertPath)
-		if err != nil {
+		if err := os.Remove(config.CACertPath); err != nil {
 			return err
 		}
 	}
 	if config.CertAuth.ClientCertPath != "" {
-		err := os.Remove(config.CertAuth.ClientCertPath)
-		if err != nil {
+		if err := os.Remove(config.CertAuth.ClientCertPath); err != nil {
 			return err
 		}
 	}
 	if config.CertAuth.ClientKeyPath != "" {
-		err := os.Remove(config.CertAuth.ClientKeyPath)
-		if err != nil {
+		if err := os.Remove(config.CertAuth.ClientKeyPath); err != nil {
 			return err
 		}
 	}

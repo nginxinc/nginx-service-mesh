@@ -235,11 +235,10 @@ func encodePrivateKey(privKey *rsa.PrivateKey) (*bytes.Buffer, error) {
 	if err != nil {
 		return nil, err
 	}
-	err = pem.Encode(caPrivKeyPem, &pem.Block{
+	if err = pem.Encode(caPrivKeyPem, &pem.Block{
 		Type:  "PRIVATE KEY",
 		Bytes: keyBytes,
-	})
-	if err != nil {
+	}); err != nil {
 		return nil, err
 	}
 
@@ -249,11 +248,10 @@ func encodePrivateKey(privKey *rsa.PrivateKey) (*bytes.Buffer, error) {
 // encodeCert encodes a cert for testing.
 func encodeCert(caBytes []byte) (*bytes.Buffer, error) {
 	caPem := new(bytes.Buffer)
-	err := pem.Encode(caPem, &pem.Block{
+	if err := pem.Encode(caPem, &pem.Block{
 		Type:  "CERTIFICATE",
 		Bytes: caBytes,
-	})
-	if err != nil {
+	}); err != nil {
 		return nil, err
 	}
 
