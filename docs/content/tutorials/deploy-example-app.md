@@ -21,7 +21,7 @@ Notice in the above yaml:
 - All of the service spec port names are populated with the name of the protocol
 - All deployment `containerPort` fields are specified.
 
-This is used in the mesh to identify the kind of traffic being sent and where it is allowed to be received. For more information on deployment and service identification rules, see [identification-rules]( {{< ref "/get-started/configuration.md#identification-rules" >}} ) in the Getting Started section.
+This is used in the mesh to identify the kind of traffic being sent and where it is allowed to be received. For more information on deployment and service identification rules, see [identification-rules]( {{< ref "/get-started/install/configuration.md#identification-rules" >}} ) in the Getting Started section.
 {{< /note >}}
 
 {{< note >}}

@@ -181,7 +181,7 @@ SPIRE maintains a set of keys to sign certificates. NGINX Service Mesh supports 
 - `disk` (default): Signing keys are kept on disk and recoverable in the case of a SPIRE server restart, but keys are vulnerable due to being kept on disk.
 
   {{< note >}}
-  The `disk` key manager plugin only maintains the integrity of the SPIRE CA if persistent storage is being used. For most environments, persistent storage will be deployed by default. See [Persistent Storage]( {{< ref "/get-started/kubernetes-platform/persistent-storage.md" >}} ) setup page for more information on configuring persistent storage in your environment.
+  The `disk` key manager plugin only maintains the integrity of the SPIRE CA if persistent storage is being used. For most environments, persistent storage will be deployed by default. See [Persistent Storage]( {{< ref "/get-started/platform-setup/persistent-storage.md" >}} ) setup page for more information on configuring persistent storage in your environment.
   {{< /note >}}
 
 - `memory`: Maintains the set of signing keys in memory and out of reach from bad actors should they gain access to your SPIRE server, but keys are lost on SPIRE server restart.
@@ -221,7 +221,7 @@ config.nsm.nginx.com/mtls-mode: "off"
 ```
 
 {{< note >}}
-Refer to [NGINX Service Mesh Annotations]( {{< ref "/get-started/configuration.md#pod-annotations" >}}) for more information.
+Refer to [NGINX Service Mesh Annotations]( {{< ref "/get-started/install/configuration.md#pod-annotations" >}}) for more information.
 {{< /note >}}
 
 {{< see-also >}}
@@ -269,7 +269,7 @@ We'll use the [Istio `bookinfo`](https://istio.io/docs/examples/bookinfo/) examp
 
 Not all MTLS misconfiguration errors can be caught when the configuration is loaded. For example, NGINX will not detect if the certificate expires during operation. NGINX responds to requests with invalid certificates with a `400 Bad Request` error. Debugging information is provided in the error log at the `info` level.
 
-Refer to [logging]({{< ref "/get-started/configuration.md#logging">}} ) for information about changing the log level.
+Refer to [logging]({{< ref "/get-started/install/configuration.md#logging">}} ) for information about changing the log level.
 
 ### Update mTLS settings after deployment
 
