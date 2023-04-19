@@ -83,3 +83,7 @@ To suggest an enhancement, please create an issue on GitHub with the label `enha
 Individuals or business entities who contribute to this project must have completed and submitted the [F5® Contributor License Agreement](F5ContributorLicenseAgreement.pdf) prior to their code submission being included in this project.
 To submit, please print out the [F5® Contributor License Agreement](F5ContributorLicenseAgreement.pdf), fill in the required sections, sign, scan, and send executed CLA to kubernetes@nginx.com.
 Please include your github handle in the CLA email.
+
+## Documentation
+
+lorem ipsum
