@@ -4,13 +4,12 @@ on:
   push:
   pull_request:
 
-defaults:
-  run:
-    shell: bash
-
 concurrency:
   group: ${{ github.ref_name }}-docs
   cancel-in-progress: true
+
+permissions:
+  contents: read
 
 jobs:
   markdown-lint:

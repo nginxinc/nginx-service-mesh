@@ -21,9 +21,6 @@ changelog:
 checksum:
   name_template: checksums.txt
 
-sboms:
-  - artifacts: archive
-
 release:
   ids: [nginx-meshctl]
   header: |
@@ -34,7 +31,7 @@ release:
 archives:
   - id: nginx-meshctl
     builds: [nginx-meshctl]
-    name_template: nginx-meshctl_{{ .Version }}_{{ .Os }}_{{ .Arch }}
+    name_template: nginx-meshctl_{{.Version}}_{{.Os}}_{{.Arch}}
     format_overrides:
       - goos: windows
         format: zip
@@ -42,5 +39,3 @@ archives:
 blobs:
   - provider: azblob
     bucket: '{{.Env.AZURE_BUCKET_NAME}}'
-    extra_files:
-      - glob: ./dist/**.sbom
