@@ -20,11 +20,11 @@ require (
 	google.golang.org/grpc v1.54.0
 	gopkg.in/yaml.v2 v2.4.0
 	helm.sh/helm/v3 v3.11.3
-	k8s.io/api v0.26.3
+	k8s.io/api v0.27.1
 	k8s.io/apiextensions-apiserver v0.26.3
-	k8s.io/apimachinery v0.26.3
-	k8s.io/cli-runtime v0.26.3
-	k8s.io/client-go v0.26.3
+	k8s.io/apimachinery v0.27.1
+	k8s.io/cli-runtime v0.27.1
+	k8s.io/client-go v0.27.1
 	k8s.io/kube-aggregator v0.26.3
 	k8s.io/kubectl v0.26.3
 	k8s.io/metrics v0.26.3
@@ -168,7 +168,7 @@ require (
 	k8s.io/kube-openapi v0.0.0-20230327201221-f5883ff37f0c // indirect
 	oras.land/oras-go v1.2.2 // indirect
 	sigs.k8s.io/json v0.0.0-20221116044647-bc3834ca7abd // indirect
-	sigs.k8s.io/kustomize/api v0.12.1 // indirect
-	sigs.k8s.io/kustomize/kyaml v0.13.9 // indirect
+	sigs.k8s.io/kustomize/api v0.13.2 // indirect
+	sigs.k8s.io/kustomize/kyaml v0.14.1 // indirect
 	sigs.k8s.io/structured-merge-diff/v4 v4.2.3 // indirect
 )
