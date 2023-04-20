@@ -33,10 +33,12 @@ nginx-meshctl [flags]
 
 
 ## Completion
+
 ```txt
   nginx-meshctl completion [command]
 ```
-### Available Commands:
+### Available Commands
+
 ```txt
   bash        Generate the autocompletion script for bash
   fish        Generate the autocompletion script for fish
@@ -44,6 +46,7 @@ nginx-meshctl [flags]
   zsh         Generate the autocompletion script for zsh
 ```
 ### Options
+
 ```txt
   -k, --kubeconfig string   path to kubectl config file (default "/Users/<user>/.kube/config")
   -n, --namespace string    NGINX Service Mesh control plane namespace (default "nginx-mesh")
@@ -89,6 +92,7 @@ Deploys NGINX Service Mesh into your Kubernetes cluster
 
 Deploy NGINX Service Mesh into your Kubernetes cluster.
 This command installs the following resources into your Kubernetes cluster by default:
+
 - NGINX Mesh Controller: The Control Plane for the Service Mesh.
 - NGINX Metrics API: SMI-formatted metrics.
 - SPIRE: mTLS service-to-service communication.
