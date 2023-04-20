@@ -37,6 +37,7 @@ nginx-meshctl [flags]
 ```txt
   nginx-meshctl completion [command]
 ```
+
 ### Available Commands
 
 ```txt
@@ -45,6 +46,7 @@ nginx-meshctl [flags]
   powershell  Generate the autocompletion script for powershell
   zsh         Generate the autocompletion script for zsh
 ```
+
 ### Options
 
 ```txt
@@ -201,6 +203,7 @@ Inject the NGINX Service Mesh sidecars into Kubernetes resources
 ### Synopsis
 
 Inject the NGINX Service Mesh sidecar into Kubernetes resources.
+
 - Accepts JSON and YAML formats.
 - Outputs JSON or YAML resources with injected sidecars to stdout.
 
@@ -259,6 +262,7 @@ Remove NGINX Service Mesh from your Kubernetes cluster
 ### Synopsis
 
 Remove the NGINX Service Mesh from your Kubernetes cluster.
+
 - Removes the resources created by the deploy command from the Service Mesh namespace (default: "nginx-mesh").
 - You will need to clean up all resources containing injected sidecar proxies manually.
 
@@ -311,6 +315,7 @@ List the Services registered with NGINX Service Mesh
 ### Synopsis
 
 List the Services registered with NGINX Service Mesh.
+
 - Outputs the Services and their upstream addresses and ports.
 - The list contains only those Services whose Pods contain the NGINX Service Mesh sidecar.
 

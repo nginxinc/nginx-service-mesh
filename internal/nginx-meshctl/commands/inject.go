@@ -20,6 +20,7 @@ import (
 
 const (
 	longInject = `Inject the NGINX Service Mesh sidecar into Kubernetes resources.
+
 - Accepts JSON and YAML formats.
 - Outputs JSON or YAML resources with injected sidecars to stdout.`
 

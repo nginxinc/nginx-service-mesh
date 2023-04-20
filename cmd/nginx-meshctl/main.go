@@ -68,9 +68,9 @@ func generateCompletion(cmd *cobra.Command, docsPath string) error {
 		if strings.Contains(line, "Usage:") {
 			_, err = mdFile.WriteString("\n```\n")
 		} else if strings.Contains(line, "Available Commands:") {
-			_, err = mdFile.WriteString("```\n### Available Commands\n\n```\n")
+			_, err = mdFile.WriteString("```\n\n### Available Commands\n\n```\n")
 		} else if strings.Contains(line, "Global Flags:") {
-			_, err = mdFile.WriteString("```\n### Options\n\n```\n")
+			_, err = mdFile.WriteString("```\n\n### Options\n\n```\n")
 		} else if strings.Contains(line, "for more information about") {
 			_, err = mdFile.WriteString("```\n")
 		} else if len(line) > 0 {

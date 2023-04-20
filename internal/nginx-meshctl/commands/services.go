@@ -15,6 +15,7 @@ import (
 )
 
 const longServices = `List the Services registered with NGINX Service Mesh.
+
 - Outputs the Services and their upstream addresses and ports.
 - The list contains only those Services whose Pods contain the NGINX Service Mesh sidecar.
 `
