@@ -10,7 +10,6 @@ import (
 	aggregator "k8s.io/kube-aggregator/pkg/client/clientset_generated/clientset"
 
 	"github.com/nginxinc/nginx-service-mesh/internal/nginx-meshctl/top"
-	"github.com/nginxinc/nginx-service-mesh/pkg/k8s"
 )
 
 const (
@@ -134,34 +133,6 @@ func Top() *cobra.Command {
 	}
 
 	cmd.Flags().StringVarP(&namespace, "namespace", "n", "default", "namespace where the resource(s) resides")
-	cmd.SetUsageTemplate(topTemplate)
 
 	return cmd
 }
-
-// Custom template for TOP to fix the namespace usage statement (default template shows parent usage).
-var topTemplate = fmt.Sprintf(`Usage:{{if .Runnable}}
-  {{.UseLine}}{{end}}{{if .HasAvailableSubCommands}}
-  {{.CommandPath}} [command]{{end}}{{if gt (len .Aliases) 0}}
-
-Aliases:
-  {{.NameAndAliases}}{{end}}{{if .HasExample}}
-
-Examples:
-{{.Example}}{{end}}{{if .HasAvailableSubCommands}}
-
-Available Commands:{{range .Commands}}{{if (or .IsAvailableCommand (eq .Name "help"))}}
-  {{rpad .Name .NamePadding }} {{.Short}}{{end}}{{end}}{{end}}{{if .HasAvailableLocalFlags}}
-
-Flags:
-{{.LocalFlags.FlagUsages | trimTrailingWhitespaces}}{{end}}
-  -n, --namespace string   namespace where the resource(s) resides (default "default")
-
-Global Flags:
-  -k, --kubeconfig string   path to kubectl config file (default "%s"){{if .HasHelpSubCommands}}
-
-Additional help topics:{{range .Commands}}{{if .IsAdditionalHelpTopicCommand}}
-  {{rpad .CommandPath .CommandPathPadding}} {{.Short}}{{end}}{{end}}{{end}}{{if .HasAvailableSubCommands}}
-
-Use "{{.CommandPath}} [command] --help"  or "{{.CommandPath}} help [command]" for more information about a command.{{end}}
-`, k8s.GetKubeConfig())

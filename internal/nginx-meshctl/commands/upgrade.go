@@ -130,8 +130,6 @@ func Upgrade(version string) *cobra.Command {
 		fmt.Println("error marking flag as hidden: ", err)
 	}
 
-	cmd.SetUsageTemplate(upgradeTemplate)
-
 	return cmd
 }
 
@@ -152,34 +150,6 @@ func loopImageErrorCheck(k8sClient k8s.Client, done chan struct{}) {
 		}
 	}
 }
-
-// Custom template for Upgrade to fix the timeout usage statement (default template shows parent usage).
-var upgradeTemplate = fmt.Sprintf(`Usage:{{if .Runnable}}
-  {{.UseLine}}{{end}}{{if .HasAvailableSubCommands}}
-  {{.CommandPath}} [command]{{end}}{{if gt (len .Aliases) 0}}
-
-Aliases:
-  {{.NameAndAliases}}{{end}}{{if .HasExample}}
-
-Examples:
-{{.Example}}{{end}}{{if .HasAvailableSubCommands}}
-
-Available Commands:{{range .Commands}}{{if (or .IsAvailableCommand (eq .Name "help"))}}
-  {{rpad .Name .NamePadding }} {{.Short}}{{end}}{{end}}{{end}}{{if .HasAvailableLocalFlags}}
-
-Flags:
-{{.LocalFlags.FlagUsages | trimTrailingWhitespaces}}{{end}}
-  -t, --timeout duration   timeout when waiting for an upgrade to finish (default 5m0s)
-
-Global Flags:
-  -k, --kubeconfig string   path to kubectl config file (default "%s")
-  -n, --namespace string    NGINX Service Mesh control plane namespace (default "%s"){{if .HasHelpSubCommands}}
-
-Additional help topics:{{range .Commands}}{{if .IsAdditionalHelpTopicCommand}}
-  {{rpad .CommandPath .CommandPathPadding}} {{.Short}}{{end}}{{end}}{{end}}{{if .HasAvailableSubCommands}}
-
-Use "{{.CommandPath}} [command] --help"  or "{{.CommandPath}} help [command]" for more information about a command.{{end}}
-`, k8s.GetKubeConfig(), meshNamespace)
 
 type upgrader struct {
 	k8sClient k8s.Client

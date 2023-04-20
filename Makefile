@@ -24,6 +24,7 @@ generate: ## Generate Go code for apis and fakes
 	go generate ./...
 	go run sigs.k8s.io/controller-tools/cmd/controller-gen object paths=./pkg/apis/...
 	scripts/generateSchema.sh api/upstream-ca-validation.json > internal/nginx-meshctl/upstreamauthority/schema.go
+	go run -ldflags '-X main.genDocs=true' cmd/nginx-meshctl/main.go > /dev/null
 	$(MAKE) format
 
 .PHONY: output-dir
