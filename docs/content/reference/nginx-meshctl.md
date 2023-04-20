@@ -16,13 +16,13 @@ nginx-meshctl is the CLI utility for the NGINX Service Mesh control plane
 nginx-meshctl is the CLI utility for the NGINX Service Mesh control plane. 
 Requires a connection to a Kubernetes cluster via a kubeconfig.
 
-```
+```txt
 nginx-meshctl [flags]
 ```
 
 ### Options
 
-```
+```txt
   -h, --help                help for nginx-meshctl
   -k, --kubeconfig string   path to kubectl config file (default "/Users/<user>/.kube/config")
   -n, --namespace string    NGINX Service Mesh control plane namespace (default "nginx-mesh")
@@ -33,18 +33,18 @@ nginx-meshctl [flags]
 
 
 ## Completion
-```
+```txt
   nginx-meshctl completion [command]
 ```
 ### Available Commands:
-```
+```txt
   bash        Generate the autocompletion script for bash
   fish        Generate the autocompletion script for fish
   powershell  Generate the autocompletion script for powershell
   zsh         Generate the autocompletion script for zsh
 ```
 ### Options
-```
+```txt
   -k, --kubeconfig string   path to kubectl config file (default "/Users/<user>/.kube/config")
   -n, --namespace string    NGINX Service Mesh control plane namespace (default "nginx-mesh")
   -t, --timeout duration    timeout when communicating with NGINX Service Mesh (default 5s)
@@ -52,25 +52,26 @@ nginx-meshctl [flags]
 
 ## Config
 
+
 Display the NGINX Service Mesh configuration
 
 ### Synopsis
 
 Display the NGINX Service Mesh configuration.
 
-```
+```txt
 nginx-meshctl config [flags]
 ```
 
 ### Options
 
-```
+```txt
   -h, --help   help for config
 ```
 
 ### Options inherited from parent commands
 
-```
+```txt
   -k, --kubeconfig string   path to kubectl config file (default "/Users/<user>/.kube/config")
   -n, --namespace string    NGINX Service Mesh control plane namespace (default "nginx-mesh")
   -t, --timeout duration    timeout when communicating with NGINX Service Mesh (default 5s)
@@ -80,6 +81,7 @@ nginx-meshctl config [flags]
 
 
 ## Deploy
+
 
 Deploys NGINX Service Mesh into your Kubernetes cluster
 
@@ -94,13 +96,13 @@ This command installs the following resources into your Kubernetes cluster by de
 
 
 
-```
+```txt
 nginx-meshctl deploy [flags]
 ```
 
 ### Examples
 
-```
+```txt
 
   Most of the examples below are abbreviated for convenience. The '...' in these 
   examples represents the image references. Be sure to include the image references 
@@ -130,7 +132,7 @@ nginx-meshctl deploy [flags]
 
 ### Options
 
-```
+```txt
       --access-control-mode string        default access control mode for service-to-service communication
                                           		Valid values: allow, deny (default "allow")
       --client-max-body-size string       NGINX client max body size (default "1m")
@@ -178,7 +180,7 @@ nginx-meshctl deploy [flags]
 
 ### Options inherited from parent commands
 
-```
+```txt
   -k, --kubeconfig string   path to kubectl config file (default "/Users/<user>/.kube/config")
   -n, --namespace string    NGINX Service Mesh control plane namespace (default "nginx-mesh")
   -t, --timeout duration    timeout when communicating with NGINX Service Mesh (default 5s)
@@ -189,6 +191,7 @@ nginx-meshctl deploy [flags]
 
 ## Inject
 
+
 Inject the NGINX Service Mesh sidecars into Kubernetes resources
 
 ### Synopsis
@@ -197,13 +200,13 @@ Inject the NGINX Service Mesh sidecar into Kubernetes resources.
 - Accepts JSON and YAML formats.
 - Outputs JSON or YAML resources with injected sidecars to stdout.
 
-```
+```txt
 nginx-meshctl inject [flags]
 ```
 
 ### Examples
 
-```
+```txt
 
   - Inject the resources in my-app.yaml and create in Kubernetes:
 
@@ -225,7 +228,7 @@ nginx-meshctl inject [flags]
 
 ### Options
 
-```
+```txt
   -f, --file string                  the filename that contains the resources you want to inject
                                      		If no filename is provided, input will be taken from stdin
   -h, --help                         help for inject
@@ -235,7 +238,7 @@ nginx-meshctl inject [flags]
 
 ### Options inherited from parent commands
 
-```
+```txt
   -k, --kubeconfig string   path to kubectl config file (default "/Users/<user>/.kube/config")
   -n, --namespace string    NGINX Service Mesh control plane namespace (default "nginx-mesh")
   -t, --timeout duration    timeout when communicating with NGINX Service Mesh (default 5s)
@@ -246,6 +249,7 @@ nginx-meshctl inject [flags]
 
 ## Remove
 
+
 Remove NGINX Service Mesh from your Kubernetes cluster
 
 ### Synopsis
@@ -255,13 +259,13 @@ Remove the NGINX Service Mesh from your Kubernetes cluster.
 - You will need to clean up all resources containing injected sidecar proxies manually.
 
 
-```
+```txt
 nginx-meshctl remove [flags]
 ```
 
 ### Examples
 
-```
+```txt
 
   - Remove the NGINX Service Mesh from the default namespace ('nginx-mesh'):
 		
@@ -279,14 +283,14 @@ nginx-meshctl remove [flags]
 
 ### Options
 
-```
+```txt
   -h, --help   help for remove
   -y, --yes    answer yes for confirmation of removal
 ```
 
 ### Options inherited from parent commands
 
-```
+```txt
   -k, --kubeconfig string   path to kubectl config file (default "/Users/<user>/.kube/config")
   -n, --namespace string    NGINX Service Mesh control plane namespace (default "nginx-mesh")
   -t, --timeout duration    timeout when communicating with NGINX Service Mesh (default 5s)
@@ -297,6 +301,7 @@ nginx-meshctl remove [flags]
 
 ## Services
 
+
 List the Services registered with NGINX Service Mesh
 
 ### Synopsis
@@ -306,19 +311,19 @@ List the Services registered with NGINX Service Mesh.
 - The list contains only those Services whose Pods contain the NGINX Service Mesh sidecar.
 
 
-```
+```txt
 nginx-meshctl services [flags]
 ```
 
 ### Options
 
-```
+```txt
   -h, --help   help for services
 ```
 
 ### Options inherited from parent commands
 
-```
+```txt
   -k, --kubeconfig string   path to kubectl config file (default "/Users/<user>/.kube/config")
   -n, --namespace string    NGINX Service Mesh control plane namespace (default "nginx-mesh")
   -t, --timeout duration    timeout when communicating with NGINX Service Mesh (default 5s)
@@ -329,25 +334,26 @@ nginx-meshctl services [flags]
 
 ## Status
 
+
 Check connection to NGINX Service Mesh
 
 ### Synopsis
 
 Check connection to NGINX Service Mesh.
 
-```
+```txt
 nginx-meshctl status [flags]
 ```
 
 ### Options
 
-```
+```txt
   -h, --help   help for status
 ```
 
 ### Options inherited from parent commands
 
-```
+```txt
   -k, --kubeconfig string   path to kubectl config file (default "/Users/<user>/.kube/config")
   -n, --namespace string    NGINX Service Mesh control plane namespace (default "nginx-mesh")
   -t, --timeout duration    timeout when communicating with NGINX Service Mesh (default 5s)
@@ -358,19 +364,20 @@ nginx-meshctl status [flags]
 
 ## Supportpkg
 
+
 Create an NGINX Service Mesh support package
 
 ### Synopsis
 
 Create an NGINX Service Mesh support package.
 
-```
+```txt
 nginx-meshctl supportpkg [flags]
 ```
 
 ### Options
 
-```
+```txt
       --disable-sidecar-logs   disable the collection of sidecar logs
   -h, --help                   help for supportpkg
   -o, --output string          output directory for supportpkg tarball (default "/Users/<user>/NGINX/nginx-service-mesh")
@@ -378,7 +385,7 @@ nginx-meshctl supportpkg [flags]
 
 ### Options inherited from parent commands
 
-```
+```txt
   -k, --kubeconfig string   path to kubectl config file (default "/Users/<user>/.kube/config")
   -n, --namespace string    NGINX Service Mesh control plane namespace (default "nginx-mesh")
   -t, --timeout duration    timeout when communicating with NGINX Service Mesh (default 5s)
@@ -389,6 +396,7 @@ nginx-meshctl supportpkg [flags]
 
 ## Top
 
+
 Display traffic statistics
 
 ### Synopsis
@@ -397,13 +405,13 @@ Display traffic statistics.
 Top provides information about the incoming and outgoing requests to and from a resource type or name.
 Supported resource types are: Pods, Deployments, StatefulSets, DaemonSets, and Namespaces.
 
-```
+```txt
 nginx-meshctl top [resource-type/resource] [flags]
 ```
 
 ### Examples
 
-```
+```txt
 
   - Display traffic statistics for all Deployments:
 		
@@ -420,14 +428,14 @@ nginx-meshctl top [resource-type/resource] [flags]
 
 ### Options
 
-```
+```txt
   -h, --help               help for top
   -n, --namespace string   namespace where the resource(s) resides (default "default")
 ```
 
 ### Options inherited from parent commands
 
-```
+```txt
   -k, --kubeconfig string   path to kubectl config file (default "/Users/<user>/.kube/config")
   -t, --timeout duration    timeout when communicating with NGINX Service Mesh (default 5s)
 ```
@@ -436,6 +444,7 @@ nginx-meshctl top [resource-type/resource] [flags]
 
 
 ## Upgrade
+
 
 Upgrade NGINX Service Mesh
 
@@ -446,13 +455,13 @@ This command removes the existing NGINX Service Mesh while preserving user confi
 The latest version of NGINX Service Mesh is then deployed using that data.
 
 
-```
+```txt
 nginx-meshctl upgrade [flags]
 ```
 
 ### Options
 
-```
+```txt
   -h, --help                     help for upgrade
       --image-tag string         tag used for pulling images from registry
                                  		Affects: nginx-mesh-cert-reloader, nginx-mesh-controller, nginx-mesh-init, nginx-mesh-metrics, nginx-mesh-sidecar
@@ -464,7 +473,7 @@ nginx-meshctl upgrade [flags]
 
 ### Options inherited from parent commands
 
-```
+```txt
   -k, --kubeconfig string   path to kubectl config file (default "/Users/<user>/.kube/config")
   -n, --namespace string    NGINX Service Mesh control plane namespace (default "nginx-mesh")
 ```
@@ -474,6 +483,7 @@ nginx-meshctl upgrade [flags]
 
 ## Version
 
+
 Display NGINX Service Mesh version
 
 ### Synopsis
@@ -481,19 +491,19 @@ Display NGINX Service Mesh version
 Display NGINX Service Mesh version.
 Will contact the mesh for version and timeout if unable to connect.
 
-```
+```txt
 nginx-meshctl version [flags]
 ```
 
 ### Options
 
-```
+```txt
   -h, --help   help for version
 ```
 
 ### Options inherited from parent commands
 
-```
+```txt
   -k, --kubeconfig string   path to kubectl config file (default "/Users/<user>/.kube/config")
   -n, --namespace string    NGINX Service Mesh control plane namespace (default "nginx-mesh")
   -t, --timeout duration    timeout when communicating with NGINX Service Mesh (default 5s)

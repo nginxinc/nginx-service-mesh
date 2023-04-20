@@ -151,16 +151,19 @@ func generateMarkdown(cmd *cobra.Command) error {
 		return err
 	}
 
+	alt := 1
 	re := regexp.MustCompile("## nginx-meshctl ([a-z]+)")
 	caser := cases.Title(language.English)
 	scanner := bufio.NewScanner(strings.NewReader(buf.String()))
 	for scanner.Scan() {
 		line := strings.ReplaceAll(scanner.Text(), "ke.agarwal", "<user>")
 		if list := re.FindStringSubmatch(line); list != nil {
-			if _, err := finalFile.WriteString("## " + caser.String(list[len(list)-1]) + "\n"); err != nil {
-				return err
+			line = "## " + caser.String(list[len(list)-1]) + "\n"
+		} else if strings.Contains(line, "```") {
+			if alt > 0 {
+				line = strings.ReplaceAll(line, "```", "```txt")
 			}
-			continue
+			alt *= -1
 		}
 		// don't add cobra-generated footer
 		if !strings.Contains(line, "SEE ALSO") && !strings.Contains(line, "* [nginx-meshctl") {
