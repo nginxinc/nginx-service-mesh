@@ -33,12 +33,10 @@ func (ip IgnorePorts) Validate() error {
 		return nil
 	}
 
-	err := validate(ip.Incoming)
-	if err != nil {
+	if err := validate(ip.Incoming); err != nil {
 		return fmt.Errorf("incoming ignore ports are not valid: %w", err)
 	}
-	err = validate(ip.Outgoing)
-	if err != nil {
+	if err := validate(ip.Outgoing); err != nil {
 		return fmt.Errorf("outgoing ignore ports are not valid: %w", err)
 	}
 

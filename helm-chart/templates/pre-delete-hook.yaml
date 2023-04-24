@@ -12,9 +12,9 @@ imagePullSecrets:
 - name: {{ include "registry-key-name" . }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRole
+kind: Role
 metadata:
-  name: pre-delete.builtin.nsm.nginx
+  name: pre-delete
   labels:
     app.kubernetes.io/part-of: nginx-service-mesh
   annotations:
@@ -22,14 +22,19 @@ metadata:
     "helm.sh/hook-delete-policy": hook-succeeded,hook-failed
     "helm.sh/hook-weight": "-5"
 rules:
+- apiGroups: [""]
+  resources: ["configmaps"]
+  resourceNames: ["meshconfig"]
+  verbs: ["get", "patch"]
 - apiGroups: ["nsm.nginx.com"]
-  resources: ["clear"]
-  verbs: ["create"]
+  resources: ["meshconfigs"]
+  resourceNames: ["nginx-mesh-config"]
+  verbs: ["get", "list"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRoleBinding
+kind: RoleBinding
 metadata:
-  name: pre-delete.builtin.nsm.nginx
+  name: pre-delete
   labels:
     app.kubernetes.io/part-of: nginx-service-mesh
   annotations:
@@ -38,8 +43,8 @@ metadata:
     "helm.sh/hook-weight": "-5"
 roleRef:
   apiGroup: rbac.authorization.k8s.io
-  kind: ClusterRole
-  name: pre-delete.builtin.nsm.nginx
+  kind: Role
+  name: pre-delete
 subjects:
 - kind: ServiceAccount
   name: pre-delete
@@ -74,7 +79,6 @@ spec:
         - /bin/sh
         - -c
         - |
-          echo "" | kubectl create --raw /apis/nsm.nginx.com/v1alpha1/clear -f -
+          kubectl -n {{ .Release.Namespace }} patch configmap/meshconfig --type merge -p '{"data":{"transparent": "true"}}'
+          kubectl -n {{ .Release.Namespace }} wait --timeout 15s --for=jsonpath='{.status.transparent}'=true meshconfigs/nginx-mesh-config
           exit 0
-      imagePullSecrets:
-      - name: {{ include "registry-key-name" . }}

@@ -565,8 +565,8 @@ control2   0/1              0          <unknown>   <none>   <none>   <none>     
 				Name:      mesh.MeshConfigMap,
 				Namespace: namespace,
 			},
-			BinaryData: map[string][]byte{
-				mesh.MeshConfigFileName: []byte("{\"field\": \"value\"}"),
+			Data: map[string]string{
+				mesh.MeshConfigFileName: "field: value",
 			},
 		}
 
@@ -580,7 +580,7 @@ control2   0/1              0          <unknown>   <none>   <none>   <none>     
 
 		blob, err := os.ReadFile(filepath.Join(tmpDir, mesh.MeshConfigFileName))
 		Expect(err).ToNot(HaveOccurred())
-		Expect(string(blob)).To(Equal("{\n\t\"field\": \"value\"\n}"))
+		Expect(string(blob)).To(Equal("field: value"))
 
 		// delete CM, should get error log
 		Expect(k8sConfig.ClientSet().CoreV1().ConfigMaps(namespace).Delete(

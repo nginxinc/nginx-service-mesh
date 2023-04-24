@@ -65,9 +65,9 @@ var _ = Describe("Deploy", func() {
 
 		// verify that some values are set
 		Expect(values.Environment).To(Equal(string(mesh.Kubernetes)))
-		Expect(values.NGINXLBMethod).To(Equal(string(mesh.MeshConfigLoadBalancingMethodLeastTime)))
-		Expect(values.MTLS.Mode).To(Equal(string(mesh.Permissive)))
-		Expect(values.MTLS.CAKeyType).To(Equal(string(mesh.EcP256)))
+		Expect(values.NGINXLBMethod).To(Equal(mesh.LeastTime))
+		Expect(values.MTLS.Mode).To(Equal(mesh.MtlsModePermissive))
+		Expect(values.MTLS.CAKeyType).To(Equal("ec-p256"))
 
 		Expect(len(files)).To(BeNumerically(">", 0))
 	})
@@ -105,22 +105,22 @@ var _ = Describe("Deploy", func() {
 
 	It("substitutes development images", func() {
 		images := customImages{
-			mesh.MeshAPI: {
-				file:  "templates/nginx-mesh-api.yaml",
-				value: "mesh-api-image",
+			mesh.MeshController: {
+				file:  "templates/nginx-mesh-controller.yaml",
+				value: "mesh-controller-image",
 			},
 			mesh.MeshSidecar: {
-				file:  "configs/mesh-config.conf",
+				file:  "configs/meshconfig.conf",
 				value: "sidecar-image",
 			},
 		}
 		files := []*loader.BufferedFile{
 			{
-				Name: "templates/nginx-mesh-api.yaml",
-				Data: []byte("{{ .Values.registry.server }}/nginx-mesh-api:{{ .Values.registry.imageTag }}"),
+				Name: "templates/nginx-mesh-controller.yaml",
+				Data: []byte("{{ .Values.registry.server }}/nginx-mesh-controller:{{ .Values.registry.imageTag }}"),
 			},
 			{
-				Name: "configs/mesh-config.conf",
+				Name: "configs/meshconfig.conf",
 				Data: []byte("{{ printf \"%s/nginx-mesh-sidecar:%s\" .Values.registry.server .Values.registry.imageTag | quote }}"),
 			},
 			{
@@ -130,8 +130,8 @@ var _ = Describe("Deploy", func() {
 		}
 
 		subImages(images, files)
-		Expect(string(files[0].Data)).To(Equal("mesh-api-image"))
-		Expect(string(files[1].Data)).To(Equal("sidecar-image"))
+		Expect(string(files[0].Data)).To(Equal("\"mesh-controller-image\""))
+		Expect(string(files[1].Data)).To(Equal("\"sidecar-image\""))
 		Expect(string(files[2].Data)).To(Equal("{{ .Values.registry.server }}/nginx-mesh-metrics:{{ .Values.registry.imageTag }}"))
 	})
 	It("can validate an exporter config", func() {

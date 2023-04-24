@@ -10,17 +10,14 @@ docs: "DOCS-719"
 
 You can use access control to shape traffic within your cluster and mesh. By default all services within the mesh can freely communicate, which might not be appropriate for larger production grade microservices. If traffic shaping is necessary, you can use access control resources to allow traffic to and from specific source and destination endpoints. You can apply basic rules at the L4 layer, and apply more complex, granular rules at the L7 HTTP layer.
 
-The access control mode can be [set to `deny` at the global level]( {{< ref "/get-started/configuration.md#access-control" >}} ), which prevents any traffic from flowing until access control policies are defined. This tutorial assumes that the access control mode is set to the default value of `allow`.
+The access control mode can be [set to `deny` at the global level]( {{< ref "/get-started/install/configuration.md#access-control" >}} ), which prevents any traffic from flowing until access control policies are defined. This tutorial assumes that the access control mode is set to the default value of `allow`.
 
 ## Before You Begin
 
 1. Install [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/).
-2. [Deploy NGINX Service Mesh]({{< ref "/get-started/install.md" >}}) in your Kubernetes cluster.
-   {{< note >}}
-   This guide assumes that automatic injection is activated either cluster-wide or for the `default` namespace.
-   If you have disabled automatic injection, you must [manually inject]({{< ref "/guides/inject-sidecar-proxy.md" >}}) the application resources before creating them.
-   {{< /note >}}
-3. Download all of the example files:
+1. [Deploy NGINX Service Mesh]({{< ref "/get-started/install/install.md" >}}) in your Kubernetes cluster.
+1. Enable [automatic sidecar injection]( {{< ref "/guides/inject-sidecar-proxy.md#automatic-proxy-injection" >}} ) for the `default` namespace.
+1. Download all of the example files:
 
     - {{< fa "download" >}} {{< link "/examples/dest-svc.yaml" >}}
     - {{< fa "download" >}} {{< link "/examples/access.yaml" >}}
@@ -54,9 +51,7 @@ ServiceAccount resources are used to classify sets of workloads for access contr
     dest-svc-69f4b86fb4-r8wzh            2/2     Running   0          2m
     ```
 
-    {{< note>}}
-For other resource types -- for example, Deployments, ConfigMaps, Services, or ServiceAccounts -- use `kubectl get` for each type as appropriate.
-    {{< /note>}}
+    For other resource types -- for example, Deployments, ConfigMaps, Services, or ServiceAccounts -- use `kubectl get` for each type as appropriate.
 
 1. Once the destination workload is ready, we can generate unfiltered traffic. Use a separate terminal window in order to watch traffic flow as a request driver begins sending requests.
 

@@ -79,7 +79,7 @@ If you would like to enable egress traffic, refer to the [Enable Egress](#enable
 
 Before installing NGINX Ingress Controller, you must install NGINX Service Mesh with an [mTLS mode]({{< ref "/guides/secure-traffic-mtls.md" >}}) of `permissive`, or `strict`.
 NGINX Ingress Controller will try to fetch certs from the SPIRE agent on startup. If it cannot reach the SPIRE agent, startup will fail, and NGINX Ingress Controller will go into CrashLoopBackoff state. The state will resolve once NGINX Ingress Controller connects to the SPIRE agent.
-For instructions on how to install NGINX Service Mesh, see the [Installation]({{< ref "/get-started/install.md" >}}) guide.
+For instructions on how to install NGINX Service Mesh, see the [Installation]({{< ref "/get-started/install/install.md" >}}) guide.
 
 {{< note >}}
 Before continuing, check the NGINX Ingress Controller [supported versions](#supported-versions) section and make sure you are working off the correct release tag for all NGINX Ingress Controller instructions.
@@ -161,7 +161,7 @@ Before continuing, check the NGINX Ingress Controller [supported versions](#supp
 
 Before installing NGINX Ingress Controller, you must install NGINX Service Mesh with an [mTLS mode]({{< ref "/guides/secure-traffic-mtls.md" >}}) of `permissive`, or `strict`.
 NGINX Ingress Controller will try to fetch certs from the SPIRE agent on startup. If it cannot reach the SPIRE agent, startup will fail, and NGINX Ingress Controller will go into CrashLoopBackoff state. The state will resolve once NGINX Ingress Controller connects to the SPIRE agent.
-For instructions on how to install NGINX Service Mesh, see the [Installation]({{< ref "/get-started/install.md" >}}) guide.
+For instructions on how to install NGINX Service Mesh, see the [Installation]({{< ref "/get-started/install/install.md" >}}) guide.
    
 {{< note >}} NGINX Plus Ingress Controller v2.2+ or NGINX OSS Ingress Controller v3.0+ is required to deploy via Helm and integrate with NGINX Service Mesh. {{< /note >}}
 
@@ -439,7 +439,7 @@ NGINX Service Mesh version v1.7+ provides a mutating webhook that detects and co
       name: spire-agent-socket
     ```
 
-    For more information as to why a CSI Driver is needed for loading the agent socket in OpenShift, see [Introduction]({{< ref "/get-started/openshift-platform/considerations#introduction" >}}) in the OpenShift Considerations doc.
+    For more information as to why a CSI Driver is needed for loading the agent socket in OpenShift, see [Introduction]({{< ref "/get-started/platform-setup/openshift.md#introduction" >}}) in the OpenShift Considerations doc.
 
 1. NGINX Service Mesh adds a command line argument
 

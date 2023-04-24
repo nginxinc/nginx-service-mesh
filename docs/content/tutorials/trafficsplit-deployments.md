@@ -14,14 +14,12 @@ You can use traffic splitting for most deployment scenarios, including canary, b
 ## Before You Begin
 
 1. Install [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/).
-1. Set up a Kubernetes cluster with [NGINX Service Mesh]( {{< ref "/get-started/install.md" >}} ) deployed. This guide assumes that automatic injection is activated either cluster-wide or for the `default` namespace.
-   If you have automatic injection turned off, you must [manually inject]({{< ref "/guides/inject-sidecar-proxy.md#manual-proxy-injection" >}}) the application resources before creating them.
-   {{< note >}}
-   This tutorial assumes traffic can be sent to injected Pods and Services without mTLS sessions. For the purposes of this tutorial NGINX Service Mesh must be deployed with `--mtls-mode` in the `permissive` or `off` states.
-   {{< /note >}}
-   {{< note >}}
-   If you want to view metrics, ensure that you have deployed Prometheus and Grafana and then configure NGINX Service Mesh to integrate with them when installing. Refer to the [Monitoring and Tracing]( {{< ref "/guides/monitoring-and-tracing.md" >}} ) guide for instructions.
-   {{< /note >}}
+1. (Optional) If you want to view metrics, ensure that you have deployed Prometheus and Grafana.
+  Refer to the [Monitoring and Tracing]( {{< ref "/guides/monitoring-and-tracing.md" >}} ) guide for instructions.
+1. Set up a Kubernetes cluster with [NGINX Service Mesh]( {{< ref "/get-started/install/install.md" >}} ) deployed with the following configuration:
+    - `--mtls-mode` is set to `permissive` or `off` states.
+    - (Optional) `--prometheus-address` is pointed to the Prometheus instance you created above.
+1. Enable [automatic sidecar injection]( {{< ref "/guides/inject-sidecar-proxy.md#automatic-proxy-injection" >}} ) for the `default` namespace.
 1. Download all the example files:
 
     - {{< fa "download" >}} {{< link "/examples/traffic-split/gateway.yaml" "gateway.yaml" >}}
@@ -223,7 +221,7 @@ For this version of the target app, let's try using a canary deployment strategy
    **Command:**
 
    ```bash
-   kubectl delete -f target-v2.1-successful.yaml
+   kubectl delete -f target-v2.0-failing.yaml
    ```
 
 ### Deploy a New Version of the Target App using a Blue-Green Deployment

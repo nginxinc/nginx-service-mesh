@@ -30,14 +30,14 @@ import (
 )
 
 const (
-	meshAPIConnectionFailedInstructions = `Connection to NGINX Service Mesh API Server failed.
-	Check the logs of the nginx-mesh-api container in namespace %s for more details.`
+	meshControllerConnectionFailedInstructions = `Connection to NGINX Service Mesh failed.
+	Check the logs of the nginx-mesh-controller container in namespace %s for more details.`
 
-	deployMeshAPIRetries = 60
+	deployMeshControllerRetries = 60
 
 	longDeploy = `Deploy NGINX Service Mesh into your Kubernetes cluster.
 This command installs the following resources into your Kubernetes cluster by default:
-- NGINX Mesh API: The Control Plane for the Service Mesh.
+- NGINX Mesh Controller: The Control Plane for the Service Mesh.
 - NGINX Metrics API: SMI-formatted metrics.
 - SPIRE: mTLS service-to-service communication.
 - NATS: Message bus.
@@ -91,7 +91,7 @@ func Deploy() *cobra.Command {
 		dryRun                bool
 		registryKeyFile       string
 		mtlsUpstreamFile      string
-		imageMeshAPI          string
+		imageMeshController   string
 		imageMetricsAPI       string
 		imageMeshCertReloader string
 		imageSidecar          string
@@ -151,9 +151,9 @@ func Deploy() *cobra.Command {
 
 		// substitute custom images if specified (dev mode)
 		images := customImages{
-			mesh.MeshAPI: {
-				file:  "templates/nginx-mesh-api.yaml",
-				value: imageMeshAPI,
+			mesh.MeshController: {
+				file:  "templates/nginx-mesh-controller.yaml",
+				value: imageMeshController,
 			},
 			meshMetrics: {
 				file:  "templates/nginx-mesh-metrics.yaml",
@@ -164,11 +164,11 @@ func Deploy() *cobra.Command {
 				value: imageMeshCertReloader,
 			},
 			mesh.MeshSidecar: {
-				file:  "configs/mesh-config.conf",
+				file:  "configs/meshconfig.conf",
 				value: imageSidecar,
 			},
 			mesh.MeshSidecarInit: {
-				file:  "configs/mesh-config.conf",
+				file:  "configs/meshconfig.conf",
 				value: imageSidecarInit,
 			},
 		}
@@ -184,8 +184,7 @@ func Deploy() *cobra.Command {
 		false,
 		"set imagePullPolicy to be 'always'",
 	)
-	err = cmd.Flags().MarkHidden("pull-always")
-	if err != nil {
+	if err = cmd.Flags().MarkHidden("pull-always"); err != nil {
 		fmt.Println("error marking flag as hidden: ", err)
 	}
 	cmd.Flags().BoolVar(
@@ -195,8 +194,7 @@ func Deploy() *cobra.Command {
 		`render the manifest and print to stdout
 		Doesn't deploy anything`,
 	)
-	err = cmd.Flags().MarkHidden("dry-run")
-	if err != nil {
+	if err = cmd.Flags().MarkHidden("dry-run"); err != nil {
 		fmt.Println("error marking flag as hidden: ", err)
 	}
 	cmd.Flags().StringVar(
@@ -207,43 +205,38 @@ func Deploy() *cobra.Command {
 		Address should be in the format <service-name>.<namespace>:<service-port>`,
 	)
 	cmd.Flags().StringVar(
-		&imageMeshAPI,
-		"nginx-mesh-api-image",
-		imageMeshAPI, "NGINX Service Mesh API image URI")
-	err = cmd.Flags().MarkHidden("nginx-mesh-api-image")
-	if err != nil {
+		&imageMeshController,
+		"nginx-mesh-controller-image",
+		imageMeshController, "NGINX Service Mesh Controller image URI")
+	if err = cmd.Flags().MarkHidden("nginx-mesh-controller-image"); err != nil {
 		fmt.Println("error marking flag as hidden: ", err)
 	}
 	cmd.Flags().StringVar(
 		&imageMetricsAPI,
 		"nginx-mesh-metrics-image",
 		imageMetricsAPI, "NGINX Service Mesh metrics API image URI")
-	err = cmd.Flags().MarkHidden("nginx-mesh-metrics-image")
-	if err != nil {
+	if err = cmd.Flags().MarkHidden("nginx-mesh-metrics-image"); err != nil {
 		fmt.Println("error marking flag as hidden: ", err)
 	}
 	cmd.Flags().StringVar(
 		&imageSidecar,
 		"nginx-mesh-sidecar-image",
 		imageSidecar, "NGINX Service Mesh sidecar image URI")
-	err = cmd.Flags().MarkHidden("nginx-mesh-sidecar-image")
-	if err != nil {
+	if err = cmd.Flags().MarkHidden("nginx-mesh-sidecar-image"); err != nil {
 		fmt.Println("error marking flag as hidden: ", err)
 	}
 	cmd.Flags().StringVar(
 		&imageSidecarInit,
 		"nginx-mesh-init-image",
 		imageSidecarInit, "NGINX Service Mesh init image URI")
-	err = cmd.Flags().MarkHidden("nginx-mesh-init-image")
-	if err != nil {
+	if err = cmd.Flags().MarkHidden("nginx-mesh-init-image"); err != nil {
 		fmt.Println("error marking flag as hidden: ", err)
 	}
 	cmd.Flags().StringVar(
 		&imageMeshCertReloader,
 		"cert-reloader-image",
 		imageMeshCertReloader, "NGINX Service Mesh cert reloader image URI")
-	err = cmd.Flags().MarkHidden("cert-reloader-image")
-	if err != nil {
+	if err = cmd.Flags().MarkHidden("cert-reloader-image"); err != nil {
 		fmt.Println("error marking flag as hidden: ", err)
 	}
 	cmd.Flags().StringVar(
@@ -257,7 +250,7 @@ func Deploy() *cobra.Command {
 		"access-control-mode",
 		defaultValues.AccessControlMode,
 		`default access control mode for service-to-service communication
-		Valid values: `+string(mesh.MeshConfigAccessControlModeAllow)+", "+string(mesh.MeshConfigAccessControlModeDeny),
+		Valid values: `+formatValues(mesh.AccessControlModes),
 	)
 	cmd.Flags().StringVar(
 		&values.MTLS.Mode,
@@ -351,8 +344,7 @@ func Deploy() *cobra.Command {
 		`automatically remove Service Mesh pods if an error occurs during deployment
 		This is a hidden flag for development purposes`,
 	)
-	err = cmd.Flags().MarkHidden("cleanup-on-error")
-	if err != nil {
+	if err = cmd.Flags().MarkHidden("cleanup-on-error"); err != nil {
 		fmt.Println("error marking flag as hidden: ", err)
 	}
 	cmd.Flags().StringVar(
@@ -538,8 +530,7 @@ func startDeploy(k8sClient k8s.Client, deployer *deploy.Deployer, cleanupOnError
 			default:
 				// sleep briefly to prevent tight loop
 				time.Sleep(100 * time.Millisecond) //nolint:gomnd // not worth another global
-				err := checkImagePullErrors(k8sClient)
-				if err != nil {
+				if err := checkImagePullErrors(k8sClient); err != nil {
 					fmt.Println(err.Error())
 					if cleanupOnError {
 						cleanup(k8sClient)
@@ -551,8 +542,7 @@ func startDeploy(k8sClient k8s.Client, deployer *deploy.Deployer, cleanupOnError
 		}
 	}()
 
-	_, err := deployer.Deploy()
-	if err != nil {
+	if _, err := deployer.Deploy(); err != nil {
 		var alreadyExists meshErrors.AlreadyExistsError
 		if errors.Is(err, meshErrors.ErrInput) ||
 			errors.As(err, &alreadyExists) ||
@@ -582,10 +572,10 @@ func startDeploy(k8sClient k8s.Client, deployer *deploy.Deployer, cleanupOnError
 	}
 	signalHandler.Check()
 
-	fmt.Println("All resources created. Testing the connection to the Service Mesh API Server...")
+	fmt.Println("All resources created. Testing the connection to the Service Mesh control plane...")
 	// test connection
-	err = health.TestMeshAPIConnection(k8sClient.Config(), deployMeshAPIRetries, meshTimeout)
-	if err != nil {
+	if err := health.TestMeshControllerConnection(
+		k8sClient.Client(), k8sClient.Namespace(), deployMeshControllerRetries); err != nil {
 		return formatConnectionError(k8sClient, err)
 	}
 	done <- struct{}{}
@@ -597,7 +587,7 @@ func startDeploy(k8sClient k8s.Client, deployer *deploy.Deployer, cleanupOnError
 
 func formatConnectionError(k8sClient k8s.Client, err error) error {
 	ns := k8sClient.Namespace()
-	baseMsg := fmt.Sprintf(meshAPIConnectionFailedInstructions, ns)
+	baseMsg := fmt.Sprintf(meshControllerConnectionFailedInstructions, ns)
 	baseErr := fmt.Errorf("%s: %w", baseMsg, err)
 	events, err := k8sClient.ClientSet().CoreV1().Events(ns).List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
@@ -714,7 +704,7 @@ func subImages(images customImages, files []*loader.BufferedFile) {
 			for _, file := range files {
 				if file.Name == cfg.file {
 					str := string(file.Data)
-					str = strings.ReplaceAll(str, oldName, cfg.value)
+					str = strings.ReplaceAll(str, oldName, strconv.Quote(cfg.value))
 					file.Data = []byte(str)
 
 					break
@@ -725,14 +715,14 @@ func subImages(images customImages, files []*loader.BufferedFile) {
 }
 
 func formatLogLevels() string {
-	return string(mesh.MeshConfigNginxErrorLogLevelDebug) + ", " +
-		string(mesh.MeshConfigNginxErrorLogLevelInfo) + ", " +
-		string(mesh.MeshConfigNginxErrorLogLevelNotice) + ", " +
-		string(mesh.MeshConfigNginxErrorLogLevelWarn) + ", " +
-		string(mesh.MeshConfigNginxErrorLogLevelError) + ", " +
-		string(mesh.MeshConfigNginxErrorLogLevelCrit) + ", " +
-		string(mesh.MeshConfigNginxErrorLogLevelAlert) + ", " +
-		string(mesh.MeshConfigNginxErrorLogLevelEmerg)
+	return mesh.NginxErrorLogLevelDebug + ", " +
+		mesh.NginxErrorLogLevelInfo + ", " +
+		mesh.NginxErrorLogLevelNotice + ", " +
+		mesh.NginxErrorLogLevelWarn + ", " +
+		mesh.NginxErrorLogLevelError + ", " +
+		mesh.NginxErrorLogLevelCrit + ", " +
+		mesh.NginxErrorLogLevelAlert + ", " +
+		mesh.NginxErrorLogLevelEmerg
 }
 
 func formatValues(values map[string]struct{}) string {
@@ -757,7 +747,7 @@ var spireServerKeyManagerOptions = map[string]struct{}{
 }
 
 var registryServerImages = map[string]struct{}{
-	"nginx-mesh-api":           {},
+	"nginx-mesh-controller":    {},
 	"nginx-mesh-cert-reloader": {},
 	"nginx-mesh-init":          {},
 	"nginx-mesh-metrics":       {},

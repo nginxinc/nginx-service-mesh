@@ -212,13 +212,12 @@ func (df *DataFetcher) writeControlPlanePodList(podList *v1.PodList) {
 		Wide: true,
 	})
 	out := bytes.NewBuffer([]byte{})
-	err = printer.PrintObj(podTable, out)
-	if err != nil {
+	if err = printer.PrintObj(podTable, out); err != nil {
 		log.Printf("- could not print Pod Table: %v\n", err)
 
 		return
 	}
-	if err := df.writer.Write(filepath.Join(df.controlPlaneDir, podListFile), out.String()); err != nil {
+	if err = df.writer.Write(filepath.Join(df.controlPlaneDir, podListFile), out.String()); err != nil {
 		log.Printf("- could not write PodList: %v", err)
 	}
 }
@@ -323,8 +322,7 @@ func (df *DataFetcher) writeControlPlaneSecrets() {
 		return
 	}
 
-	err = df.createYamlFromList(secrets, filepath.Join(df.controlPlaneDir, secretsFile))
-	if err != nil {
+	if err = df.createYamlFromList(secrets, filepath.Join(df.controlPlaneDir, secretsFile)); err != nil {
 		log.Printf("- could not write Secrets to file: %v", err)
 	}
 }
@@ -362,8 +360,7 @@ func (df *DataFetcher) writeControlPlaneEvents() {
 		Wide: true,
 	})
 	out := bytes.NewBuffer([]byte{})
-	err = printer.PrintObj(eventTable, out)
-	if err != nil {
+	if err = printer.PrintObj(eventTable, out); err != nil {
 		log.Printf("- could not print Event Table: %v\n", err)
 
 		return
@@ -388,8 +385,8 @@ func (df *DataFetcher) writeControlPlaneValidatingWebhookConfigurations() {
 		return
 	}
 
-	err = df.createYamlFromList(validatingWebhookConfigurations, filepath.Join(df.directory, validatingWebhookConfigurationsFile))
-	if err != nil {
+	if err = df.createYamlFromList(
+		validatingWebhookConfigurations, filepath.Join(df.directory, validatingWebhookConfigurationsFile)); err != nil {
 		log.Printf("- could not write ValidatingWebhookConfigurations to file: %v", err)
 	}
 }
@@ -409,8 +406,8 @@ func (df *DataFetcher) writeControlPlaneMutatingWebhookConfigurations() {
 		return
 	}
 
-	err = df.createYamlFromList(mutatingWebhookConfigurations, filepath.Join(df.directory, mutatingWebhookConfigurationsFile))
-	if err != nil {
+	if err = df.createYamlFromList(
+		mutatingWebhookConfigurations, filepath.Join(df.directory, mutatingWebhookConfigurationsFile)); err != nil {
 		log.Printf("- could not write MutatingWebhookConfigurations to file: %v", err)
 	}
 }
@@ -427,8 +424,7 @@ func (df *DataFetcher) writeControlPlaneClusterRoles() {
 		return
 	}
 
-	err = df.createYamlFromList(clusterRoles, filepath.Join(df.directory, clusterRolesFile))
-	if err != nil {
+	if err = df.createYamlFromList(clusterRoles, filepath.Join(df.directory, clusterRolesFile)); err != nil {
 		log.Printf("- could not write ClusterRoles to file: %v", err)
 	}
 }
@@ -445,8 +441,7 @@ func (df *DataFetcher) writeControlPlaneClusterRoleBindings() {
 		return
 	}
 
-	err = df.createYamlFromList(clusterRoleBindings, filepath.Join(df.directory, clusterRoleBindingsFile))
-	if err != nil {
+	if err = df.createYamlFromList(clusterRoleBindings, filepath.Join(df.directory, clusterRoleBindingsFile)); err != nil {
 		log.Printf("- could not write ClusterRoleBindings to file: %v", err)
 	}
 }
@@ -463,8 +458,7 @@ func (df *DataFetcher) writeControlPlaneCRDs() {
 		return
 	}
 
-	err = df.createYamlFromList(crds, filepath.Join(df.directory, crdsFile))
-	if err != nil {
+	if err = df.createYamlFromList(crds, filepath.Join(df.directory, crdsFile)); err != nil {
 		log.Printf("- could not write CRDs to file: %v", err)
 	}
 }
@@ -481,8 +475,7 @@ func (df *DataFetcher) writeControlPlaneAPIServices() {
 		return
 	}
 
-	err = df.createYamlFromList(apiServices, filepath.Join(df.directory, apiServicesFile))
-	if err != nil {
+	if err = df.createYamlFromList(apiServices, filepath.Join(df.directory, apiServicesFile)); err != nil {
 		log.Printf("- could not write APIServices to file: %v", err)
 	}
 }
@@ -498,14 +491,8 @@ func (df *DataFetcher) writeMeshConfig() {
 		return
 	}
 
-	var buf bytes.Buffer
-	if err := json.Indent(&buf, meshCfg.BinaryData[mesh.MeshConfigFileName], "", "\t"); err != nil {
-		log.Printf("- could not format mesh configuration: %v", err)
-
-		return
-	}
-
-	if err := df.writer.Write(filepath.Join(df.directory, mesh.MeshConfigFileName), buf.String()); err != nil {
+	if err := df.writer.Write(
+		filepath.Join(df.directory, mesh.MeshConfigFileName), meshCfg.Data[mesh.MeshConfigFileName]); err != nil {
 		log.Printf("- could not write mesh configuration to file: %v", err)
 	}
 }
@@ -725,8 +712,7 @@ func (df *DataFetcher) writeTrafficPolicies() {
 			return
 		}
 
-		err = df.createYamlFromList(list, filepath.Join(df.directory, policy.file))
-		if err != nil {
+		if err = df.createYamlFromList(list, filepath.Join(df.directory, policy.file)); err != nil {
 			log.Printf("- could not write %s to file: %v", policy.resource.Resource, err)
 		}
 	}

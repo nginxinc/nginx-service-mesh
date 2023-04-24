@@ -7,7 +7,7 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-func TestUtils(t *testing.T) {
+func TestHelm(t *testing.T) {
 	t.Parallel()
 	RegisterFailHandler(Fail)
 	RunSpecs(t, "Helm Suite")

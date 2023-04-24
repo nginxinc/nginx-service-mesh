@@ -100,7 +100,7 @@ Requires a connection to a Kubernetes cluster via a kubeconfig.`,
 		&meshTimeout,
 		"timeout",
 		"t",
-		meshTimeout, "timeout when communicating with NGINX Service Mesh API Server")
+		meshTimeout, "timeout when communicating with NGINX Service Mesh")
 
 	cmd.PersistentFlags().BoolVarP(
 		&debug,
@@ -112,8 +112,7 @@ Requires a connection to a Kubernetes cluster via a kubeconfig.`,
 	cmd.SetHelpCommand(Help())
 
 	// hide debug flag from user
-	err := cmd.PersistentFlags().MarkHidden("debug")
-	if err != nil {
+	if err := cmd.PersistentFlags().MarkHidden("debug"); err != nil {
 		fmt.Println("Failed to mark debug flag as hidden, error: ", err)
 	}
 
@@ -141,28 +140,30 @@ Simply type nginx-meshctl help [path to command] for full details.`,
 				cmd.InitDefaultHelpFlag() // make possible 'help' flag to be shown
 				err = cmd.Help()
 			}
-
-			return fmt.Errorf("error running Help command: %w", err)
+			if err != nil {
+				return fmt.Errorf("error running Help command: %w", err)
+			}
+			return nil
 		},
 	}
 
 	return cmd
 }
 
-// NewStatusCmd creates a status command to connect to the mesh-api.
+// NewStatusCmd creates a status command to connect to the mesh.
 func NewStatusCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "status",
-		Short: "Check connection to NGINX Service Mesh API",
-		Long:  `Check connection to NGINX Service Mesh API.`,
+		Short: "Check connection to NGINX Service Mesh",
+		Long:  `Check connection to NGINX Service Mesh.`,
 	}
 
 	cmd.PersistentPreRunE = defaultPreRunFunc()
 	cmd.RunE = func(c *cobra.Command, args []string) error {
 		fmt.Println("Checking NGINX Service Mesh setup....")
-		err := health.TestMeshAPIConnection(initK8sClient.Config(), 1, meshTimeout)
+		err := health.TestMeshControllerConnection(initK8sClient.Client(), initK8sClient.Namespace(), 1)
 		if err == nil {
-			fmt.Println("Connection to NGINX Service Mesh API was successful.")
+			fmt.Println("Connection to NGINX Service Mesh was successful.")
 		}
 
 		return err
@@ -177,7 +178,7 @@ func NewVersionCmd(cmdName, version, commit string) *cobra.Command {
 		Use:   "version",
 		Short: "Display NGINX Service Mesh version",
 		Long: `Display NGINX Service Mesh version.
-Will contact Mesh API Server for version and timeout if unable to connect.`,
+Will contact the mesh for version and timeout if unable to connect.`,
 	}
 
 	cmd.Run = func(c *cobra.Command, args []string) {
@@ -235,8 +236,7 @@ func getComponentVersions(config *rest.Config, namespace string, timeout time.Du
 		return "", err
 	}
 	defer func() {
-		closeErr := resp.Body.Close()
-		if closeErr != nil {
+		if closeErr := resp.Body.Close(); closeErr != nil {
 			fmt.Println(closeErr)
 		}
 	}()
@@ -246,8 +246,7 @@ func getComponentVersions(config *rest.Config, namespace string, timeout time.Du
 	}
 
 	versions := make(map[string][]string)
-	err = json.NewDecoder(resp.Body).Decode(&versions)
-	if err != nil {
+	if err = json.NewDecoder(resp.Body).Decode(&versions); err != nil {
 		return "", fmt.Errorf("error decoding API response: %w", err)
 	}
 
@@ -262,7 +261,11 @@ func getComponentVersions(config *rest.Config, namespace string, timeout time.Du
 func newVersionClient(config *rest.Config, namespace string, timeout time.Duration) (*http.Client, string, error) {
 	gv := schema.GroupVersion{Group: "", Version: "v1"}
 	config.GroupVersion = &gv
-	config.APIPath = fmt.Sprintf("/api/v1/namespaces/%s/services/nginx-mesh-api:%d/proxy/version", namespace, mesh.ControllerVersionPort)
+	config.APIPath = fmt.Sprintf(
+		"/api/v1/namespaces/%s/services/nginx-mesh-controller:%d/proxy/version",
+		namespace,
+		mesh.ControllerVersionPort,
+	)
 	config.Timeout = timeout
 	config.NegotiatedSerializer = serializer.NewCodecFactory(runtime.NewScheme())
 

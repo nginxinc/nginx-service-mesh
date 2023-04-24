@@ -15,7 +15,6 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"sigs.k8s.io/yaml"
 
-	"github.com/nginxinc/nginx-service-mesh/pkg/apis/mesh"
 	"github.com/nginxinc/nginx-service-mesh/pkg/helm"
 	"github.com/nginxinc/nginx-service-mesh/pkg/k8s"
 )
@@ -37,7 +36,11 @@ var upgradeTimeout = 5 * time.Minute
 
 // Upgrade handles a version upgrade of NGINX Service Mesh.
 func Upgrade(version string) *cobra.Command {
-	var dryRun bool
+	var (
+		tagOverride    string
+		serverOverride string
+		dryRun         bool
+	)
 
 	cmd := &cobra.Command{
 		Use:   "upgrade",
@@ -60,6 +63,10 @@ func Upgrade(version string) *cobra.Command {
 		}
 		fmt.Printf("Upgrading NGINX Service Mesh in namespace \"%s\".\n", namespace)
 
+		if tagOverride != "" {
+			version = tagOverride
+		}
+
 		upgrader, err := newUpgrader(initK8sClient, dryRun)
 		if err != nil {
 			return fmt.Errorf("error initializing upgrader: %w", err)
@@ -72,7 +79,7 @@ func Upgrade(version string) *cobra.Command {
 
 		go loopImageErrorCheck(initK8sClient, done)
 
-		if upgradeErr := upgrader.upgrade(version); upgradeErr != nil {
+		if upgradeErr := upgrader.upgrade(version, serverOverride); upgradeErr != nil {
 			fmt.Println() // newline to append to the "waiting" statement above
 
 			return upgradeErr
@@ -106,6 +113,18 @@ func Upgrade(version string) *cobra.Command {
 		false,
 		`render the upgrade manifest and print to stdout
 		Doesn't perform the upgrade`,
+	)
+	cmd.Flags().StringVar(
+		&serverOverride,
+		"registry-server",
+		serverOverride, `hostname:port (if needed) for registry and path to images
+		Affects: `+formatValues(registryServerImages),
+	)
+	cmd.Flags().StringVar(
+		&tagOverride,
+		"image-tag",
+		tagOverride, `tag used for pulling images from registry
+		Affects: `+formatValues(registryServerImages),
 	)
 	if err := cmd.Flags().MarkHidden("dry-run"); err != nil {
 		fmt.Println("error marking flag as hidden: ", err)
@@ -175,22 +194,25 @@ func newUpgrader(k8sClient k8s.Client, dryRun bool) (*upgrader, error) {
 	if err != nil {
 		return nil, fmt.Errorf("error getting helm files and values: %w", err)
 	}
-
 	return &upgrader{
-		k8sClient: k8sClient,
 		files:     files,
 		values:    defaultValues,
+		k8sClient: k8sClient,
 		dryRun:    dryRun,
 	}, nil
 }
 
 // upgrade the mesh by calling "helm upgrade".
-func (u *upgrader) upgrade(version string) error {
+func (u *upgrader) upgrade(version string, registry string) error {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
+	if err := u.upgradeCRDs(ctx); err != nil {
+		return fmt.Errorf("error upgrading CRDs: %w", err)
+	}
+
 	// initialize values and chart for new release
-	vals, err := u.buildValues(ctx, version)
+	vals, err := u.buildValues(ctx, version, registry)
 	if err != nil {
 		return err
 	}
@@ -222,10 +244,6 @@ func (u *upgrader) upgrade(version string) error {
 		return nil
 	}
 
-	if err := u.upgradeCRDs(ctx); err != nil {
-		return fmt.Errorf("error upgrading CRDs: %w", err)
-	}
-
 	return nil
 }
 
@@ -234,8 +252,9 @@ func (u *upgrader) upgrade(version string) error {
 // - copy on top of the new release's deploy-time configuration
 // - get previous release's run-time configuration (mesh-config ConfigMap)
 // - copy on top of the new release's deploy-time configuration
-// - set new version.
-func (u *upgrader) buildValues(ctx context.Context, version string) (map[string]interface{}, error) {
+// - set new version
+// - set new registry server if needed.
+func (u *upgrader) buildValues(ctx context.Context, version, registry string) (map[string]interface{}, error) {
 	// get the previous deployment configuration
 	_, oldValueBytes, err := helm.GetDeployValues(u.k8sClient, "nginx-service-mesh")
 	if err != nil {
@@ -249,13 +268,13 @@ func (u *upgrader) buildValues(ctx context.Context, version string) (map[string]
 
 	// get and save the old runtime mesh config
 	client := u.k8sClient.ClientSet().CoreV1().ConfigMaps(u.k8sClient.Namespace())
-	meshConfigMap, err := client.Get(ctx, mesh.MeshConfigMap, metav1.GetOptions{})
+	meshConfigMap, err := client.Get(ctx, "mesh-config", metav1.GetOptions{})
 	if err != nil {
 		return nil, fmt.Errorf("error getting previous mesh configuration: %w", err)
 	}
 
-	var meshConfig mesh.MeshConfig
-	if jsonErr := json.Unmarshal(meshConfigMap.BinaryData[mesh.MeshConfigFileName], &meshConfig); jsonErr != nil {
+	var meshConfig previousMeshConfig
+	if jsonErr := json.Unmarshal(meshConfigMap.BinaryData["mesh-config.json"], &meshConfig); jsonErr != nil {
 		return nil, fmt.Errorf("error unmarshaling previous mesh configuration: %w", jsonErr)
 	}
 
@@ -263,6 +282,9 @@ func (u *upgrader) buildValues(ctx context.Context, version string) (map[string]
 
 	// update to new version
 	u.values.Registry.ImageTag = version
+	if registry != "" {
+		u.values.Registry.Server = registry
+	}
 
 	vals, err := u.values.ConvertToMap()
 	if err != nil {
@@ -324,20 +346,20 @@ func (u *upgrader) upgradeCRDs(ctx context.Context) error {
 
 // Update the new values with the previous runtime mesh configuration.
 // This has to be done manually right now because we can't quite unmarshal types.MeshConfig into Values struct.
-// FIXME: NSM-81 should remedy this.
-func (u *upgrader) savePreviousConfig(meshConfig mesh.MeshConfig) {
-	u.values.AccessControlMode = string(meshConfig.AccessControlMode)
-	u.values.NGINXLBMethod = string(meshConfig.LoadBalancingMethod)
-	u.values.NGINXErrorLogLevel = string(meshConfig.NginxErrorLogLevel)
-	u.values.NGINXLogFormat = string(meshConfig.NginxLogFormat)
+// FIXME: NSM-3616 should remedy this.
+func (u *upgrader) savePreviousConfig(meshConfig previousMeshConfig) {
+	u.values.AccessControlMode = meshConfig.AccessControlMode
+	u.values.NGINXLBMethod = meshConfig.LoadBalancingMethod
+	u.values.NGINXErrorLogLevel = meshConfig.NginxErrorLogLevel
+	u.values.NGINXLogFormat = meshConfig.NginxLogFormat
 	u.values.PrometheusAddress = meshConfig.PrometheusAddress
-	u.values.MTLS.CAKeyType = string(*meshConfig.Mtls.CaKeyType)
+	u.values.MTLS.CAKeyType = *meshConfig.Mtls.CaKeyType
 	u.values.MTLS.CATTL = *meshConfig.Mtls.CaTTL
 	u.values.MTLS.SVIDTTL = *meshConfig.Mtls.SvidTTL
-	u.values.MTLS.Mode = string(*meshConfig.Mtls.Mode)
+	u.values.MTLS.Mode = *meshConfig.Mtls.Mode
 	u.values.ClientMaxBodySize = meshConfig.ClientMaxBodySize
 
-	if meshConfig.Telemetry != (mesh.TelemetryConfig{}) {
+	if meshConfig.Telemetry != (previousTelemetry{}) {
 		if u.values.Telemetry == nil {
 			u.values.Telemetry = &helm.Telemetry{
 				Exporters: &helm.Exporter{
@@ -351,4 +373,37 @@ func (u *upgrader) savePreviousConfig(meshConfig mesh.MeshConfig) {
 		u.values.Telemetry.Exporters.OTLP.Host = meshConfig.Telemetry.Exporters.Otlp.Host
 		u.values.Telemetry.Exporters.OTLP.Port = meshConfig.Telemetry.Exporters.Otlp.Port
 	}
+}
+
+// represents the old mesh config structure from the old configmap.
+type previousMeshConfig struct {
+	Mtls                previousMtls      `json:"mtls"`
+	Telemetry           previousTelemetry `json:"telemetry"`
+	AccessControlMode   string            `json:"accessControlMode"`
+	ClientMaxBodySize   string            `json:"clientMaxBodySize"`
+	LoadBalancingMethod string            `json:"loadBalancingMethod"`
+	NginxErrorLogLevel  string            `json:"nginxErrorLogLevel"`
+	NginxLogFormat      string            `json:"nginxLogFormat"`
+	PrometheusAddress   string            `json:"prometheusAddress"`
+}
+
+type previousMtls struct {
+	CaKeyType *string `json:"caKeyType,omitempty"`
+	CaTTL     *string `json:"caTTL,omitempty"`
+	Mode      *string `json:"mode,omitempty"`
+	SvidTTL   *string `json:"svidTTL,omitempty"`
+}
+
+type previousTelemetry struct {
+	Exporters    *exporters `json:"exporters,omitempty"`
+	SamplerRatio *float32   `json:"samplerRatio,omitempty"`
+}
+
+type exporters struct {
+	Otlp *otlp `json:"otlp,omitempty"`
+}
+
+type otlp struct {
+	Host string `json:"host"`
+	Port int    `json:"port"`
 }

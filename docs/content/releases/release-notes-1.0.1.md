@@ -17,4 +17,4 @@ This hotfix release resolves an issue affecting version 1.0.0 described below.
 
 **Update to NGINX Plus R23 P1 (25166)**:
 
-  A bug discovered in the NGINX Plus R23 sidecar is fixed in NGINX Plus R23 P1. See the [upgrade guide]({{< ref "/guides/upgrade.md#nginx-service-mesh-101" >}}) for instructions on upgrading.
+  A bug discovered in the NGINX Plus R23 sidecar is fixed in NGINX Plus R23 P1. See the [upgrade guide]({{< ref "/get-started/upgrade/upgrade.md#nginx-service-mesh-101" >}}) for instructions on upgrading.

@@ -5,6 +5,8 @@ on:
     branches:
       - main
       - release-*
+    tags:
+      - '*'
     paths-ignore:
       - docs/**
       - examples/**
@@ -21,11 +23,28 @@ jobs:
   scan:
     name: Fossa
     runs-on: ubuntu-22.04
+    timeout-minutes: 30
     if: ${{ github.event.repository.fork == false }}
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@24cb9080177205b6e8c946b17badbe402adc938f # v3.4.0
+        uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab # v3.5.2
       - name: Scan
         uses: fossas/fossa-action@f61a4c0c263690f2ddb54b9822a719c25a7b608f # v1.3.1
         with:
           api-key: ${{ secrets.FOSSA_TOKEN }}
+      - name: Generate SBOM
+        if: startsWith(github.ref, 'refs/tags/')
+        env:
+          COMMIT_SHA: ${{ github.sha }}
+          FOSSA_TOKEN: ${{ secrets.FOSSA_TOKEN }}
+        run: .github/scripts/generate-sbom.sh
+      - name: Upload SBOM
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: azure/CLI@fa0f960f00db49b95fdb54328a767aee31e80105 # v1.0.7
+        env:
+          AZURE_STORAGE_ACCOUNT: ${{ secrets.AZURE_STORAGE_ACCOUNT }}
+          AZURE_STORAGE_KEY: ${{ secrets.AZURE_STORAGE_KEY }}
+        with:
+          inlineScript: |
+            az storage blob upload -c ${{ secrets.AZURE_SBOM_BUCKET_NAME }} -f nsm.sbom.json \
+              -n product/nginx-service-mesh/${{ github.ref_name }}/nginx-service-mesh-${{ github.ref_name }}.sbom.json

@@ -3,49 +3,36 @@ package health
 
 import (
 	"context"
-	"fmt"
-	"net/http"
-	"strings"
 	"time"
 
-	"k8s.io/client-go/rest"
+	appsv1 "k8s.io/api/apps/v1"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/nginxinc/nginx-service-mesh/pkg/apis/mesh"
 	meshErrors "github.com/nginxinc/nginx-service-mesh/pkg/errors"
 )
 
-// TestMeshAPIConnection attempts to connect to the control plane to ensure
-// that the mesh-api is available and ready for use.
-func TestMeshAPIConnection(config *rest.Config, retries int, timeout time.Duration) error {
-	client, err := mesh.NewMeshClient(config, timeout)
-	if err != nil {
-		return err
-	}
+// TestMeshControllerConnection checks that the controller is available and ready for use.
+func TestMeshControllerConnection(k8sClient client.Client, namespace string, retries int) error {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 
-	server := strings.TrimSuffix(client.Server, "/")
-	req, err := http.NewRequestWithContext(context.Background(), http.MethodGet, server, http.NoBody)
-	if err != nil {
-		return fmt.Errorf("error building http request: %w", err)
-	}
-
+	var err error
 	for i := 0; i < retries; i++ {
 		if i > 0 {
-			time.Sleep(time.Second * 5) //nolint:gomnd // not worth another var
+			time.Sleep(5 * time.Second)
 		}
 
-		res, requestErr := client.Client.Do(req)
-		if requestErr != nil || res.StatusCode != http.StatusOK {
+		var ctlr appsv1.Deployment
+		if err = k8sClient.Get(ctx, client.ObjectKey{Namespace: namespace, Name: mesh.MeshController}, &ctlr); err != nil {
+			continue
+		}
+
+		if ctlr.Status.ReadyReplicas != 1 {
 			err = meshErrors.ErrMeshStatus
 
 			continue
 		}
-
-		defer func() {
-			closeErr := res.Body.Close()
-			if closeErr != nil {
-				fmt.Println(closeErr)
-			}
-		}()
 
 		return nil
 	}

@@ -113,11 +113,10 @@ func Inject() *cobra.Command {
 			IgnorePorts: ignPorts,
 		}
 
-		meshClient, err := mesh.NewMeshClient(initK8sClient.Config(), meshTimeout)
-		if err != nil {
-			return fmt.Errorf("failed to get mesh client: %w", err)
-		}
-		meshConfig, err := GetMeshConfig(meshClient)
+		ctx, cancel := context.WithTimeout(context.Background(), meshTimeout)
+		defer cancel()
+
+		meshConfig, err := mesh.GetMeshConfig(ctx, initK8sClient.Client(), initK8sClient.Namespace())
 		if err != nil {
 			return fmt.Errorf("unable to get mesh config: %w", err)
 		}
@@ -167,8 +166,7 @@ func readFileOrURL(filename string) ([]byte, error) {
 			_ = resp.Body.Close()
 		}()
 
-		err = checkResponse(resp)
-		if err != nil {
+		if err = checkResponse(resp); err != nil {
 			return nil, err
 		}
 
@@ -210,7 +208,7 @@ func createFileFromSTDIN() ([]byte, *os.File, error) {
 		return nil, nil, fmt.Errorf("error reading file contents: %w", err)
 	}
 
-	f, err := os.CreateTemp("", "nginx-mesh-api-temp-file.txt")
+	f, err := os.CreateTemp("", "nginx-mesh-controller-temp-file.txt")
 	if err != nil {
 		return nil, nil, fmt.Errorf("error creating temporary file: %w", err)
 	}

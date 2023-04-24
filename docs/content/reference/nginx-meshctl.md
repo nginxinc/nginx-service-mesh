@@ -36,7 +36,7 @@ Flags:
   -h, --help                help for nginx-meshctl
   -k, --kubeconfig string   path to kubectl config file (default "/Users/<user>/.kube/config")
   -n, --namespace string    NGINX Service Mesh control plane namespace (default "nginx-mesh")
-  -t, --timeout duration    timeout when communicating with NGINX Service Mesh API Server (default 5s)
+  -t, --timeout duration    timeout when communicating with NGINX Service Mesh (default 5s)
 ```
 
 ## Completion
@@ -60,7 +60,7 @@ Flags:
 Global Flags:
   -k, --kubeconfig string   path to kubectl config file (default "/Users/<user>/.kube/config")
   -n, --namespace string    NGINX Service Mesh control plane namespace (default "nginx-mesh")
-  -t, --timeout duration    timeout when communicating with NGINX Service Mesh API Server (default 5s)
+  -t, --timeout duration    timeout when communicating with NGINX Service Mesh (default 5s)
 ```
 
 ## Config
@@ -77,7 +77,7 @@ Flags:
 Global Flags:
   -k, --kubeconfig string   path to kubectl config file (default "/Users/<user>/.kube/config")
   -n, --namespace string    NGINX Service Mesh control plane namespace (default "nginx-mesh")
-  -t, --timeout duration    timeout when communicating with NGINX Service Mesh API Server (default 5s)
+  -t, --timeout duration    timeout when communicating with NGINX Service Mesh (default 5s)
 ```
 
 ## Deploy
@@ -100,17 +100,13 @@ Flags:
       --access-control-mode string        default access control mode for service-to-service communication
                                           		Valid values: allow, deny (default "allow")
       --client-max-body-size string       NGINX client max body size (default "1m")
-      --disable-auto-inject               disable automatic sidecar injection upon resource creation
-                                          		Use the --enabled-namespaces flag to enable automatic injection in select namespaces
       --disable-public-images             don't pull third party images from public repositories
       --enable-udp                        enable UDP traffic proxying (beta); Linux kernel 4.18 or greater is required
-      --enabled-namespaces strings        enable automatic sidecar injection for specific namespaces
-                                          		Must be used with --disable-auto-inject
       --environment string                environment to deploy the mesh into
                                           		Valid values: kubernetes, openshift (default "kubernetes")
   -h, --help                              help for deploy
       --image-tag string                  tag used for pulling images from registry
-                                          		Affects: nginx-mesh-api, nginx-mesh-cert-reloader, nginx-mesh-init, nginx-mesh-metrics, nginx-mesh-sidecar (default "2.0.0")
+                                          		Affects: nginx-mesh-controller, nginx-mesh-cert-reloader, nginx-mesh-init, nginx-mesh-metrics, nginx-mesh-sidecar (default "2.0.0")
       --mtls-ca-key-type string           the key type used for the SPIRE Server CA
                                           		Valid values: ec-p256, ec-p384, rsa-2048, rsa-4096 (default "ec-p256")
       --mtls-ca-ttl string                the CA/signing key TTL in hours(h). Min value 24h. Max value 999999h. (default "720h")
@@ -134,7 +130,7 @@ Flags:
       --registry-password string          password for accessing private registry
                                           		Requires --registry-username to be set. Cannot be used with --registry-key
       --registry-server string            hostname:port (if needed) for registry and path to images
-                                          		Affects: nginx-mesh-api, nginx-mesh-cert-reloader, nginx-mesh-init, nginx-mesh-metrics, nginx-mesh-sidecar (default "docker-registry.nginx.com/nsm")
+                                          		Affects: nginx-mesh-controller, nginx-mesh-cert-reloader, nginx-mesh-init, nginx-mesh-metrics, nginx-mesh-sidecar (default "docker-registry.nginx.com/nsm")
       --registry-username string          username for accessing private registry
                                           		Requires --registry-password to be set. Cannot be used with --registry-key
       --spire-server-key-manager string   storage logic for SPIRE Server's private keys
@@ -148,7 +144,7 @@ Flags:
 Global Flags:
   -k, --kubeconfig string   path to kubectl config file (default "/Users/<user>/.kube/config")
   -n, --namespace string    NGINX Service Mesh control plane namespace (default "nginx-mesh")
-  -t, --timeout duration    timeout when communicating with NGINX Service Mesh API Server (default 5s)
+  -t, --timeout duration    timeout when communicating with NGINX Service Mesh (default 5s)
 ```
 
 ### Deploy Examples
@@ -163,13 +159,9 @@ Most of the examples below show shortened commands for convenience. The '...' in
 
     `nginx-meshctl deploy ... --namespace my-namespace`
 
-- Deploy the Service Mesh with mTLS and automatic injection turned off:
+- Deploy the Service Mesh with mTLS turned off:
 
-    `nginx-meshctl deploy ... --mtls-mode off --disable-auto-inject`
-
-- Deploy the Service Mesh and only allow automatic injection in namespace "my-namespace":
-
-    `nginx-meshctl deploy ... --disable-auto-inject --enabled-namespaces="my-namespace"`
+    `nginx-meshctl deploy ... --mtls-mode off`
 
 - Deploy the Service Mesh and enable telemetry traces to be exported to your OTLP gRPC collector running in your Kubernetes cluster:
      
@@ -202,7 +194,7 @@ Flags:
 Global Flags:
   -k, --kubeconfig string   path to kubectl config file (default "/Users/<user>/.kube/config")
   -n, --namespace string    NGINX Service Mesh control plane namespace (default "nginx-mesh")
-  -t, --timeout duration    timeout when communicating with NGINX Service Mesh API Server (default 5s)
+  -t, --timeout duration    timeout when communicating with NGINX Service Mesh (default 5s)
 ```
 
 ### Inject Examples
@@ -245,7 +237,7 @@ Flags:
 Global Flags:
   -k, --kubeconfig string   path to kubectl config file (default "/Users/<user>/.kube/config")
   -n, --namespace string    NGINX Service Mesh control plane namespace (default "nginx-mesh")
-  -t, --timeout duration    timeout when communicating with NGINX Service Mesh API Server (default 5s)
+  -t, --timeout duration    timeout when communicating with NGINX Service Mesh (default 5s)
 ```
 
 ### Remove Examples
@@ -281,7 +273,7 @@ Flags:
 Global Flags:
   -k, --kubeconfig string   path to kubectl config file (default "/Users/<user>/.kube/config")
   -n, --namespace string    NGINX Service Mesh control plane namespace (default "nginx-mesh")
-  -t, --timeout duration    timeout when communicating with NGINX Service Mesh API Server (default 5s)
+  -t, --timeout duration    timeout when communicating with NGINX Service Mesh (default 5s)
 ```
 
 ## Status
@@ -298,7 +290,7 @@ Flags:
 Global Flags:
   -k, --kubeconfig string   path to kubectl config file (default "/Users/<user>/.kube/config")
   -n, --namespace string    NGINX Service Mesh control plane namespace (default "nginx-mesh")
-  -t, --timeout duration    timeout when communicating with NGINX Service Mesh API Server (default 5s)
+  -t, --timeout duration    timeout when communicating with NGINX Service Mesh (default 5s)
 ```
 
 ## Supportpkg
@@ -317,7 +309,7 @@ Flags:
 Global Flags:
   -k, --kubeconfig string   path to kubectl config file (default "/Users/<user>/.kube/config")
   -n, --namespace string    NGINX Service Mesh control plane namespace (default "nginx-mesh")
-  -t, --timeout duration    timeout when communicating with NGINX Service Mesh API Server (default 5s)
+  -t, --timeout duration    timeout when communicating with NGINX Service Mesh (default 5s)
 ```
 
 ## Top
@@ -387,5 +379,5 @@ Flags:
 Global Flags:
   -k, --kubeconfig string   path to kubectl config file (default "/Users/<user>/.kube/config")
   -n, --namespace string    NGINX Service Mesh control plane namespace (default "nginx-mesh")
-  -t, --timeout duration    timeout when communicating with NGINX Service Mesh API Server (default 5s)
+  -t, --timeout duration    timeout when communicating with NGINX Service Mesh (default 5s)
 ```

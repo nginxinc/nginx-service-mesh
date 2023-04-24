@@ -16,7 +16,6 @@ Objectives:
 - Deploy NGINX Service Mesh.
 - Install NGINX Ingress Controller.
 - Deploy the example `udp-listener` app.
-  - {{< fa "download" >}} {{< link "/examples/nginx-ingress-controller/udp/udp-listener.yaml" "udp-listener.yaml" >}}
 - Create a Kubernetes GlobalConfiguration resource to establish a NGINX Ingress Controller UDP listener.
 - Create a Kubernetes TransportServer resource for the udp-listener application.
 
@@ -31,10 +30,10 @@ To complete this tutorial, you must use either:
 
 ### Install NGINX Service Mesh
 
-Follow the installation [instructions]( {{< ref "/get-started/install.md" >}} ) to install NGINX Service Mesh on your Kubernetes cluster. UDP traffic proxying is disabled by default, so you will need to enable it using the `--enable-udp` flag when deploying. Linux kernel 4.18 or greater is required.
+Follow the installation [instructions]( {{< ref "/get-started/install/install.md" >}} ) to install NGINX Service Mesh on your Kubernetes cluster. UDP traffic proxying is disabled by default, so you will need to enable it using the `--enable-udp` flag when deploying. Linux kernel 4.18 or greater is required.
 
 {{< caution >}} 
-Before proceeding, verify that the mesh is running (Step 2 of the installation [instructions]( {{< ref "/get-started/install.md" >}} )).
+Before proceeding, verify that the mesh is running (Step 2 of the installation [instructions]( {{< ref "/get-started/install/install.md" >}} )).
 NGINX Ingress Controller will try to fetch certs from the Spire agent that gets deployed by NGINX Service Mesh on startup. If the mesh is not running, NGINX Ingress controller will fail to start.  
 {{< /caution >}}
 
@@ -69,27 +68,27 @@ NGINX Ingress Controller will try to fetch certs from the Spire agent that gets 
 
     We'll use `12.115.30.1`.
  
- {{< note >}}
- At this point, you should have the NGINX Ingress Controller running in your cluster; you can deploy the udp-listener example app to test out the mesh integration, or use NGINX Ingress controller to expose one of your own apps. 
- {{< /note >}}
+
+ At this point, you should have the NGINX Ingress Controller running in your cluster; you can deploy the udp-listener example app to test out the mesh integration, or use NGINX Ingress controller to expose one of your own apps.
 
 ### Deploy the udp-listener App
 
-Use `kubectl` to deploy the example `udp-listener` app.  
+1. Enable [automatic sidecar injection]( {{< ref "/guides/inject-sidecar-proxy.md#automatic-proxy-injection" >}} ) for the `default` namespace.
+1. Download the manifest for the `udp-listener` app.
+    - {{< fa "download" >}} {{< link "/examples/nginx-ingress-controller/udp/udp-listener.yaml" "udp-listener.yaml" >}}
+1. Use `kubectl` to deploy the example `udp-listener` app.
 
-If [automatic injection]( {{< ref "/guides/inject-sidecar-proxy.md#automatic-proxy-injection" >}} ) is enabled, NGINX Service Mesh will inject the sidecar proxy into the application pods automatically. Otherwise, use [manual injection]( {{< ref "/guides/inject-sidecar-proxy.md#manual-proxy-injection" >}} ) to inject the sidecar proxies.
+    ```bash
+    kubectl apply -f udp-listener.yaml
+    ```
 
-```bash
-kubectl apply -f udp-listener.yaml
-```
+1. Verify that all of the Pods are ready and in "Running" status:
 
-Verify that all of the Pods are ready and in "Running" status:
-
-```bash
-kubectl get pod
-NAME                            READY   STATUS    RESTARTS   AGE
-udp-listener-59665d7ffc-drzh2   2/2     Running   0          4s
-```
+    ```bash
+    kubectl get pod
+    NAME                            READY   STATUS    RESTARTS   AGE
+    udp-listener-59665d7ffc-drzh2   2/2     Running   0          4s
+    ```
 
 ### Expose the udp-listener App
 

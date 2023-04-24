@@ -10,11 +10,17 @@ const (
 	AutoInjectLabel = "injector.nsm.nginx.com/auto-inject"
 )
 
+// AutoInjectorPort is the port that the automatic injection webhook binds to.
+const AutoInjectorPort = 9443
+
+// ControllerVersionPort is the port that the controller runs the /version endpoint on.
+const ControllerVersionPort = 8082
+
 // Injected is used as the value in the InjectedAnnotation.
 const Injected = "injected"
 
-// AutoInjectionEnabled is used as the value in the AutoInjectLabel.
-const AutoInjectionEnabled = "enabled"
+// Enabled is used as the value in the AutoInjectLabel.
+const Enabled = "enabled"
 
 // IgnoredNamespaces is a map of the namespaces that the service mesh will ignore.
 var IgnoredNamespaces = map[string]bool{
@@ -45,24 +51,27 @@ const (
 
 // NATS channel names.
 const (
-	// NatsAgentConfigChannel sends the mesh config from mesh-api to agent.
+	// NatsAgentConfigChannel sends the mesh config from mesh-controller to agent.
 	NatsAgentConfigChannel = "nginx.nsm.agent.config"
-	// NatsAgentSubChannel sends a subscription and version notice from agent to mesh-api.
+	// NatsAgentSubChannel sends a subscription and version notice from agent to mesh-controller.
 	NatsAgentSubChannel = "nginx.nsm.agent.subscription"
-	// NatsAPIPingChannel sends a ping from mesh-api to agent on restart.
+	// NatsAPIPingChannel sends a ping from mesh-controller to agent on restart.
+	// TODO: after 2.0 release this can be removed.
 	NatsAPIPingChannel = "nginx.nsm.api.ping"
+	// NatsCtlrPingChannel sends a ping from mesh-controller to agent on restart.
+	NatsCtlrPingChannel = "nginx.nsm.ctlr.ping"
 )
 
 // k8s static resource names.
 const (
 	// MeshConfigMap is the name of the config map that holds the mesh config.
-	MeshConfigMap = "mesh-config"
+	MeshConfigMap = "meshconfig"
 	// MeshConfigFileName is the name of the file where the mesh config is stored.
-	MeshConfigFileName = "mesh-config.json"
+	MeshConfigFileName = "meshconfig.json"
 	// NatsServer is the name of the nats-server service.
 	NatsServer = "nats-server"
-	// MeshAPI is the name of the mesh api.
-	MeshAPI = "nginx-mesh-api"
+	// MeshController is the name of the mesh controller.
+	MeshController = "nginx-mesh-controller"
 	// MeshCertReloader is the name of the mesh cert reloader image.
 	MeshCertReloader = "nginx-mesh-cert-reloader"
 	// MeshSidecar is the name of the mesh sidecar.
@@ -81,43 +90,118 @@ const (
 	TCPRouteKind = "TCPRoute"
 )
 
-// ControllerVersionPort is the port that the controller runs the /version endpoint on.
-const ControllerVersionPort = 8090
+// NGINX Ingress Controller labels.
+const (
+	// EnableIngressLabel tells us if the pod is the NGINX Ingress Controller and if ingress traffic is enabled.
+	EnableIngressLabel = "nsm.nginx.com/enable-ingress"
+	// EnableEgressLabel tells us if the pod is the NGINX Ingress Controller and if egress traffic is enabled.
+	EnableEgressLabel = "nsm.nginx.com/enable-egress"
+)
+
+// MTLS modes.
+const (
+	MtlsModeOff        = "off"
+	MtlsModePermissive = "permissive"
+	MtlsModeStrict     = "strict"
+)
+
+// MtlsModes are the supported mtls modes.
+var MtlsModes = map[string]struct{}{
+	MtlsModeOff:        {},
+	MtlsModePermissive: {},
+	MtlsModeStrict:     {},
+}
+
+// Access Control Modes.
+const (
+	AccessControlModeDeny  = "deny"
+	AccessControlModeAllow = "allow"
+)
+
+// AccessControlModes are the supported access control modes.
+var AccessControlModes = map[string]struct{}{
+	AccessControlModeAllow: {},
+	AccessControlModeDeny:  {},
+}
+
+// NGINX error log levels.
+const (
+	NginxErrorLogLevelDebug  = "debug"
+	NginxErrorLogLevelInfo   = "info"
+	NginxErrorLogLevelNotice = "notice"
+	NginxErrorLogLevelWarn   = "warn"
+	NginxErrorLogLevelError  = "error"
+	NginxErrorLogLevelCrit   = "crit"
+	NginxErrorLogLevelAlert  = "alert"
+	NginxErrorLogLevelEmerg  = "emerg"
+)
+
+// NGINX log formats.
+const (
+	NginxLogFormatDefault = "default"
+	NginxLogFormatJSON    = "json"
+)
+
+// NGINXLogFormats are the supported NGINX log formats.
+var NGINXLogFormats = map[string]struct{}{
+	NginxLogFormatDefault: {},
+	NginxLogFormatJSON:    {},
+}
+
+// NGINX load balancing methods.
+const (
+	RoundRobin                 = "round_robin"
+	LeastConn                  = "least_conn"
+	LeastTime                  = "least_time"
+	LeastTimeLastByte          = "least_time last_byte"
+	LeastTimeLastByteInflight  = "least_time last_byte inflight"
+	Random                     = "random"
+	RandomTwo                  = "random two"
+	RandomTwoLeastConn         = "random two least_conn"
+	RandomTwoLeastTime         = "random two least_time"
+	RandomTwoLeastTimeLastByte = "random two least_time=last_byte"
+)
+
+// LoadBalancingMethods are the available NGINX load balancing methods.
+var LoadBalancingMethods = map[string]struct{}{
+	RoundRobin:                 {},
+	LeastConn:                  {},
+	LeastTime:                  {},
+	LeastTimeLastByte:          {},
+	LeastTimeLastByteInflight:  {},
+	Random:                     {},
+	RandomTwo:                  {},
+	RandomTwoLeastConn:         {},
+	RandomTwoLeastTime:         {},
+	RandomTwoLeastTimeLastByte: {},
+}
+
+// Kubernetes environments.
+const (
+	Kubernetes = "kubernetes"
+	Openshift  = "openshift"
+)
+
+// Environments are the supported kubernetes environments.
+var Environments = map[string]struct{}{
+	Kubernetes: {},
+	Openshift:  {},
+}
+
+// Svid cert and key names.
+const (
+	SvidFileName       = "tls.crt"
+	SvidKeyFileName    = "tls.key"
+	SvidBundleFileName = "rootca.pem"
+)
+
+// DefaultSamplerRatio is the default sampler ratio for telemetry.
+const DefaultSamplerRatio = float32(0.01)
 
 // MetricsConfig holds the data that may be dynamically updated at runtime for the nginx-mesh-metrics component.
 type MetricsConfig struct {
 	PromAddr *string `json:"PrometheusAddress,omitempty"`
 }
 
-// MtlsModes are the supported mtls modes.
-var MtlsModes = map[string]struct{}{
-	string(Off):        {},
-	string(Permissive): {},
-	string(Strict):     {},
-}
-
-// LoadBalancingMethods are the available NGINX load balancing methods.
-var LoadBalancingMethods = map[string]struct{}{
-	string(MeshConfigLoadBalancingMethodRoundRobin):                 {},
-	string(MeshConfigLoadBalancingMethodLeastConn):                  {},
-	string(MeshConfigLoadBalancingMethodLeastTime):                  {},
-	string(MeshConfigLoadBalancingMethodLeastTimeLastByte):          {},
-	string(MeshConfigLoadBalancingMethodLeastTimeLastByteInflight):  {},
-	string(MeshConfigLoadBalancingMethodRandom):                     {},
-	string(MeshConfigLoadBalancingMethodRandomTwo):                  {},
-	string(MeshConfigLoadBalancingMethodRandomTwoLeastConn):         {},
-	string(MeshConfigLoadBalancingMethodRandomTwoLeastTime):         {},
-	string(MeshConfigLoadBalancingMethodRandomTwoLeastTimeLastByte): {},
-}
-
-// NGINXLogFormats are the supported NGINX log formats.
-var NGINXLogFormats = map[string]struct{}{
-	string(MeshConfigNginxLogFormatDefault): {},
-	string(MeshConfigNginxLogFormatJson):    {},
-}
-
-// Environments are the supported kubernetes environments.
-var Environments = map[string]struct{}{
-	string(Kubernetes): {},
-	string(Openshift):  {},
-}
+// ExternalServiceAnnotation tells us if an endpoint is for an external service.
+const ExternalServiceAnnotation = "service.nsm.nginx.com/external"

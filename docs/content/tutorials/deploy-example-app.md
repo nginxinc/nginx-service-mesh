@@ -21,7 +21,7 @@ Notice in the above yaml:
 - All of the service spec port names are populated with the name of the protocol
 - All deployment `containerPort` fields are specified.
 
-This is used in the mesh to identify the kind of traffic being sent and where it is allowed to be received. For more information on deployment and service identification rules, see [identification-rules]( {{< ref "/get-started/configuration.md#identification-rules" >}} ) in the Getting Started section.
+This is used in the mesh to identify the kind of traffic being sent and where it is allowed to be received. For more information on deployment and service identification rules, see [identification-rules]( {{< ref "/get-started/install/configuration.md#identification-rules" >}} ) in the Getting Started section.
 {{< /note >}}
 
 {{< note >}}
@@ -33,19 +33,18 @@ Ensure that you have deployed Prometheus, Grafana, and a tracing backend and con
 
 ## Inject the Sidecar Proxy
 
-You can use either automatic injection or manual injection to add the NGINX Service Mesh sidecar containers to your application pods.
-
-{{< tip>}}
-
-- [Automatic proxy injection]( {{< ref "/guides/inject-sidecar-proxy.md#automatic-proxy-injection" >}} ) (enabled by default)
-- [Manual proxy injection]( {{< ref "/guides/inject-sidecar-proxy.md#manual-proxy-injection" >}} )
-
-{{< /tip>}}
+You can use either [automatic]( {{< ref "/guides/inject-sidecar-proxy.md#automatic-proxy-injection" >}} ) or [manual injection]( {{< ref "/guides/inject-sidecar-proxy.md#manual-proxy-injection" >}} ) to add the NGINX Service Mesh sidecar containers to your application pods.
 
 ### Inject the Sidecar Proxy Automatically
 
-Since NGINX Service Mesh uses automatic injection by default, you just need to use `kubectl` to apply your Deployment.
-The sidecar proxy runs automatically.
+To enable automatic sidecar injection for all Pods in a namespace, add the `injector.nsm.nginx.com/auto-inject=enabled` label to the namespace.
+
+```bash
+kubectl label namespaces default injector.nsm.nginx.com/auto-inject=enabled
+```
+
+With auto-injection enabled, you can use `kubectl` to apply your Deployment as normal.
+The sidecar proxy will be added and runs automatically.
 
 ```bash
 kubectl apply -f examples/bookinfo.yaml

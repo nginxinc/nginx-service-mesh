@@ -11,14 +11,9 @@ import (
 	specs "github.com/nginxinc/nginx-service-mesh/pkg/apis/specs/v1alpha1"
 )
 
-// CheckForInvalidConfig returns an error if config is not valid
-// Invalid configs:
-//   - LoadBalancingMethod is "random" when CircuitBreakers exist
-//   - both tracing and telemetry are enabled
-//
-//nolint:goerr113 // can convert to constants at some point if desired
-func (config *MeshConfig) CheckForInvalidConfig(k8sClient client.Client) error {
-	if k8sClient != nil && strings.Contains(string(config.LoadBalancingMethod), string(MeshConfigLoadBalancingMethodRandom)) {
+// ValidateLBMethod ensures the load balancing method is not set to "random" when circuit breakers exist.
+func ValidateLBMethod(k8sClient client.Client, lbMethod string) error {
+	if strings.Contains(lbMethod, Random) {
 		cbs := &specs.CircuitBreakerList{}
 		ctx, cancel := context.WithCancel(context.Background())
 		defer cancel()

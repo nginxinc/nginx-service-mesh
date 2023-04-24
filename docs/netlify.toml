@@ -1,26 +1,22 @@
 [build]
   base = "docs/"
-  publish = "public"
-  command = "./scripts/copy-docs.sh && hugo --gc"
-  ignore = "git diff --quiet $COMMIT_REF $CACHED_COMMIT_REF -- ./"
+  command = "make deploy-preview"
+  ignore = "git diff --quiet $CACHED_COMMIT_REF $COMMIT_REF . ../examples ../helm-chart/crds ../api"
 
-[build.environment]
-  HUGO_VERSION = "0.80.0"
+[context.production]
+  command = "make all"
 
 [context.docs-development]
-  command = "./scripts/copy-docs.sh && hugo --gc -e development"
+  command = "make all-dev"
 
 [context.docs-staging]
-  command = "./scripts/copy-docs.sh && hugo --gc -e staging"
-
-[context.docs-preview]
-  command = "./scripts/copy-docs.sh && hugo --gc -e preview"
+  command = "make all-staging"
 
 [context.branch-deploy]
-  command = "./scripts/copy-docs.sh && hugo --gc -d public/nginx-service-mesh -b $DEPLOY_PRIME_URL/nginx-service-mesh"
+  command = "make deploy-preview"
 
 [context.deploy-preview]
-  command = "./scripts/copy-docs.sh && hugo --gc -d public/nginx-service-mesh -b $DEPLOY_PRIME_URL/nginx-service-mesh"
+  command = "make deploy-preview"
 
 [[headers]]
   for = "/*"
@@ -34,12 +30,12 @@
   force = true
 
 [[redirects]]
-  from = "https://mesh-public-docs.netlify.app/robots.txt"
+  from = "/nginx-service-mesh/robots.txt"
   to = "https://docs.nginx.com/robots.txt"
   status = 301
   force = true
 
 [[redirects]]
-  from = "*"
+  from = "/nginx-service-mesh/*"
   to = "/nginx-service-mesh/404.html"
   status = 404

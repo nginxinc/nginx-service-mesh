@@ -184,36 +184,32 @@ var _ = Describe("Config", func() {
 
 	Context("validates the mtls annotation", func() {
 		Specify("if annotation is set to off and globally set to permissive", func() {
-			srvMode := mesh.Permissive
-			annotations := map[string]string{mesh.MTLSModeAnnotation: string(mesh.Off)}
+			annotations := map[string]string{mesh.MTLSModeAnnotation: mesh.MtlsModeOff}
 			val, err := pod.GetMTLSModeAnnotation(annotations)
 			Expect(err).ToNot(HaveOccurred())
-			Expect(val).To(Equal(string(mesh.Off)))
-			Expect(inject.ValidateMTLSAnnotation(val, &srvMode)).To(Succeed())
+			Expect(val).To(Equal(mesh.MtlsModeOff))
+			Expect(inject.ValidateMTLSAnnotation(val, mesh.MtlsModePermissive)).To(Succeed())
 		})
 		Specify("if annotation is set to strict but globally set to permissive", func() {
-			srvMode := mesh.Permissive
-			annotations := map[string]string{mesh.MTLSModeAnnotation: string(mesh.Strict)}
+			annotations := map[string]string{mesh.MTLSModeAnnotation: mesh.MtlsModeStrict}
 			val, err := pod.GetMTLSModeAnnotation(annotations)
 			Expect(err).ToNot(HaveOccurred())
-			Expect(val).To(Equal(string(mesh.Strict)))
-			Expect(inject.ValidateMTLSAnnotation(val, &srvMode)).To(Succeed())
+			Expect(val).To(Equal(mesh.MtlsModeStrict))
+			Expect(inject.ValidateMTLSAnnotation(val, mesh.MtlsModePermissive)).To(Succeed())
 		})
 		Specify("if annotation is set to permissive but globally off", func() {
-			srvMode := mesh.Off
-			annotations := map[string]string{mesh.MTLSModeAnnotation: string(mesh.Permissive)}
+			annotations := map[string]string{mesh.MTLSModeAnnotation: mesh.MtlsModePermissive}
 			val, err := pod.GetMTLSModeAnnotation(annotations)
 			Expect(err).ToNot(HaveOccurred())
-			Expect(val).To(Equal(string(mesh.Permissive)))
-			Expect(inject.ValidateMTLSAnnotation(val, &srvMode)).To(Succeed())
+			Expect(val).To(Equal(mesh.MtlsModePermissive))
+			Expect(inject.ValidateMTLSAnnotation(val, mesh.MtlsModeOff)).To(Succeed())
 		})
 		Specify("if annotation is set to strict but globally off", func() {
-			srvMode := mesh.Off
-			annotations := map[string]string{mesh.MTLSModeAnnotation: string(mesh.Strict)}
+			annotations := map[string]string{mesh.MTLSModeAnnotation: mesh.MtlsModeStrict}
 			val, err := pod.GetMTLSModeAnnotation(annotations)
 			Expect(err).ToNot(HaveOccurred())
-			Expect(val).To(Equal(string(mesh.Strict)))
-			Expect(inject.ValidateMTLSAnnotation(val, &srvMode)).To(Succeed())
+			Expect(val).To(Equal(mesh.MtlsModeStrict))
+			Expect(inject.ValidateMTLSAnnotation(val, mesh.MtlsModeOff)).To(Succeed())
 		})
 	})
 })

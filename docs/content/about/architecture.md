@@ -24,9 +24,9 @@ The control plane comprises multiple subsystems, each of which is explained belo
 
 Kubernetes resources and container names:
 
-- Container: nginx-mesh-api
-- Deployment: deployment/nginx-mesh-api
-- Service: service/nginx-mesh-api
+- Container: nginx-mesh-controller
+- Deployment: deployment/nginx-mesh-controller
+- Service: service/nginx-mesh-controller
 
 NGINX Service Mesh employs the controller pattern to enforce desired states across managed application(s). Controllers are event loops that actuate and enforce configuration inputs. The controllers in the NGINX Service Mesh control plane watch a set of native Kubernetes resources (Services, Endpoints, and Pods). The controllers also watch a collection of custom resources defined by the [Service Mesh Interface specification](https://github.com/servicemeshinterface/smi-spec) and individual resources specific to NGINX Service Mesh (see [Traffic Policies](https://docs.nginx.com/nginx-service-mesh/guides/smi-traffic-policies/)).
 
@@ -150,7 +150,7 @@ NGINX Service Mesh integrates [SPIRE](https://github.com/spiffe/spire) as its ce
 
 The important components in the diagram are:
 
-- **SPIRE Server**: The SPIRE Server runs as a Kubernetes StatefulSet (or Deployment if no [persistent storage]({{< ref "/get-started/kubernetes-platform/persistent-storage.md" >}}) is available). It has two containers - the actual `spire-server` and the `k8s-workload-registrar`.
+- **SPIRE Server**: The SPIRE Server runs as a Kubernetes StatefulSet (or Deployment if no [persistent storage]({{< ref "/get-started/platform-setup/persistent-storage.md" >}}) is available). It has two containers - the actual `spire-server` and the `k8s-workload-registrar`.
 
   - **spire-server**: The core of the NGINX Service Mesh mTLS architecture, `spire-server` is the certificate authority (CA) that issues certificates for workloads and pushes them to the SPIRE Agent. `spire-server` can be the root CA for all services in the mesh or an intermediate CA in the trust chain.
   - **k8s-workload-registrar**: When new Pods are created, `k8s-workload-registrar` makes API calls to request that `spire-server` generate a new certificate. `k8s-workload-registrar` communicates with `spire-server` through a Unix socket. The `k8s-workload-registrar` is based on a Kubernetes Custom Resource Definition (CRD).

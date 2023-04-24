@@ -14,16 +14,15 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 
-	"github.com/nginxinc/nginx-service-mesh/pkg/apis/mesh"
 	"github.com/nginxinc/nginx-service-mesh/pkg/k8s"
 	"github.com/nginxinc/nginx-service-mesh/pkg/k8s/fake"
 )
 
 func createMeshConfigMap(client kubernetes.Interface, namespace string) {
 	cfgMap := &v1.ConfigMap{
-		ObjectMeta: metav1.ObjectMeta{Namespace: namespace, Name: mesh.MeshConfigMap},
+		ObjectMeta: metav1.ObjectMeta{Namespace: namespace, Name: "mesh-config"},
 		BinaryData: map[string][]byte{
-			mesh.MeshConfigFileName: []byte(`{
+			"mesh-config.json": []byte(`{
 	"mtls": {
 		"caKeyType": "ec-p256",
 		"caTTL": "720h",
@@ -67,6 +66,7 @@ var _ = Describe("Upgrade", func() {
 	BeforeEach(func() {
 		var err error
 		fakeK8s = fake.NewFakeK8s(v1.NamespaceDefault, shouldSkipRelease)
+		Expect(err).ToNot(HaveOccurred())
 		upg, err = newUpgrader(fakeK8s, true)
 		Expect(err).ToNot(HaveOccurred())
 	})
@@ -75,7 +75,7 @@ var _ = Describe("Upgrade", func() {
 		It("upgrades the mesh using telemetry config", func() {
 			createMeshConfigMap(fakeK8s.ClientSet(), fakeK8s.Namespace())
 
-			Expect(upg.upgrade("x.x.x")).To(Succeed())
+			Expect(upg.upgrade("x.x.x", "")).To(Succeed())
 			// check some values
 			Expect(upg.values.Registry.ImageTag).To(Equal("x.x.x"))
 			Expect(upg.values.AccessControlMode).To(Equal("deny"))
@@ -170,5 +170,11 @@ var _ = Describe("Upgrade", func() {
 		}).Should(ContainSubstring("could not pull images"))
 
 		Expect(os.Remove(out.Name())).To(Succeed())
+	})
+
+	It("overrides registry server correctly when one is provided", func() {
+		createMeshConfigMap(fakeK8s.ClientSet(), fakeK8s.Namespace())
+		Expect(upg.upgrade("x.x.y", "gcr.io")).To(Succeed())
+		Expect(upg.values.Registry.Server).To(Equal("gcr.io"))
 	})
 })

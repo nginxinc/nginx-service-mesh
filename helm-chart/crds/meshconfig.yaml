@@ -1,0 +1,168 @@
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: meshconfigs.nsm.nginx.com
+  labels:
+    app.kubernetes.io/part-of: nginx-service-mesh
+spec:
+  group: nsm.nginx.com
+  names:
+    kind: MeshConfig
+    listKind: MeshConfigList
+    plural: meshconfigs
+    singular: meshconfig
+  scope: Namespaced
+  versions:
+  - name: v1alpha2
+    schema:
+      openAPIV3Schema:
+        description: MeshConfig defines the top level CustomResource for holding the dynamic mesh configuration.
+          This configuration can be updated by a user at runtime to change the global mesh settings.
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation
+              of an object. Servers should convert recognized schemas to the latest
+              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this
+              object represents. Servers may infer this from the endpoint the client
+              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: Spec defines the desired configuration for NGINX Service Mesh.
+            properties:
+              meshConfigClassName:
+                description: MeshConfigClassName used for this MeshConfig. This is
+                  the name of a MeshConfigClass resource.
+                minLength: 1
+                type: string
+              accessControlMode:
+                description: AccessControlMode for service-to-service communication.
+                enum:
+                - allow
+                - deny
+                type: string
+              clientMaxBodySize:
+                description: ClientMaxBodySize is NGINX client max body size.
+                pattern: ^\d+[kKmMgG]?$
+                type: string
+              mtls:
+                description: Mtls is the configuration for mutual TLS.
+                properties:
+                  caKeyType:
+                    description: CaKeyType is the key type used for the SPIRE Server CA.
+                    enum:
+                    - ec-p256
+                    - ec-p384
+                    - rsa-2048
+                    - rsa-4096
+                    type: string
+                  caTTL:
+                    description: CaTTL is the CA/signing key TTL in hours(h). Min
+                      value 24h. Max value 999999h.
+                    pattern: ^1[0-9]{2,5}(h)|2[4-9](h)|2[0-9][0-9]{1,5}(h)|[3-9][0-9]{1,5}(h)$
+                    type: string
+                  mode:
+                    description: Mode for pod-to-pod communication.
+                    enum:
+                    - "off"
+                    - permissive
+                    - strict
+                    type: string
+                  svidTTL:
+                    description: SvidTTL is the TTL of certificates issued to workloads
+                      in hours(h) or minutes(m). Max value is 999999.
+                    pattern: ^[1-9][0-9]{0,5}(h|m)$
+                    type: string
+                type: object
+              nginxErrorLogLevel:
+                description: NGINXErrorLogLevel is the NGINX error log level.
+                enum:
+                - debug
+                - info
+                - notice
+                - warn
+                - error
+                - crit
+                - alert
+                - emerg
+                type: string
+              nginxLBMethod:
+                description: NGINXLBMethod is the NGINX load balancing method.
+                enum:
+                - least_conn
+                - least_time
+                - least_time last_byte
+                - least_time last_byte inflight
+                - random
+                - random two
+                - random two least_conn
+                - random two least_time
+                - random two least_time=last_byte
+                - round_robin
+                type: string
+              nginxLogFormat:
+                description: NGINXLogFormat is the NGINX log format.
+                enum:
+                - default
+                - json
+                type: string
+              prometheusAddress:
+                description: PrometheusAddress is the address of a Prometheus server
+                  deployed in your Kubernetes cluster.
+                type: string
+              telemetry:
+                description: Telemetry is the configuration for telemetry.
+                properties:
+                  exporters:
+                    description: Exporters is the exporters configuration for telemetry.
+                    properties:
+                      otlp:
+                        description: Otlp is the configuration for an OTLP gRPC exporter.
+                        properties:
+                          host:
+                            description: Host of the OpenTelemetry gRPC exporter to connect to.
+                            minLength: 1
+                            type: string
+                          port:
+                            description: Port of the OpenTelemetry gRPC exporter to connect to.
+                            format: int32
+                            maximum: 65535
+                            minimum: 0
+                            type: integer
+                        type: object
+                    required:
+                    - otlp
+                    type: object
+                  samplerRatio:
+                    description: SamplerRatio is the percentage of traces that are
+                      processed and exported to the telemetry backend.
+                    maximum: 1
+                    minimum: 0
+                    type: number
+                    format: float
+                type: object
+            required:
+            - meshConfigClassName
+            type: object
+          status:
+            description: Status defines the configuration status for NGINX Service Mesh.
+            properties:
+              transparent:
+                description: Transparent status is updated once the mesh controller
+                  has successfully turned all sidecar proxies transparent.
+                type: boolean
+            required:
+            - transparent
+            type: object
+        required:
+        - spec
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}

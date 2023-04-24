@@ -10,6 +10,8 @@ categories: ["reference"]
 
 ## NGINX Service Mesh Version 1.7.0
 
+14 February 2023 
+
 <!-- vale off -->
 
 These release notes provide general information and describe known issues for NGINX Service Mesh version 1.7.0, in the following categories:
@@ -36,7 +38,7 @@ NGINX Service Mesh 1.7.0 includes the following updates:
 - For OpenShift deployments, NGINX Service Mesh now uses the open source [SPIFFE CSI Driver](https://github.com/spiffe/spiffe-csi).
 
 {{< important >}}
-OpenShift users see the [upgrade guide]({{< ref "/guides/upgrade.md#upgrade-to-170-in-openshift" >}}) for instructions on how to upgrade to this release version.
+OpenShift users see the [upgrade guide]({{< ref "/get-started/upgrade/upgrade.md#upgrade-to-170-in-openshift" >}}) for instructions on how to upgrade to this release version.
 {{< /important >}}
 
 

@@ -15,14 +15,14 @@ var ErrInput = errors.New("error validating input")
 // ErrCheckingExistence is returned when the mesh already exists.
 var ErrCheckingExistence = errors.New("error looking for existing mesh")
 
-// ErrMeshStatus is returned when the CLI cannot reach the mesh API.
-var ErrMeshStatus = errors.New("failed to connect to Mesh API Server, ensure you are authenticated with the Kubernetes API Server")
+// ErrMeshStatus is returned when the mesh controller is not ready.
+var ErrMeshStatus = errors.New("mesh controller unavailable")
 
 // ErrNotFound is returned when a 404 is returned by mesh API or mesh API is not running.
 var ErrNotFound = errors.New("not found")
 
-// ErrMeshAPIResponse is returned when the mesh API returns an error.
-var ErrMeshAPIResponse = errors.New("mesh API returned error")
+// ErrMeshControllerResponse is returned when the mesh controller returns an error.
+var ErrMeshControllerResponse = errors.New("mesh Controller returned error")
 
 // ErrK8sAPIResponse is returned when the k8s API returns an error.
 var ErrK8sAPIResponse = errors.New("kubernetes API returned error")

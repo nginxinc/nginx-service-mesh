@@ -11,10 +11,12 @@ docs: "DOCS-715"
 
 ## NGINX Service Mesh Version 1.2.1
 
+11 October 2021
+
 <!-- vale off -->
 
 This hotfix release resolves an issue affecting version 1.2.0 described below.
 
 **Update packaged version of Grafana to v8.1.7 to address CVE-2021-39226 (29195)**:
 
-Updates the packaged version of Grafana to v8.1.7. This update incorporates the fix for [CVE-2021-39226](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2021-39226), which affects Grafana's snapshot feature in versions 2.0.1 to 8.1.5.  See the [upgrade guide]({{< ref "/guides/upgrade.md#nginx-service-mesh-101" >}}) for instructions on upgrading.
+Updates the packaged version of Grafana to v8.1.7. This update incorporates the fix for [CVE-2021-39226](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2021-39226), which affects Grafana's snapshot feature in versions 2.0.1 to 8.1.5.  See the [upgrade guide]({{< ref "/get-started/upgrade/upgrade.md#nginx-service-mesh-101" >}}) for instructions on upgrading.

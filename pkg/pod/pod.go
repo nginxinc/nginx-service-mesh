@@ -93,8 +93,7 @@ func GetReplicaSetOwner(
 ) (string, string, error) {
 	var replicas appsv1.ReplicaSet
 	key := client.ObjectKey{Namespace: namespace, Name: name}
-	err := k8sClient.Get(ctx, key, &replicas)
-	if err != nil {
+	if err := k8sClient.Get(ctx, key, &replicas); err != nil {
 		return replicaset, name, fmt.Errorf("error getting replicaset: %w", err)
 	}
 

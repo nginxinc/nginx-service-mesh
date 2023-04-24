@@ -6,14 +6,14 @@ metadata:
   annotations:
     nsm.nginx.com/internal-route: "true"
 spec:
-  # ingressClassName: nginx # use only with k8s version >= 1.18.0
+  ingressClassName: nginx # use only with k8s version >= 1.18.0
   tls:
   rules:
   - host: target-v1-0.legacy
     http:
       paths:
       - path: /
-        pathType: Exact
+        pathType: Prefix
         backend:
           service:
             name: target-v1-0

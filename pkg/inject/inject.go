@@ -3,6 +3,7 @@ package inject
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -19,6 +20,7 @@ import (
 	k8sJson "k8s.io/apimachinery/pkg/runtime/serializer/json"
 	k8sYaml "k8s.io/apimachinery/pkg/util/yaml"
 	"k8s.io/kubectl/pkg/scheme"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/nginxinc/nginx-service-mesh/pkg/apis/mesh"
 )
@@ -76,7 +78,7 @@ type (
 // IntoFile takes a yaml or json resource file and adds the sidecar containers.
 func IntoFile(
 	injectConfig Inject,
-	meshConfig mesh.MeshConfig,
+	meshConfig mesh.FullMeshConfig,
 ) (string, error) {
 	var docs [][]byte
 	serializer := k8sJson.NewSerializerWithOptions(k8sJson.DefaultMetaFactory, nil, nil, k8sJson.SerializerOptions{Pretty: true})
@@ -84,8 +86,7 @@ func IntoFile(
 
 	if isJSON {
 		var resList metav1.List
-		err := json.Unmarshal(injectConfig.Resources, &resList)
-		if err != nil {
+		if err := json.Unmarshal(injectConfig.Resources, &resList); err != nil {
 			return "", fmt.Errorf("could not parse JSON document(s): %w", err)
 		}
 
@@ -201,7 +202,7 @@ func IntoFile(
 
 // Injects the sidecar into a PodSpec.
 func updateResource(
-	meshConfig mesh.MeshConfig,
+	meshConfig mesh.FullMeshConfig,
 	ignorePorts IgnorePorts,
 	meta *metav1.ObjectMeta,
 	spec *v1.PodSpec,
@@ -267,8 +268,7 @@ func writeResource(
 	var buff bytes.Buffer
 
 	if encode {
-		err := serializer.Encode(obj, &buff)
-		if err != nil {
+		if err := serializer.Encode(obj, &buff); err != nil {
 			glog.Errorf("skipping document. error encoding resource: %v", err)
 			output += string(doc)
 		} else {
@@ -302,8 +302,7 @@ func constructOutput(args injectTemplateArgs) (string, error) {
 		return "", fmt.Errorf("failed parsing inject template: %w", err)
 	}
 	var strBuilder strings.Builder
-	err = tmpl.Execute(&strBuilder, args)
-	if err != nil {
+	if err = tmpl.Execute(&strBuilder, args); err != nil {
 		return "", fmt.Errorf("failed executing inject template: %w", err)
 	}
 
@@ -317,4 +316,31 @@ func constructOutput(args injectTemplateArgs) (string, error) {
 	}
 
 	return formatted, nil
+}
+
+// IsNamespaceInjectable determines if namespace is injectable.
+func IsNamespaceInjectable(ctx context.Context, k8sClient client.Client, namespace string) (bool, error) {
+	// Never inject ignored namespaces.
+	for ignoredNS := range mesh.IgnoredNamespaces {
+		if namespace == ignoredNS {
+			return false, nil
+		}
+	}
+
+	eventNamespace := &v1.Namespace{}
+	key := client.ObjectKey{
+		Namespace: "",
+		Name:      namespace,
+	}
+	if err := k8sClient.Get(ctx, key, eventNamespace); err != nil {
+		return false, err
+	}
+
+	namespaceLabels := eventNamespace.GetLabels()
+
+	if val, ok := namespaceLabels[mesh.AutoInjectLabel]; ok && val == mesh.Enabled {
+		return true, nil
+	}
+
+	return false, nil
 }

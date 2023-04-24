@@ -10,18 +10,14 @@ docs: "DOCS-723"
 ## Overview
 
 Follow this tutorial to deploy the NGINX Ingress Controller with NGINX Service Mesh and an example application.
+All communication between the NGINX Ingress Controller and the example application will occur over mTLS.
 
 Objectives:
 
 - Deploy the NGINX Service Mesh.
 - Install NGINX Ingress Controller.
 - Deploy the example `bookinfo` app.
-  - {{< fa "download" >}} {{< link "/examples/bookinfo.yaml" >}}
 - Create a Kubernetes Ingress resource for the Bookinfo application.
-
-{{< note >}}
-All communication between the NGINX Ingress Controller and the Bookinfo application occurs over mTLS.
-{{< /note >}}
 
 {{< note >}}
 NGINX Ingress Controller can be used for free with NGINX Open Source. Paying customers have access to NGINX Ingress Controller with NGINX Plus.
@@ -34,17 +30,13 @@ To complete this tutorial, you must use either:
 
 ### Install NGINX Service Mesh
 
-{{< note >}}
 If you want to view metrics for NGINX Ingress Controller, ensure that you have deployed Prometheus and Grafana and then configure NGINX Service Mesh to integrate with them when installing. Refer to the [Monitoring and Tracing]( {{< ref "/guides/monitoring-and-tracing.md" >}} ) guide for instructions.
-{{< /note >}}
 
-Follow the installation [instructions]( {{< ref "/get-started/install.md" >}} ) to install NGINX Service Mesh on your Kubernetes cluster.
+Follow the installation [instructions]( {{< ref "/get-started/install/install.md" >}} ) to install NGINX Service Mesh on your Kubernetes cluster.
 You can either deploy the Mesh with the default value for [mTLS mode]( {{< ref "/guides/secure-traffic-mtls.md" >}} ), which is `permissive`, or set it to `strict`.
 
-{{< caution >}} 
-Before proceeding, verify that the mesh is running (Step 2 of the installation [instructions]( {{< ref "/get-started/install.md" >}} )).
-NGINX Ingress Controller will try to fetch certs from the Spire agent that gets deployed by NGINX Service Mesh on startup. If the mesh is not running, NGINX Ingress controller will fail to start.  
-{{< /caution >}}
+Before proceeding, verify that the mesh is running (Step 2 of the installation [instructions]( {{< ref "/get-started/install/install.md" >}} )).
+NGINX Ingress Controller will try to fetch certs from the Spire agent that gets deployed by NGINX Service Mesh on startup. If the mesh is not running, NGINX Ingress controller will fail to start.
 
 ### Install NGINX Ingress Controller
 
@@ -58,36 +50,35 @@ NGINX Ingress Controller will try to fetch certs from the Spire agent that gets 
     nginx-ingress   LoadBalancer   10.76.7.165   34.94.247.235   80:31287/TCP,443:31923/TCP   66s
     ```
  
- {{< note >}}
- At this point, you should have the NGINX Ingress Controller running in your cluster; you can deploy the Bookinfo example app to test out the mesh integration, or use NGINX Ingress controller to expose one of your own apps. 
- {{< /note >}}
+ At this point, you should have the NGINX Ingress Controller running in your cluster; you can deploy the Bookinfo example app to test out the mesh integration, or use NGINX Ingress controller to expose one of your own apps.
 
 ### Deploy the Bookinfo App
 
-Use `kubectl` to deploy the example `bookinfo` app.  
+1. Enable [automatic sidecar injection]( {{< ref "/guides/inject-sidecar-proxy.md#automatic-proxy-injection" >}} ) for the `default` namespace.
+1. Download the manifest for the `bookinfo` app.
+    - {{< fa "download" >}} {{< link "/examples/bookinfo.yaml" "bookinfo.yaml" >}}
+1. Use `kubectl` to deploy the example `bookinfo` app.
 
-If [automatic injection]( {{< ref "/guides/inject-sidecar-proxy.md#automatic-proxy-injection" >}} ) is enabled, NGINX Service Mesh will inject the sidecar proxy into the application pods automatically. Otherwise, use [manual injection]( {{< ref "/guides/inject-sidecar-proxy.md#manual-proxy-injection" >}} ) to inject the sidecar proxies.
+    ```bash
+    kubectl apply -f bookinfo.yaml
+    ```
 
-```bash
-kubectl apply -f bookinfo.yaml
-```
+1. Verify that all of the Pods are ready and in "Running" status:
 
-Verify that all of the Pods are ready and in "Running" status:
+    ```bash
+    kubectl get pods
 
-```bash
-kubectl get pods
+    NAME                              READY   STATUS    RESTARTS   AGE
+    details-v1-74f858558f-khg8t       2/2     Running   0          25s
+    productpage-v1-8554d58bff-n4r85   2/2     Running   0          24s
+    ratings-v1-7855f5bcb9-zswkm       2/2     Running   0          25s
+    reviews-v1-59fd8b965b-kthtq       2/2     Running   0          24s
+    reviews-v2-d6cfdb7d6-h62cb        2/2     Running   0          24s
+    reviews-v3-75699b5cfb-9jtvq       2/2     Running   0          24s
 
-NAME                              READY   STATUS    RESTARTS   AGE
-details-v1-74f858558f-khg8t       2/2     Running   0          25s
-productpage-v1-8554d58bff-n4r85   2/2     Running   0          24s
-ratings-v1-7855f5bcb9-zswkm       2/2     Running   0          25s
-reviews-v1-59fd8b965b-kthtq       2/2     Running   0          24s
-reviews-v2-d6cfdb7d6-h62cb        2/2     Running   0          24s
-reviews-v3-75699b5cfb-9jtvq       2/2     Running   0          24s
+    ```
 
-```
-
-Optionally, verify that the application works:
+(Optional) Verify that the application works:
 
 {{< note >}}
 The steps in this section only work with `permissive` [mTLS mode]( {{< ref "/guides/secure-traffic-mtls.md" >}} ). With `strict` mTLS mode, the sidecar will drop all traffic that is not encrypted with a certificate issued by NGINX Service Mesh, so the below steps won't work. For `strict` mTLS mode skip forward to the next section which covers how to [Expose the Bookinfo App](#expose-the-bookinfo-app).
@@ -110,7 +101,7 @@ Create an Ingress Resource to expose the Bookinfo application, using the example
 If using Kubernetes v1.18.0 or greater you must use `ingressClassName` in your Ingress resources. Uncomment line 6 in the resource below or the downloaded file, `bookinfo-ingress.yaml`.
 {{< /important >}}
 
-- {{< fa "download" >}} {{< link "/examples/nginx-ingress-controller/bookinfo-ingress.yaml" "`bookinfo-ingress.yaml`" >}}
+- {{< fa "download" >}} {{< link "/examples/nginx-ingress-controller/bookinfo-ingress.yaml" "bookinfo-ingress.yaml" >}}
 
 ```bash
 kubectl apply -f bookinfo-ingress.yaml
@@ -124,14 +115,14 @@ kind: Ingress
 metadata:
   name: bookinfo-ingress
 spec:
-  # ingressClassName: nginx # use only with k8s version >= 1.18.0
+  ingressClassName: nginx # use only with k8s version >= 1.18.0
   tls:
   rules:
   - host: bookinfo.example.com
     http:
       paths:
       - path: /
-        pathType: Exact
+        pathType: Prefix
         backend:
           service:
             name: productpage
