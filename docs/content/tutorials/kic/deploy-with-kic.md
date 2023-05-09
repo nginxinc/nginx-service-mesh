@@ -232,16 +232,27 @@ If you deploy NGINX Ingress Controller without mTLS enabled, the internal routes
 We do not recommend using the egress feature with a plaintext deployment of NGINX Ingress Controller.
 {{< /caution >}}
 
-To create an internal route, create an [Ingress resource](https://docs.nginx.com/nginx-ingress-controller/configuration/ingress-resources/) using the information of your non-meshed service and add the following annotation:
+To generate an internal route, create an [Ingress resource](https://docs.nginx.com/nginx-ingress-controller/configuration/ingress-resources/) or [VirtualServer resource](https://docs.nginx.com/nginx-ingress-controller/configuration/virtualserver-and-virtualserverroute-resources/) using the information for your non-meshed service.
+
+Add the following configuration, depending on the type of resource you created:
+
+- For an Ingress resource, add the following annotation to the resource definition:
 
  ```bash
 nsm.nginx.com/internal-route: "true"
 ```
 
+- For a VirtualServer resource, add the following field to the custom resource definition:
+
+ ```yaml
+spec:
+  internalRoute: true
+```
+
 If your non-meshed service is external to Kubernetes, follow the [ExternalName services example](https://github.com/nginxinc/kubernetes-ingress/tree/main/examples/custom-resources/externalname-services).
 
 {{<note>}}
-The `nsm.nginx.com/internal-route: "true"` Ingress annotation is still required for routing to external endpoints.
+The `nsm.nginx.com/internal-route: "true"` Ingress annotation or `internalRoute: true` VirtualServer field is still required for routing to external endpoints.
 {{</note>}}
 
 The [NGINX Ingress Controller egress tutorial]({{< ref "/tutorials/kic/egress-walkthrough.md" >}}) provides instructions for creating internal routes for non-meshed services.
