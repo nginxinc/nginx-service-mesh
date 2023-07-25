@@ -106,5 +106,5 @@ Tracing relies on the trace headers passed through each microservice in an appli
 
 If configured correctly, tracing data that is generated or propagated by the NGINX Service Mesh sidecar will be exported to the OTEL Collector, and then exported to the upstream collector(s), as shown in the following example diagram:
 
-{{< img src="/img/opentelemetry.png" alt="OpenTelemetry Data Flow" >}}
+{{< img src="img/opentelemetry.png" alt="OpenTelemetry Data Flow" >}}
 *Tracing data flow using the OpenTelemetry Collector*
