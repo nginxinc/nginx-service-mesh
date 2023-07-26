@@ -212,8 +212,8 @@ There is no workaround at this time, but the configuration can be changed dynami
 
 To fix the issue, take one or more of the following actions:
 
-- All load balancing annotations (config.nsm.nginx.com/lb-method) should be removed or updated to another supported algorithm (see [https://docs.nginx.com/nginx-service-mesh/get-started/configuration/](https://docs.nginx.com/nginx-service-mesh/get-started/configuration/)).
-- The global load balancing algorithm should be set to another supported algorithm (see [https://docs.nginx.com/nginx-service-mesh/get-started/configuration/](https://docs.nginx.com/nginx-service-mesh/get-started/configuration/)) .
+- All load balancing annotations (config.nsm.nginx.com/lb-method) should be removed or updated to another supported algorithm.
+- The global load balancing algorithm should be set to another supported algorithm.
   <br/><br/>
 
 
