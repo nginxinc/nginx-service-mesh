@@ -8,11 +8,11 @@ Docs are written in Markdown. We build the docs using [Hugo](https://gohugo.io) 
 
 1. To install Hugo locally, refer to the [Hugo installation instructions](https://gohugo.io/getting-started/installing/).
 
-    > **NOTE**: We don't support versions newer than v0.91 yet.
+    > **NOTE**: We are currently running [Hugo v0.115.3](https://github.com/gohugoio/hugo/releases/tag/v0.115.3) in production.
 
 2. We use markdownlint to check that Markdown files are correct. Use `npm` to install markdownlint-cli:
 
-    ```
+    ```shell
     npm install -g markdownlint-cli   
     ```
 
@@ -77,6 +77,21 @@ For example:
 ```md
 To install <product>, refer to the [installation instructions]({{< ref "install" >}}).
 ```
+
+### How to include images
+
+You can use the `img` [shortcode](#how-to-use-hugo-shortcodes) to add images into your documentation.
+
+1. Add the image to the static/img directory, or to the same directory as the doc you want to use it in.
+
+   **DO NOT include a forward slash at the beginning of the file path.** This will break the image when it's rendered.
+   See the docs for the [Hugo relURL Function](https://gohugo.io/functions/relurl/#input-begins-with-a-slash) to learn more.
+
+1. Add the img shortcode:
+
+   `{{< img src="<img-file.png>" >}}`
+
+> Note: The shortcode accepts all of the same parameters as the [Hugo figure shortcode](https://gohugo.io/content-management/shortcodes/#figure).
 
 ### How to use Hugo shortcodes
 

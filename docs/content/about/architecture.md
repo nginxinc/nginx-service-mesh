@@ -17,7 +17,7 @@ NGINX Service Mesh deploys two primary layers: a **control plane layer** that's 
 
 The control plane comprises multiple subsystems, each of which is explained below. Following the sidecar pattern, data plane elements replicate throughout the application in a 1:1 ratio with application workloads. Each data plane element is an identical instance using configuration data to shape its behavior and customize its relative position within the application topology.
 
-{{< img src="/img/architecture.png" alt="NGINX Service Mesh Architecture" >}}
+{{< img src="img/architecture.png" alt="NGINX Service Mesh Architecture" >}}
 *NGINX Service Mesh Architecture*
 
 ### NGINX Service Mesh Controllers
@@ -71,7 +71,7 @@ Once the sidecar receives traffic, it's able to do its work. For example, if mTL
 
 This section steps through some packet flow examples using the following diagram.
 
-{{< img src="/img/networking.png" alt="NGINX Service Mesh Networking Diagram">}}
+{{< img src="img/networking.png" alt="NGINX Service Mesh Networking Diagram">}}
 *NGINX Service Mesh Network Example*
 
 Key Concepts:
@@ -111,7 +111,7 @@ Use cases for eBPF include tracing, monitoring, and profiling. In NGINX Service 
 
 See the flow of a packet from generation to delivery to destination.
 
-{{< img src="/img/udp-egress.jpeg" alt="NGINX Service Mesh UDP Egress Networking Diagram" width="75%" >}}
+{{< img src="img/udp-egress.jpeg" alt="NGINX Service Mesh UDP Egress Networking Diagram" width="75%" >}}
 
 Here you can see the flow of a packet from generation by the workload to delivery to the destination workload. This diagram has abstracted away the destination pod networking specifics since that is covered in the above diagram.
 
@@ -127,7 +127,7 @@ The packet flows through the TC egress filter set up by the init container into 
 
 This section talks about the specifics of UDP networking for outgoing traffic.
 
-{{< img src="/img/udp-ingress.jpeg" alt="NGINX Service Mesh UDP Ingress Networking Diagram" width="75%" >}}
+{{< img src="img/udp-ingress.jpeg" alt="NGINX Service Mesh UDP Ingress Networking Diagram" width="75%" >}}
 
 The diagram shows that the source of the packet is coming from an external source workload. Once the packet finds its way into the network namespace of the destination pod, the `XDP` eBPF hook triggers the execution of the custom eBPF program. This redirects the packet to the proxy container, rather than the workload itself while using the same PROXY protocol V2 header to maintain original destination information.
 
@@ -145,7 +145,7 @@ NGINX Service Mesh uses mutual TLS (mTLS) to encrypt and authenticate data sent 
 
 NGINX Service Mesh integrates [SPIRE](https://github.com/spiffe/spire) as its central Certificate Authority (CA). SPIRE handles the entire lifecycle of the certificate: creation, distribution, and rotation. NGINX Plus uses SPIRE-issued certificates to establish mTLS sessions and encrypt traffic.
 
-{{< img src="/img/mtls.png" alt="NGINX Service Mesh mTLS Architecture Diagram">}}
+{{< img src="img/mtls.png" alt="NGINX Service Mesh mTLS Architecture Diagram">}}
 *NGINX Service Mesh mTLS Architecture*
 
 The important components in the diagram are:
@@ -267,7 +267,7 @@ See the [Traffic Metrics]({{< ref "/guides/smi-traffic-metrics.md" >}}) guide fo
 
 Here is an example of the tracing data flow using both DataDog and LightStep as the final collectors:
 
-{{< img src="/img/opentelemetry.png" alt="OpenTelemetry Data Flow" >}}
+{{< img src="img/opentelemetry.png" alt="OpenTelemetry Data Flow" >}}
 *Tracing data flow using the OpenTelemetry Collector*
 
 ### Ingress and Egress Traffic

@@ -386,7 +386,7 @@ Then you can navigate your browser to `localhost:3000` to view Grafana.
 
 Here is a view of the provided "NGINX Mesh Top" dashboard:
 
-{{< img src="/img/grafana.png" >}}
+{{< img src="img/grafana.png" >}}
 
 ## How NGINX Ingress Controller Integrates with NGINX Service Mesh
 
