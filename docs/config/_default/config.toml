@@ -8,6 +8,8 @@ description = "NGINX Service Mesh provides secure, service-to-service management
 refLinksErrorLevel = "ERROR"
 enableRobotsTXT = "true"
 #canonifyURLs = true
+pygmentsCodeFences = true
+pygmentsUseClasses = true
 
 [caches]
   [caches.modules]
