@@ -1,5 +1,5 @@
 <!-- markdownlint-disable-next-line first-line-h1 -->
-[![Slack](https://img.shields.io/badge/slack-%23nginx--ingress--controller-green?logo=slack)](https://nginxcommunity.slack.com/channels/nginx-service-mesh)
+[![Slack](https://img.shields.io/badge/slack-%23nginx--service--mesh-green?logo=slack)](https://nginxcommunity.slack.com/channels/nginx-service-mesh)
 [![Project Status: Inactive – The project has reached a stable, usable state but is no longer being actively developed.](https://www.repostatus.org/badges/latest/inactive.svg)](https://www.repostatus.org/#inactive)
 ![Community Support](https://badgen.net/badge/support/community/green?icon=awesome)
 
