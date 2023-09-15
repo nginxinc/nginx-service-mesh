@@ -1,3 +1,8 @@
+<!-- markdownlint-disable-next-line first-line-h1 -->
+[![Slack](https://img.shields.io/badge/slack-%23nginx--ingress--controller-green?logo=slack)](https://nginxcommunity.slack.com/channels/nginx-service-mesh)
+[![Project Status: Inactive – The project has reached a stable, usable state but is no longer being actively developed.](https://www.repostatus.org/badges/latest/inactive.svg)](https://www.repostatus.org/#inactive)
+![Community Support](https://badgen.net/badge/support/community/green?icon=awesome)
+
 # NGINX Service Mesh
 
 NGINX Service Mesh is a fully integrated lightweight service mesh that leverages a data plane powered by NGINX Plus to manage container traffic in Kubernetes environments.
