@@ -22,6 +22,7 @@ import (
 )
 
 const longRemove = `Remove the NGINX Service Mesh from your Kubernetes cluster.
+
 - Removes the resources created by the deploy command from the Service Mesh namespace (default: "nginx-mesh").
 - You will need to clean up all resources containing injected sidecar proxies manually.
 `

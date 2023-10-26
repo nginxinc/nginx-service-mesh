@@ -37,6 +37,7 @@ const (
 
 	longDeploy = `Deploy NGINX Service Mesh into your Kubernetes cluster.
 This command installs the following resources into your Kubernetes cluster by default:
+
 - NGINX Mesh Controller: The Control Plane for the Service Mesh.
 - NGINX Metrics API: SMI-formatted metrics.
 - SPIRE: mTLS service-to-service communication.
