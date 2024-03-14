@@ -3,6 +3,8 @@
 [![Project Status: Inactive – The project has reached a stable, usable state but is no longer being actively developed.](https://www.repostatus.org/badges/latest/inactive.svg)](https://www.repostatus.org/#inactive)
 ![Community Support](https://badgen.net/badge/support/community/green?icon=awesome)
 
+# Note: this project has been archived. This project is no longer under development. #
+
 # NGINX Service Mesh
 
 NGINX Service Mesh is a fully integrated lightweight service mesh that leverages a data plane powered by NGINX Plus to manage container traffic in Kubernetes environments.
